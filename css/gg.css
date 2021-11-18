@@ -1,0 +1,40 @@
+#btn-back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: none;
+}
+
+.btn-delete-player {
+    cursor: pointer;
+}
+
+/**
+ * Datatables Sorting icons on left
+ */
+
+table.dataTable thead > tr > th {
+    padding-left: 30px !important;
+    padding-right: initial !important;
+}
+
+table.dataTable thead .sorting:before,
+table.dataTable thead .sorting_asc:before,
+table.dataTable thead .sorting_desc:before {
+    left: 8px !important;
+    right: auto !important;
+}
+
+table.dataTable thead .sorting:after,
+table.dataTable thead .sorting_asc:after,
+table.dataTable thead .sorting_desc:after {
+    left: 16px !important;
+    right: auto !important;
+}
+
+table.dataTable thead td.sorting,
+table.dataTable thead td.sorting_asc,
+table.dataTable thead td.sorting_desc {
+    padding-left: 25px;
+    padding-right: 0 !important;
+}
