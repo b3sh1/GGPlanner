@@ -1,56 +1,184 @@
-// -------------------------- View -------------------------------------------------------------------------------------
+import * as Player from "./model/MPlayer.js";
+import {Squad} from "./model/MSquad.js";
+import * as PlayerForm from "./controller/CPlayerForm.js";
+import * as Toast from "./controller/CToast.js";
+import * as SquadTable from "./controller/CSquadTable.js";
 
 
-function tb_append_player(tb, player, id) {
-    // write player to the table
-    // name, age
-    let row = [
-        id,
-        player.name.to_str(),
-        player.age.to_str(),
-    ];
-    // other player attributes
-    for(let key in player_attributes) {
-        if(player_attributes[key].tb_show) {
-            row.push(player[key]);
-        }
-    }
-    // edit buttons
-    row.push('' +
-        '<div style="font-size: .75em">' +
-        '<button type="button" class="btn-delete-player btn btn-outline-info btn-sm ripple-surface me-1">' +
-        '<i class="fas fa-times fa-lg"></i>' +
-        '</button>' +
-        '<button type="button" class="btn-clone-player btn btn-outline-info btn-sm ripple-surface me-1">' +
-        '<i class="far fa-clone"></i>' +
-        '</button>' +
-        '<button type="button" class="btn-edit-player btn btn-outline-info btn-sm ripple-surface"' +
-        'data-mdb-toggle="modal" data-mdb-target="#modal-add-player">' +
-        '<i class="fas fa-pencil-alt"></i>' +
-        '</button>' +
-        '</div>'
-    );
-    tb.row.add(row);
-}
-
-// init table data from persistent storage
-function tb_init_players(tb) {
-    for(let id in players) {
-        if(id === 'next_id') {
-            continue;
-        }
-        tb_append_player(tb, players[id], id);
-    }
-    tb.draw();
-}
 
 
 //--------------------------- APP -------------------=------------------------------------------------------------------
+
 let players = {};
+
+function main() {
+    let squad = new Squad();
+
+    // const tb_squad_placeholder = '<div class="table-responsive px-3"><table id="tb-squad" class="table table-striped table-hover"></table></div>'
+    // new SectionCollapsible({
+    //     parent: $('#squad'),
+    //     name: "squad",
+    //     expanded: true,
+    //     children: [tb_squad_placeholder],
+    // }).render();
+    // --- table players -------------------------------------------------------------------------------------------
+    let tb_squad_header = [{title: 'id', width: 50}, {title: "Name", width: 300}, {title: "Age", width: 50}];
+    for (let key in Player.attributes) {
+        if (Player.attributes[key].tb_show) {
+            tb_squad_header.push({title: key.toUpperCase()});
+        }
+    }
+    tb_squad_header.push({title: "Edit", width: 155});
+    let tb_squad = $('#tb-squad').DataTable({
+        paging: false,
+        searching: false,
+        bInfo: false,
+        order: [[0, "asc"]],
+        columns: tb_squad_header,
+        autoWidth: true,
+        responsive: true,
+        fixedHeader: false,
+        columnDefs: [
+            {
+                targets: [0],
+                visible: true,
+            },
+            {
+                targets: [1],
+                responsivePriority: 1,
+            },
+            {
+                targets: [-1],
+                orderable: false,
+                responsivePriority: 2,
+            },
+        ],
+        createdRow: function (row, data, dataIndex) {
+            $('td:last-child', row).css('min-width', '155px');
+        },
+    });
+    // --- init squad table data ---
+    storage_load();
+    SquadTable.init(tb_squad, players);
+
+    // --- init player form - hidden modal ---
+    PlayerForm.init();
+
+    // --- listen to storage changes from other instances (sync) ---
+    window.addEventListener('storage', function () {
+        // this event fires only when storage was not modified from within this page
+        storage_load();
+        tb_squad.clear();
+        SquadTable.init(tb_squad, players);
+        // setting unique to not spam screen with toasts - only one + no autohide (=> delay=-1)
+        Toast.show({
+            result: 'warning', reason: 'Warning', msg: 'Data modified from other instance.', delay: -1, unique: true,
+        });
+    });
+    // --- button add players - opens modal ---
+    $("#btn-add-players").on("click", function () {
+        hide_form_buttons();
+        $("#btn-add-player").removeClass('d-none');
+        let player = new Player.Player().random();
+        PlayerForm.write(player);
+    });
+    // $("#modal-add-player").on('shown.bs.modal', function() {
+    //     $('#input-player-st').focus();
+    // });
+    // --- modal add/edit player buttons ---------------------------------------------------------------------------
+    // --- button add player - form submit ---
+    $("#btn-add-player").on("click", function () {
+        let player = new Player.Player(PlayerForm.read());
+        let result = add_player(tb_squad, player);
+        Toast.show(result);
+    });
+    // --- button save player - form submit ---
+    $("#btn-save-player").on("click", function () {
+        let player_data = PlayerForm.read();
+        let result = edit_player(player_data, player_data.id);
+        Toast.show(result);
+        // after editing rewrite the whole table
+        tb_squad.clear();
+        SquadTable.init(tb_squad, players);
+    });
+    // --- button random player ---
+    $("#btn-random-player").on("click", function () {
+        let player_data = PlayerForm.read();
+        // edit player
+        if (Number.parseInt(player_data.id) > 0) {
+            let player = new Player.Player(player_data).randomize_attributes();
+            PlayerForm.write(player, player_data.id);
+        }
+        // add player
+        else {
+            let player = new Player.Player().random();
+            PlayerForm.write(player);
+        }
+        // nick field label update - to not overlap with new randomized value
+        new mdb.Input($("#input-player-nick").parent('.form-outline').get(0)).update();
+    });
+    // --- button default player ---
+    $("#btn-default-player").on("click", function () {
+        let player_data = PlayerForm.read();
+        // edit player
+        if (Number.parseInt(player_data.id) > 0) {
+            // keep player name
+            let player = new Player.Player(player_data).load_from_preset(Player.presets.default);
+            PlayerForm.write(player, player_data.id);
+        }
+        // add player
+        else {
+            let player = new Player.Player(Player.presets.default);
+            PlayerForm.write(player);
+        }
+        // nick field label update - to not overlap with new randomized value
+        new mdb.Input($("#input-player-nick").parent('.form-outline').get(0)).update();
+    });
+    // -------------------------------------------------------------------------------------------------------------
+    // --- table player edit buttons -------------------------------------------------------------------------------
+    // --- button remove player ---
+    tb_squad.on('click', '.btn-delete-player', function () {
+        let result = remove_player(tb_squad, $(this.closest('tr')));
+        Toast.show(result);
+    });
+    // --- button edit player - opens modal ---
+    tb_squad.on('click', '.btn-edit-player', function () {
+        hide_form_buttons();
+        $("#btn-save-player").removeClass('d-none');
+        let player_id = tb_squad.row($(this.closest('tr'))).data()[0];
+        PlayerForm.write(get_player(player_id), player_id);
+    });
+    // --- button clone player ---
+    tb_squad.on('click', '.btn-clone-player', function () {
+        let result = clone_player(tb_squad, $(this.closest('tr')));
+        Toast.show(result);
+    });
+    // ------------------------------------------------------------------------------------------------------------
+    // --- decorate collapsible item with +/- ----------------------------------------------------------------------
+    $('.gg-collapsible').on('click', function () {
+        $(this).children('i').toggleClass('fas fa-plus fas fa-minus');
+    });
+    // --- back to top button --------------------------------------------------------------------------------------
+    let btn_back_to_top = $('#btn-back-to-top');
+    window.onscroll = function () {
+        if (
+            document.body.scrollTop > 20 ||
+            document.documentElement.scrollTop > 20
+        ) {
+            btn_back_to_top.fadeIn('fast');
+        } else {
+            btn_back_to_top.fadeOut('fast');
+        }
+    };
+    btn_back_to_top.on('click', function () {
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+    });
+}
 
 function save_new_player(player) {
     let id = players.next_id;
-    if(players[id]) {
+    if (players[id]) {
         return -1
     }
     players[id] = player;
@@ -61,13 +189,13 @@ function save_new_player(player) {
 
 function add_player(tb, player) {
     let is_big_squad = is_too_many_players();
-    if (is_big_squad.result){
+    if (is_big_squad.result) {
         return is_big_squad.toast_cfg;
     }
 
-    for(let key in players) {
-        if(key !== 'next_id'){
-            if(players[key].name.to_str() === player.name.to_str()) {
+    for (let key in players) {
+        if (key !== 'next_id') {
+            if (players[key].name.to_str() === player.name.to_str()) {
                 player.name.nick = derive_nick(player);
             }
         }
@@ -75,13 +203,13 @@ function add_player(tb, player) {
 
     let id = save_new_player(player);
 
-    if(id < 0) {
+    if (id < 0) {
         console.error("Trying to rewrite existing player from 'add_player()' function!");
         return {result: 'fail', reason: 'Error:', msg: 'Application error!'};
     }
 
     // write player to the table
-    tb_append_player(tb, player, id);
+    SquadTable.append(tb, player, id);
     tb.draw();
     return {result: 'success', reason: 'Added:', msg: player.name.to_str()};
 }
@@ -98,7 +226,7 @@ function edit_player(player_data, player_id) {
 
 function remove_player(tb, row) {
     let id = tb.row(row).data()[0];
-    if(!players[id]) {
+    if (!players[id]) {
         console.error("Trying to remove non-existing player!");
         return {result: 'fail', reason: 'Error:', msg: 'Application error!'};
     }
@@ -111,14 +239,14 @@ function remove_player(tb, row) {
 
 function clone_player(tb, row) {
     let id = tb.row(row).data()[0];
-    if(!players[id]) {
+    if (!players[id]) {
         console.error("Trying to duplicate non-existing player!");
         return {result: 'fail', reason: 'Error:', msg: 'Application error!'};
     }
     //deep copy player
     let player_data = JSON.stringify(players[id].to_simple_obj());
     player_data = JSON.parse(player_data);
-    let player = new Player(player_data);
+    let player = new Player.Player(player_data);
     player.name.nick = derive_nick(player);
     return add_player(tb, player);
 }
@@ -141,9 +269,9 @@ function derive_nick(player) {
         default:
             player.name.nick = `the ${nick_rank + 1}th`;
     }
-    for(let key in players) {
-        if(key !== 'next_id'){
-            if(players[key].name.to_str() === player.name.to_str()) {
+    for (let key in players) {
+        if (key !== 'next_id') {
+            if (players[key].name.to_str() === player.name.to_str()) {
                 player.name.nick = derive_nick(player);
             }
         }
@@ -152,19 +280,14 @@ function derive_nick(player) {
 }
 
 function get_nick_rank(nick) {
-    if((nick.slice(-2) === 'st' || nick.slice(-2) === 'nd' || nick.slice(-2) === 'rd' || nick.slice(-2) === 'th')
+    if ((nick.slice(-2) === 'st' || nick.slice(-2) === 'nd' || nick.slice(-2) === 'rd' || nick.slice(-2) === 'th')
         && nick.slice(0, 4) === 'the ' && (nick.length === 7 || nick.length === 8)) {
         return parseInt(nick.slice(-4, -2).trim());
     }
     return -1;
 }
 
-function generate_rnd_player() {
-    let player = new Player();
-    player.age.randomize();
-    player.randomize_attributes();
-    return player;
-}
+
 
 // don't allow to add more than 50 players
 function is_too_many_players() {
@@ -174,30 +297,29 @@ function is_too_many_players() {
     return {result: false, toast_cfg: null};
 }
 
+// write data to persistent storage
 function storage_save() {
-    // write players to persistent storage
     let serializable_players = {next_id: players.next_id};
-    for(let key in players){
-        if(key !== 'next_id'){
+    for (let key in players) {
+        if (key !== 'next_id') {
             serializable_players[key] = players[key].to_simple_obj();
         }
     }
     localStorage.setItem('players', JSON.stringify(serializable_players));
 }
 
+// load data from persistent storage
 function storage_load() {
     // init players with default val
     players = {next_id: 1};
     // read players from persistent storage
     let deserialized_players = JSON.parse(localStorage.getItem('players'));
-    if(deserialized_players) {
-        for(let key in deserialized_players) {
-            if(key === 'next_id'){
+    if (deserialized_players) {
+        for (let key in deserialized_players) {
+            if (key === 'next_id') {
                 players[key] = deserialized_players[key];
-            }
-            else
-            {
-                players[key] = new Player(deserialized_players[key]);
+            } else {
+                players[key] = new Player.Player(deserialized_players[key]);
             }
         }
     }
@@ -213,339 +335,22 @@ function mouse_leave(e) {
 
 function decorate_skill_value(v) {
     //return `<span class='badge' style='color: ${skill_lvl[v].txt_color}; background-color: ${skill_lvl[v].bg_color}'>${skill_lvl[v].name} (${v})</span>`
-    return `<span class='badge' style='color: ${skill_lvl[v].txt_color}; background-color: ${skill_lvl[v].bg_color}'>${v}</span>`
-}
-
-function rsv(){
-    return rand_int(0, 20);
-}
-
-//--------------------------- Utils ------------------------------------------------------------------------------------
-// min and max included
-function rand_int(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-function rand_item(arr) {
-    return arr[rand_int(0, arr.length-1)];
-}
-
-function constraint_val(val, min_val, max_val) {
-    val = Math.max(val, min_val);
-    val = Math.min(val, max_val);
-    return val;
-}
-
-function capitalize_first(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+    return `<span class='badge' style='color: ${Player.levels[v].txt_color}; 
+            background-color: ${Player.levels[v].bg_color}'>${v}</span>`
 }
 
 
-//--------------------------- Model ------------------------------------------------------------------------------------
-// --- Age ---
-let Age = function (years=17, days=0)
-{
-    this.years = years;
-    this.days = days;
-
-    this.add_days = function (days) {
-        this.days += days;
-        while (this.days >= 112) {
-            this.days -= 112;
-            this.years += 1;
-        }
-    };
-
-    this.add_week = function () {
-        this.add_days(7);
-    };
-
-    this.add_year = function () {
-        this.add_days(112);
-    };
-
-    this.randomize = function () {
-        this.years = rand_int(attribute_lvl.years.min, attribute_lvl.years.max);
-        this.days = rand_int(attribute_lvl.days.min, attribute_lvl.days.max);
-    };
-
-    this.to_str = function () {
-        return `${this.years}.${this.days}`;
-    }
-};
-
-// --- Name ---
-let Name = function (first="", nick="", last="") {
-    this.first = first;
-    this.nick = nick;
-    this.last = last;
-
-    this.to_str = function () {
-        let str_name = "";
-        if (this.first) {
-            str_name += this.first;
-        }
-        if (this.nick) {
-            if (str_name) {
-                str_name += " ";
-            }
-            str_name += `'${this.nick}'`;
-        }
-        if (this.last) {
-            if (str_name) {
-                str_name += " ";
-            }
-            str_name += this.last;
-        }
-        if (!str_name) {
-            str_name = "Invalid 'Erroneous' Player Name";
-        }
-        return str_name;
-    };
-
-    this.generate_random = function () {
-        this.first = rand_item(name_pool.first);
-        if (Math.random()<0.5) {
-            //with very low probability give player a nick
-            this.nick = rand_item(name_pool.nick);
-        }
-        else {
-            this.nick = "";
-        }
-        this.last = rand_item(name_pool.last);
-        return this.to_str();
-    };
-};
-
-// --- Player ---
-let Player = function (attr = {
-    years:17, days:0, fo:8, st:8, gk:0, df:0, pm:0, wg:0, pg:0, sc:0, sp:0, lo:20, hg:false, xp:1, ls:1, tsi:0,
-    first:"", nick:"", last:"", ht_id:-1, wage: 300, spec: 0, htms: 0, htms28: 0, cc: 0, fg: 0,
-}){
-    for(let key in attr) {
-        if(key in player_attributes) {
-            this[key] = attr[key];
-        }
-    }
-
-    this.age = new Age(attr.years, attr.days);
-
-    if(!(attr.first || attr.nick || attr.last)){
-        this.name = new Name();
-        this.name.generate_random();
-    }
-    else {
-        this.name = new Name(attr.first, attr.nick, attr.last);
-    }
-
-    this.randomize_attributes = function () {
-        for(let key in player_attributes) {
-            this[key] = this.randomize_attribute(attribute_lvl[player_attributes[key].type]);
-        }
-    }
-
-    this.randomize_attribute = function (attribute_levels) {
-        let att_val = rand_int(attribute_levels.min, attribute_levels.max);
-        if(attribute_levels.undefined && attribute_levels.undefined.includes(att_val)) {
-            att_val = this.randomize_attribute(attribute_levels);
-        }
-        return att_val;
-    }
-
-    this.to_simple_obj = function () {
-        let obj = {};
-        for(let key in player_attributes) {
-            obj[key] = this[key];
-        }
-
-        obj.years = this.age.years;
-        obj.days = this.age.days;
-
-        obj.first = this.name.first;
-        obj.nick = this.name.nick;
-        obj.last = this.name.last;
-
-        return obj;
-    }
-
-    this.from_simple_obj = function (obj) {
-        for(let key in player_attributes) {
-            if(key in obj) {
-                this[key] = obj[key];
-            }
-        }
-
-        if('years' in obj) {
-            this.age.years = obj.years;
-        }
-        if('days' in obj) {
-            this.age.days = obj.days;
-        }
-
-        if('first' in obj) {
-            this.name.first = obj.first;
-        }
-        if('nick' in obj) {
-            this.name.nick = obj.nick;
-        }
-        if('last' in obj) {
-            this.name.last = obj.last;
-        }
-    }
-
-    this.load_from_preset = function (preset) {
-        if(preset in preset_players) {
-            this.from_simple_obj(preset_players[preset]);
-            return true;
-        }
-        return false;
-    }
-};
-
-// Training
-let Training = function (cfg = {
-    coach: 7, assistants: 10, intensity: 1, stamina: 0.1, type: 'F_PM',
-    stop: {
-        weeks: {set: true, val: 320},
-        skill: {set: false, player_id: -1, type: null, lvl: -1},
-        age: {set: false, player_id: -1, years: -1, days: -1},
-    },
-}) {
-    // init
-    for(let key in cfg) {
-        this[key] = cfg[key];
-    }
-};
+// -------------------------- View -------------------------------------------------------------------------------------
 
 
-//--------------------------- Constants --------------------------------------------------------------------------------
-const player_attributes = {
-    "st":   {name: "Stamina",     type: "st",	    tb_show: true,	form_fld: true, },
-    "fo":   {name: "Form",		  type: "fo",	    tb_show: false,	form_fld: false, },
-    "gk":   {name: "Goalkeeping", type: "skill",	tb_show: true,	form_fld: true,	},
-    "df":   {name: "Defending",   type: "skill",	tb_show: true,	form_fld: true, },
-    "pm":   {name: "Playmaking",  type: "skill",	tb_show: true,	form_fld: true, },
-    "wg":   {name: "Winger",      type: "skill",	tb_show: true,	form_fld: true, },
-    "pg":   {name: "Passing",     type: "skill",	tb_show: true,	form_fld: true, },
-    "sc":   {name: "Scoring",     type: "skill",	tb_show: true,	form_fld: true, },
-    "sp":   {name: "Set pieces",  type: "skill",	tb_show: true,	form_fld: true, },
-    "lo":   {name: "Loyalty",     type: "skill",	tb_show: false,	form_fld: false, },
-    "ls":   {name: "Leadership",  type: "ls",	    tb_show: false,	form_fld: false, },
-    "hg":   {name: "Homegrown",   type: "bool",	    tb_show: false,	form_fld: false, },
-    "xp":   {name: "Experience",  type: "skill",	tb_show: false,	form_fld: false, },
-    "tsi":  {name: "Skill index", type: "num",      tb_show: false,	form_fld: false, },
-    "spec": {name: "Specialty",   type: "spec",	    tb_show: false,	form_fld: true, },
-    "htms": {name: "HTMS",        type: "num",	    tb_show: false,	form_fld: false, },
-    "htms28": {name: "HTMS28",    type: "num",      tb_show: false,	form_fld: false, },
-    "ht_id":   {name: "ID",       type: "num",      tb_show: false,	form_fld: false, },
-    "cc":   {name: "Nationality", type: "num",      tb_show: false,	form_fld: false, },
-    "fg":   {name: "Foreigner",   type: "bool",     tb_show: false,	form_fld: false, },
-    "wage": {name: "Wage",        type: "num",	    tb_show: false,	form_fld: false, },
-};
 
-const attribute_lvl = {
-    "skill": {
-        "max": 20,
-        "min": 0,
-        "step": 1.00,
-        20: {name: "divine", txt_color: "#FFFFFF", bg_color: "#094f29"},
-        19: {name: "utopian", txt_color: "#FFFFFF", bg_color: "#095826"},
-        18: {name: "magical", txt_color: "#FFFFFF", bg_color: "#0A6024"},
-        17: {name: "mythical", txt_color: "#FFFFFF", bg_color: "#0a6921"},
-        16: {name: "extra-terrestrial", txt_color: "#FFFFFF", bg_color: "#0F7323"},
-        15: {name: "titanic", txt_color: "#FFFFFF", bg_color: "#157E26"},
-        14: {name: "supernatural", txt_color: "#FFFFFF", bg_color: "#1a8828"},
-        13: {name: "world class", txt_color: "#FFFFFF", bg_color: "#278E32"},
-        12: {name: "magnificent", txt_color: "#FFFFFF", bg_color: "#35953C"},
-        11: {name: "brilliant", txt_color: "#FFFFFF", bg_color: "#429b46"},
-        10: {name: "outstanding", txt_color: "#FFFFFF", bg_color: "#4DA14F"},
-        9: {name: "formidable", txt_color: "#000000", bg_color: "#59A759"},
-        8: {name: "excellent", txt_color: "#000000", bg_color: "#64ad62"},
-        7: {name: "solid", txt_color: "#000000", bg_color: "#74B570"},
-        6: {name: "passable", txt_color: "#000000", bg_color: "#84BD7E"},
-        5: {name: "inadequate", txt_color: "#000000", bg_color: "#94c58c"},
-        4: {name: "weak", txt_color: "#000000", bg_color: "#A6CF9F"},
-        3: {name: "poor", txt_color: "#000000", bg_color: "#B8D8B2"},
-        2: {name: "wretched", txt_color: "#000000", bg_color: "#CAE2C6"},
-        1: {name: "disastrous", txt_color: "#000000", bg_color: "#DBECD9"},
-        0: {name: "non-existent", txt_color: "#000000", bg_color: "#EDF5EC"},
-    },
-    "st": {
-        "max": 9,
-        "min": 1,
-        9: {name: "formidable", txt_color: "#000000", bg_color: "#59A759"},
-        8: {name: "excellent", txt_color: "#000000", bg_color: "#64ad62"},
-        7: {name: "solid", txt_color: "#000000", bg_color: "#74B570"},
-        6: {name: "passable", txt_color: "#000000", bg_color: "#84BD7E"},
-        5: {name: "inadequate", txt_color: "#000000", bg_color: "#94c58c"},
-        4: {name: "weak", txt_color: "#000000", bg_color: "#A6CF9F"},
-        3: {name: "poor", txt_color: "#000000", bg_color: "#B8D8B2"},
-        2: {name: "wretched", txt_color: "#000000", bg_color: "#CAE2C6"},
-        1: {name: "disastrous", txt_color: "#000000", bg_color: "#DBECD9"},
-    },
-    "fo": {
-        "max": 8,
-        "min": 1,
-        8: {name: "excellent", txt_color: "#000000", bg_color: "#64ad62"},
-        7: {name: "solid", txt_color: "#000000", bg_color: "#74B570"},
-        6: {name: "passable", txt_color: "#000000", bg_color: "#84BD7E"},
-        5: {name: "inadequate", txt_color: "#000000", bg_color: "#94c58c"},
-        4: {name: "weak", txt_color: "#000000", bg_color: "#A6CF9F"},
-        3: {name: "poor", txt_color: "#000000", bg_color: "#B8D8B2"},
-        2: {name: "wretched", txt_color: "#000000", bg_color: "#CAE2C6"},
-        1: {name: "disastrous", txt_color: "#000000", bg_color: "#DBECD9"},
-    },
-    "ls": {
-        "max": 7,
-        "min": 1,
-        8: {name: "excellent", txt_color: "#000000", bg_color: "#64ad62"},
-        7: {name: "solid", txt_color: "#000000", bg_color: "#74B570"},
-        6: {name: "passable", txt_color: "#000000", bg_color: "#84BD7E"},
-        5: {name: "inadequate", txt_color: "#000000", bg_color: "#94c58c"},
-        4: {name: "weak", txt_color: "#000000", bg_color: "#A6CF9F"},
-        3: {name: "poor", txt_color: "#000000", bg_color: "#B8D8B2"},
-        2: {name: "wretched", txt_color: "#000000", bg_color: "#CAE2C6"},
-        1: {name: "disastrous", txt_color: "#000000", bg_color: "#DBECD9"},
-    },
-    "spec": {
-        "max": 8,
-        "min": 0,
-        "undefined": [7],
-        8: {name: "support", txt_color: "#000000", bg_color: "#64ad62"},
-        6: {name: "resilient", txt_color: "#000000", bg_color: "#84BD7E"},
-        5: {name: "head", txt_color: "#000000", bg_color: "#94c58c"},
-        4: {name: "unpredictable", txt_color: "#000000", bg_color: "#A6CF9F"},
-        3: {name: "powerful", txt_color: "#000000", bg_color: "#B8D8B2"},
-        2: {name: "quick", txt_color: "#000000", bg_color: "#CAE2C6"},
-        1: {name: "technical", txt_color: "#000000", bg_color: "#DBECD9"},
-        0: {name: "no specialty", txt_color: "#000000", bg_color: "#DBECD9"},
-    },
-    "bool": {
-        "max": 1,
-        "min": 0,
-        1: {name: "true", txt_color: "#000000", bg_color: "#DBECD9"},
-        0: {name: "false", txt_color: "#000000", bg_color: "#EDF5EC"},
-    },
-    "num": {
-        "max": 9999999,
-        "min": 0,
-    },
-    "years": {
-        "max": 41,
-        "min": 17,
-    },
-    "days": {
-        "max": 111,
-        "min": 0,
-    },
-};
+//--------------------------- View --------------------------------------------------------------------------------
 
-const preset_players = {
-    'default': {"years": 17, "days": 3, "st": 5, "fo": 7, "gk": 5, "df": 5, "pm": 5, "wg": 5, "pg": 5, "sc": 5, "sp": 5, "lo": 20, "ls": 3, "hg": 0, "xp": 2, "spec": 0,},
+function hide_form_buttons() {
+    $("#btn-add-player").addClass('d-none');
+    $("#btn-save-player").addClass('d-none');
 }
 
-const name_pool = {
-    'first': ["Bob", "Ivan", "John", "Mohammed", "Jose", "Martin", "Ahmed", "Wei", "Ali", "David", "Li", "Pedro"],
-    'nick': ["the Unstoppable", "der Bomber", "ChouChou", "el Muro", "Makač"],
-    'last': ["Wang", "Liu", "Kumar", "Hernandez", "Rodriguez", "Bennet", "Blanc", "Smith", "Doe", "Abadi", "Ayad"],
-}
+
+
+main();

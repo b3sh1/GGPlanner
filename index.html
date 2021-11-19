@@ -10,7 +10,8 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"/>
     <!-- Google Fonts -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"/>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"/>
     <!-- MDB -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.dark.min.css" rel="stylesheet"/>
     <!-- DataTables -->
@@ -56,7 +57,8 @@
                     >
                         <!-- Modal Add Player -->
                         <div class="col-sm p-3">
-                            <button id="btn-add-players" type="button" class="btn btn-info btn-block" data-mdb-toggle="modal"
+                            <button id="btn-add-players" type="button" class="btn btn-info btn-block"
+                                    data-mdb-toggle="modal"
                                     data-mdb-target="#modal-add-player">
                                 Add Players
                             </button>
@@ -156,7 +158,8 @@
                         <div class="row">
                             <div class="col-md">
                                 <div class="form-outline mb-4">
-                                    <input type="text" id="input-player-first" name="first" class="form-control" autocomplete="off">
+                                    <input type="text" id="input-player-first" name="first" class="form-control"
+                                           autocomplete="off">
                                     <label class="form-label" for="input-player-first" style="margin-left: 0px;">
                                         First name
                                     </label>
@@ -164,7 +167,8 @@
                             </div>
                             <div class="col-md">
                                 <div class="form-outline mb-4">
-                                    <input type="text" id="input-player-nick" name="nick" class="form-control" autocomplete="off">
+                                    <input type="text" id="input-player-nick" name="nick" class="form-control"
+                                           autocomplete="off">
                                     <label class="form-label" for="input-player-nick" style="margin-left: 0px;">
                                         Nickname
                                     </label>
@@ -172,7 +176,8 @@
                             </div>
                             <div class="col-md">
                                 <div class="form-outline mb-4">
-                                    <input type="text" id="input-player-last" name="last" class="form-control" autocomplete="off">
+                                    <input type="text" id="input-player-last" name="last" class="form-control"
+                                           autocomplete="off">
                                     <label class="form-label" for="input-player-last" style="margin-left: 0px;">
                                         Last name
                                     </label>
@@ -182,7 +187,8 @@
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="form-outline mb-4">
-                                    <input type="number" id="input-player-years" name="years" min="17" max="39" class="form-control" autocomplete="off">
+                                    <input type="number" id="input-player-years" name="years" min="17" max="39"
+                                           class="form-control" autocomplete="off">
                                     <label class="form-label" for="input-player-years" style="margin-left: 0px;">
                                         Years
                                     </label>
@@ -190,7 +196,8 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-outline mb-4">
-                                    <input type="number" id="input-player-days" name="days" min="0" max="111" class="form-control" autocomplete="off">
+                                    <input type="number" id="input-player-days" name="days" min="0" max="111"
+                                           class="form-control" autocomplete="off">
                                     <label class="form-label" for="input-player-days" style="margin-left: 0px;">
                                         Days
                                     </label>
@@ -203,7 +210,8 @@
                                         Specialty
                                     </label>
                                 </div>
-                                <select id="select-player-spec" name="spec" class="form-select form-select-sm border border-0 p-0 ps-2"
+                                <select id="select-player-spec" name="spec"
+                                        class="form-select form-select-sm border border-0 p-0 ps-2"
                                         aria-label="select specialty"
                                         style="color: #c7c7c7; background-color: #424242; z-index: 1080; outline: none;
                                         box-shadow: none; font-size: 1em; position: relative; top: -53px; left: 2px; width: 99%">
@@ -220,22 +228,27 @@
             </div>
             <div class="modal-footer">
                 <!-- random player -->
-                <button id="btn-random-player" type="button" class="btn btn-info ripple-surface" style="min-width: 150px;">
+                <button id="btn-random-player" type="button" class="btn btn-info ripple-surface"
+                        style="min-width: 150px;">
                     Randomize
                 </button>
                 <!-- default player -->
-                <button id="btn-default-player" type="button" class="btn btn-info ripple-surface" style="min-width: 150px;">
+                <button id="btn-default-player" type="button" class="btn btn-info ripple-surface"
+                        style="min-width: 150px;">
                     Default
                 </button>
                 <!-- edit player -->
-                <button id="btn-save-player" type="button" class="d-none btn btn-info ripple-surface" data-mdb-dismiss="modal" style="min-width: 150px;">
+                <button id="btn-save-player" type="button" class="d-none btn btn-info ripple-surface"
+                        data-mdb-dismiss="modal" style="min-width: 150px;">
                     Save Player
                 </button>
                 <!-- add player -->
-                <button id="btn-add-player" type="button" class="d-none btn btn-info ripple-surface" style="min-width: 150px;">
+                <button id="btn-add-player" type="button" class="d-none btn btn-info ripple-surface"
+                        style="min-width: 150px;">
                     Add Player
                 </button>
-                <button type="button" class="btn btn-danger ripple-surface" data-mdb-dismiss="modal" style="min-width: 84px;">
+                <button type="button" class="btn btn-danger ripple-surface" data-mdb-dismiss="modal"
+                        style="min-width: 84px;">
                     Close
                 </button>
             </div>
@@ -263,334 +276,18 @@
 <!-- DataTables -->
 <script type="text/javascript" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/fixedheader/3.2.0/js/dataTables.fixedHeader.min.js"></script>
+<script type="text/javascript"
+        src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+<script type="text/javascript"
+        src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script>
+<script type="text/javascript"
+        src="https://cdn.datatables.net/fixedheader/3.2.0/js/dataTables.fixedHeader.min.js"></script>
 
 <!-- MDB -->
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script>
 
 <!-- Custom scripts -->
-<script type="text/javascript" src="js/gg.js"></script>
+<script type="module" src="js/gg.js"></script>
 
-<!-- Dynamic Elements -->
-<script type="text/javascript">
-    // pop toast on screen
-    function show_toast(toast_cfg) {
-        // don't show more than 1 unique toasts (useful for sync toasts not to flood screen as they won't autohide)
-        if(toast_cfg.unique) {
-            let active_toasts = $('.toast.show .toast-body');
-            for(let i=0; i<active_toasts.length; i++) {
-                if(active_toasts[i].innerText === toast_cfg.msg) {
-                    return;
-                }
-            }
-        }
-        let toast_class, toast_icon = '';
-        let autohide = true;
-        let toast_delay = 2500;  //if -1 => then turn off autohide
-        if(toast_cfg.delay) {
-            toast_delay = toast_cfg.delay;
-            if(toast_delay === -1) {
-                autohide = false;
-            }
-        }
-        switch (toast_cfg.result) {
-            case 'success':
-                toast_class = 'bg-success';
-                toast_icon = 'fa-check';
-                break;
-            case 'fail':
-                toast_class = 'bg-danger';
-                toast_icon = 'fa-exclamation-circle';
-                break;
-            case 'warning':
-                toast_class = 'bg-warning';
-                toast_icon = 'fa-exclamation-triangle';
-                break;
-            default:
-                break;
-        }
-        let toast_html = `
-            <div class="toast hide fade ${toast_class} text-white mt-3" role="alert" aria-live="assertive" aria-atomic="true"
-                data-bs-delay="${toast_delay}" data-bs-autohide="${autohide}" style="max-width: 180px; font-size: .75em" >
-                <div class="toast-header ${toast_class} text-white">
-                    <i class="fas ${toast_icon} fa-lg me-2"></i>
-                    <strong class="me-auto">${toast_cfg.reason}</strong>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body">${toast_cfg.msg}</div>
-            </div>`;
-        let el_toast = $(toast_html).prependTo('#alert-panel');
-        new bootstrap.Toast(el_toast).show();
-    }
-
-    function init_player_form() {
-        let el_form = $('#player-form');
-        let html_form = "";
-        let html_row = "<div class=\"row\"></div>";
-        let max_inputs_int_row = 4;
-        let cur_input = 0;
-        let el_dyn_inputs; //row that holds inputs (initialized later, because we can have more rows)
-        for(let key in player_attributes) {
-            if(player_attributes[key].form_fld) {
-                let input_type = "number";
-                if(key === 'spec') {
-                    // add options to select
-                    let html_options = "";
-                    for(let spec_int in attribute_lvl.spec) {
-                        if(Number.isInteger(parseInt(spec_int))) {
-                            html_options += `
-                            <option value="${spec_int}">${capitalize_first(attribute_lvl.spec[spec_int].name)}</option>
-                            `
-                        }
-                    }
-                    $(html_options).appendTo("#select-player-spec");
-                    continue;
-                }
-                // create new row if max elements in row
-                if(cur_input % max_inputs_int_row === 0) {
-                    el_dyn_inputs = $(html_row).appendTo(el_form);
-                }
-                let min = attribute_lvl[player_attributes[key].type].min;
-                let max = attribute_lvl[player_attributes[key].type].max;
-                let step = attribute_lvl[player_attributes[key].type].step;
-
-                let html_input = `
-                    <div class="col-sm">
-                        <div class="form-outline mb-4">
-                            <input type="${input_type}" id="input-player-${key}" name="${key}" min="${min}" max="${max}" step="${step}" class="form-control active" autocomplete="off">
-                            <label class="form-label active" for="input-player-${key}" style="margin-left: 0px;">
-                                ${player_attributes[key].name}
-                            </label>
-                        </div>
-                    </div>`;
-                $(html_input).appendTo(el_dyn_inputs);
-                cur_input++;
-            }
-        }
-    }
-
-    function populate_add_player_form(player, id="0") {
-        $("#input-player-id").val(id);
-        $("#input-player-first").val(player.name.first);
-        $("#input-player-nick").val(player.name.nick);
-        $("#input-player-last").val(player.name.last);
-        $("#input-player-years").val(player.age.years);
-        $("#input-player-days").val(player.age.days);
-        for(let key in player_attributes) {
-            if (player_attributes[key].form_fld) {
-                let el_input = $(`#input-player-${key}`);
-                if(key === 'spec') {
-                    el_input.val(capitalize_first(attribute_lvl.spec[player[key]].name));
-                    $("#select-player-spec").val(player[key]).change();
-                    continue;
-                }
-                el_input.val(player[key]);
-                // init label notches to fit the text
-                new mdb.Input(el_input.parent('.form-outline').get(0)).init();
-            }
-        }
-    }
-
-    function populate_save_player_form(player, id) {
-        $("#input-player-id").val(id);
-        populate_add_player_form(player, id);
-    }
-
-    function read_add_player_form() {
-        let player_data = {};
-        $("#player-form input, #player-form select").each(function(){
-            let key = $(this).attr('name');
-            if(key) {
-                player_data[key] = $(this).val();
-            }
-        });
-        return player_data;
-    }
-
-    function hide_form_buttons() {
-        $("#btn-add-player").addClass('d-none');
-        $("#btn-save-player").addClass('d-none');
-    }
-
-    // // calculate text width in pixels
-    // function getTextWidth(text, font) {
-    //     // re-use canvas object for better performance
-    //     const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
-    //     const context = canvas.getContext("2d");
-    //     context.font = font;
-    //     const metrics = context.measureText(text);
-    //     return metrics.width;
-    // }
-
-</script>
-
-<script type="text/javascript">
-    $(document).ready(function () {
-        // const tb_squad_placeholder = '<div class="table-responsive px-3"><table id="tb-squad" class="table table-striped table-hover"></table></div>'
-        // new SectionCollapsible({
-        //     parent: $('#squad'),
-        //     name: "squad",
-        //     expanded: true,
-        //     children: [tb_squad_placeholder],
-        // }).render();
-        // --- table players -------------------------------------------------------------------------------------------
-        let tb_squad_header = [{title: 'id', width: 50}, {title: "Name", width: 300}, {title: "Age", width: 50}];
-        for (let key in player_attributes) {
-            if (player_attributes[key].tb_show) {
-                tb_squad_header.push({title: key.toUpperCase()});
-            }
-        }
-        tb_squad_header.push({title: "Edit", width: 155});
-        let tb_squad = $('#tb-squad').DataTable({
-            paging: false,
-            searching: false,
-            bInfo: false,
-            order: [[0, "asc"]],
-            columns: tb_squad_header,
-            autoWidth: true,
-            responsive: true,
-            fixedHeader: false,
-            columnDefs: [
-                {
-                    targets: [0],
-                    visible: true,
-                },
-                {
-                    targets: [1],
-                    responsivePriority: 1,
-                },
-                {
-                    targets: [-1],
-                    orderable: false,
-                    responsivePriority: 2,
-                },
-            ],
-            createdRow: function(row, data, dataIndex){
-                $('td:last-child', row).css('min-width', '155px');
-            },
-        });
-        // --- init squad table data ---
-        storage_load();
-        tb_init_players(tb_squad);
-
-        // --- init player form - hidden modal ---
-        init_player_form();
-
-        // --- listen to storage changes from other instances (sync) ---
-        window.addEventListener('storage', function(){
-            // this event fires only when storage was not modified from within this page
-            storage_load();
-            tb_squad.clear();
-            tb_init_players(tb_squad);
-            // setting unique to not spam screen with toasts - only one + no autohide (=> delay=-1)
-            show_toast({
-                result:'warning', reason:'Warning', msg:'Data modified from other instance.', delay: -1, unique: true,
-            });
-        });
-        // --- button add players - opens modal ---
-        $("#btn-add-players").on("click", function () {
-            hide_form_buttons();
-            $("#btn-add-player").removeClass('d-none');
-            let player = generate_rnd_player();
-            populate_add_player_form(player);
-        });
-        // $("#modal-add-player").on('shown.bs.modal', function() {
-        //     $('#input-player-st').focus();
-        // });
-        // --- modal add/edit player buttons ---------------------------------------------------------------------------
-        // --- button add player - form submit ---
-        $("#btn-add-player").on("click", function () {
-            let player = new Player(read_add_player_form());
-            let result = add_player(tb_squad, player);
-            show_toast(result);
-        });
-        // --- button save player - form submit ---
-        $("#btn-save-player").on("click", function () {
-            let player_data = read_add_player_form();
-            let result = edit_player(player_data, player_data.id);
-            show_toast(result);
-            // after editing rewrite the whole table
-            tb_squad.clear();
-            tb_init_players(tb_squad);
-        });
-        // --- button random player ---
-        $("#btn-random-player").on("click", function () {
-            let player_data = read_add_player_form();
-            // edit player
-            if(Number.parseInt(player_data.id) > 0) {
-                let player = new Player(player_data);
-                player.randomize_attributes();
-                populate_save_player_form(player, player_data.id);
-            }
-            // add player
-            else {
-                let player = generate_rnd_player();
-                populate_add_player_form(player);
-            }
-            // nick field label update - to not overlap with new randomized value
-            new mdb.Input($("#input-player-nick").parent('.form-outline').get(0)).update();
-        });
-        // --- button default player ---
-        $("#btn-default-player").on("click", function () {
-            let player_data = read_add_player_form();
-            // edit player
-            if(Number.parseInt(player_data.id) > 0) {
-                let player = new Player(player_data);
-                player.load_from_preset('default');
-                populate_save_player_form(player, player_data.id);
-            }
-            // add player
-            else {
-                let player = new Player();
-                player.load_from_preset('default');
-                populate_add_player_form(player);
-            }
-            // nick field label update - to not overlap with new randomized value
-            new mdb.Input($("#input-player-nick").parent('.form-outline').get(0)).update();
-        });
-        // -------------------------------------------------------------------------------------------------------------
-        // --- table player edit buttons -------------------------------------------------------------------------------
-        // --- button remove player ---
-        tb_squad.on('click', '.btn-delete-player', function () {
-            let result = remove_player(tb_squad, $(this.closest('tr')));
-            show_toast(result);
-        });
-        // --- button edit player - opens modal ---
-        tb_squad.on('click', '.btn-edit-player', function () {
-            hide_form_buttons();
-            $("#btn-save-player").removeClass('d-none');
-            let player_id = tb_squad.row($(this.closest('tr'))).data()[0];
-            populate_save_player_form(get_player(player_id), player_id);
-        });
-        // --- button clone player ---
-        tb_squad.on('click', '.btn-clone-player', function () {
-            let result = clone_player(tb_squad, $(this.closest('tr')));
-            show_toast(result);
-        });
-        // ------------------------------------------------------------------------------------------------------------
-        // --- decorate collapsible item with +/- ----------------------------------------------------------------------
-        $('.gg-collapsible').on('click', function () {
-            $(this).children('i').toggleClass('fas fa-plus fas fa-minus');
-        });
-        // --- back to top button --------------------------------------------------------------------------------------
-        let btn_back_to_top = $('#btn-back-to-top');
-        window.onscroll = function () {
-            if (
-                document.body.scrollTop > 20 ||
-                document.documentElement.scrollTop > 20
-            ) {
-                btn_back_to_top.fadeIn('fast');
-            } else {
-                btn_back_to_top.fadeOut('fast');
-            }
-        };
-        btn_back_to_top.on('click', function () {
-            document.body.scrollTop = 0;
-            document.documentElement.scrollTop = 0;
-        });
-    });
-</script>
 </body>
 </html>
