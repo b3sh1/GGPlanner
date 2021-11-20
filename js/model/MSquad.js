@@ -15,10 +15,7 @@ class Squad {
     add(player) {
         if (Object.keys(this.players).length > MAX_PLAYERS) {
             console.warn("Cannot have more than 50 players!");
-            throw {
-                name: "GG Error",
-                message: "Cannot have more than 50 players!"
-            }
+            throw new SquadError("Cannot have more than 50 players!");
         }
 
         for (let key in this.players) {
@@ -31,10 +28,7 @@ class Squad {
 
         if(id in this.players) {
             console.error("Trying to rewrite existing player from 'Squad.add(player)' function!");
-            throw {
-                name: "GG Error",
-                message: "Application error!"
-            }
+            throw new SquadError("Application error!");
         }
 
         this.players[id] = player;
@@ -49,10 +43,7 @@ class Squad {
     remove(player_id) {
         if (!(player_id in this.players)) {
             console.error("Trying to remove non-existing player!");
-            throw {
-                name: "GG Error",
-                message: "Application error!"
-            }
+            throw new SquadError("Application error!");
         }
         let player_name = this.players[player_id].name.to_str();
         delete this.players[player_id];
@@ -62,10 +53,7 @@ class Squad {
     clone(player_id) {
         if (!(player_id in this.players)) {
             console.error("Trying to clone non-existing player!");
-            throw {
-                name: "GG Error",
-                message: "Application error!"
-            }
+            throw new SquadError("Application error!");
         }
         let player = new Player.Player(this.players[player_id].to_simple_obj());
         return this.add(player);
@@ -135,4 +123,11 @@ class Squad {
     }
 }
 
-export {Squad};
+class SquadError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "SquadError";
+    }
+}
+
+export {Squad, SquadError};

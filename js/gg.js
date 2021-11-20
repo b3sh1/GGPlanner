@@ -1,5 +1,5 @@
 import * as Player from "./model/MPlayer.js";
-import {Squad} from "./model/MSquad.js";
+import {Squad, SquadError} from "./model/MSquad.js";
 import * as PlayerForm from "./controller/CPlayerForm.js";
 import * as Toast from "./controller/CToast.js";
 import {SquadTable} from "./controller/CSquadTable.js"
@@ -25,10 +25,10 @@ function main() {
         // this event fires only when storage was not modified from within this page
         squad.from_simple_obj(Storage.load(STORE_SQUAD));
         tb_squad.reload(squad);
-        // // setting unique to not spam screen with toasts - only one + no autohide (=> delay=-1)
-        // Toast.show({
-        //     result: 'warning', reason: 'Warning', msg: 'Data modified from other instance.', delay: -1, unique: true,
-        // });
+        // setting unique to not spam screen with toasts - only one + no autohide (=> delay=-1)
+        Toast.show({
+            result: 'warning', reason: 'Warning', msg: 'Data modified from other instance.', delay: -1, unique: true,
+        });
     });
 
 
@@ -40,20 +40,35 @@ function main() {
     // --- modal add/edit player buttons ---------------------------------------------------------------------------
     // --- button add player - form submit ---
     $("#btn-add-player").on("click", function () {
-        let player = new Player.Player(PlayerForm.read());
-        let player_id = squad.add(player);
-        Storage.save(STORE_SQUAD, squad.to_simple_obj())
-        tb_squad.append(player, player_id).draw();
-        // Toast.show(result);
+        try {
+            let player = new Player.Player(PlayerForm.read());
+            let player_id = squad.add(player);
+            Storage.save(STORE_SQUAD, squad.to_simple_obj())
+            tb_squad.append(player, player_id).draw();
+            Toast.show({result: 'success', reason: 'Added:', msg: player.name.to_str()});
+        }
+        catch (err) {
+            if(err instanceof SquadError) {
+                Toast.show({result: 'fail', reason: 'Error:', msg: err.message});
+            }
+        }
     });
+
     // --- button save player - form submit ---
     $("#btn-save-player").on("click", function () {
-        let player_data = PlayerForm.read();
-        let player = squad.edit(player_data, player_data.id);
-        Storage.save(STORE_SQUAD, squad.to_simple_obj())
-        // Toast.show(result);
-        // after editing rewrite the whole table
-        tb_squad.reload(squad);
+        try {
+            let player_data = PlayerForm.read();
+            let player = squad.edit(player_data, player_data.id);
+            Storage.save(STORE_SQUAD, squad.to_simple_obj())
+            // after editing rewrite the whole table
+            tb_squad.reload(squad);
+            Toast.show({result: 'success', reason: 'Edited:', msg: player.name.to_str()});
+        }
+        catch (err) {
+            if(err instanceof SquadError) {
+                Toast.show({result: 'fail', reason: 'Error:', msg: err.message});
+            }
+        }
     });
     // --- button random player ---
     $("#btn-random-player").on("click", function () {
@@ -63,7 +78,7 @@ function main() {
             let player = new Player.Player(player_data).randomize_attributes();
             PlayerForm.write(player, player_data.id);
         }
-        // add player - get also random name
+        // add player - generate also random name
         else {
             let player = new Player.Player().random();
             PlayerForm.write(player);
@@ -92,11 +107,18 @@ function main() {
     // --- table player edit buttons -------------------------------------------------------------------------------
     // --- button remove player ---
     tb_squad.datatable.on('click', '.btn-delete-player', function () {
-        let player_id = tb_squad.delete($(this.closest('tr')));
-        let player_name = squad.remove(player_id);
-        Storage.save(STORE_SQUAD, squad.to_simple_obj());
-        tb_squad.draw();
-        //Toast.show(result);
+        try {
+            let player_id = tb_squad.delete($(this.closest('tr')));
+            let player_name = squad.remove(player_id);
+            Storage.save(STORE_SQUAD, squad.to_simple_obj());
+            tb_squad.draw();
+            Toast.show({result: 'warning', reason: "Removed:", msg: player_name});
+        }
+        catch (err) {
+            if(err instanceof SquadError) {
+                Toast.show({result: 'fail', reason: 'Error:', msg: err.message});
+            }
+        }
     });
     // --- button edit player => bootstrap auto-opens modal with form ---
     tb_squad.datatable.on('click', '.btn-edit-player', function () {
@@ -105,13 +127,20 @@ function main() {
     });
     // --- button clone player ---
     tb_squad.datatable.on('click', '.btn-clone-player', function () {
-        let old_player_id = tb_squad.get_id($(this.closest('tr')));
-        let new_player_id = squad.clone(old_player_id);
-        tb_squad.append(squad.get(new_player_id), new_player_id).draw();
-        Storage.save(STORE_SQUAD, squad.to_simple_obj());
-        //Toast.show(result);
+        try {
+            let old_player_id = tb_squad.get_id($(this.closest('tr')));
+            let new_player_id = squad.clone(old_player_id);
+            let new_player = squad.get(new_player_id);
+            tb_squad.append(new_player, new_player_id).draw();
+            Storage.save(STORE_SQUAD, squad.to_simple_obj());
+            Toast.show({result: 'success', reason: 'Added:', msg: new_player.name.to_str()});
+        }
+        catch (err) {
+            if(err instanceof SquadError) {
+                Toast.show({result: 'fail', reason: 'Error:', msg: err.message});
+            }
+        }
     });
-    // ------------------------------------------------------------------------------------------------------------
     // --- decorate collapsible item with +/- ----------------------------------------------------------------------
     $('.gg-collapsible').on('click', function () {
         $(this).children('i').toggleClass('fas fa-plus fas fa-minus');
