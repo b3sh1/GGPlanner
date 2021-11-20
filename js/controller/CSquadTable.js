@@ -1,5 +1,11 @@
 import * as Player from "../model/MPlayer.js";
 
+
+// these two decoration types cannot be turned on simultaneously
+const DECORATE_SKILLS = false;  // apply color badges according to skill lvl
+const DECORATE_COLUMNS = false;  // apply cell colors according to skill lvl
+
+
 class SquadTable {
     constructor() {
         this.datatable = this.init_datatable();
@@ -37,6 +43,22 @@ class SquadTable {
                     responsivePriority: 2,
                 },
             ],
+            rowCallback: function(row, data, index) {
+                if(DECORATE_COLUMNS) {
+                    for(let i=0; i<data.length; i++) {
+                        let lvl = data[i];
+                        let attr = tb_squad_header[i].title.toLowerCase();
+                        if(attr in Player.attributes){
+                            let attr_type = Player.attributes[attr].type;
+                            let styles = {
+                                color: Player.levels[attr_type][lvl].txt_color,
+                                backgroundColor : Player.levels[attr_type][lvl].bg_color,
+                            };
+                            $(row).find(`td:eq(${i})`).css(styles);
+                        }
+                    }
+                }
+            },
             createdRow: function (row, data, dataIndex) {
                 $('td:last-child', row).css('min-width', '155px');
             },
@@ -48,6 +70,7 @@ class SquadTable {
             this.append(squad.players[id], id);
         }
         this.datatable.draw();
+        return this;
     }
 
     append(player, id) {
@@ -61,7 +84,11 @@ class SquadTable {
         // other player attributes
         for (let attr in Player.attributes) {
             if (Player.attributes[attr].tb_show) {
-                row.push(player[attr]);
+                let skill_lvl = player[attr];
+                if(DECORATE_SKILLS) {
+                    skill_lvl = SquadTable.#decorate_skill(player[attr], Player.attributes[attr].type);
+                }
+                row.push(skill_lvl);
             }
         }
         // edit buttons
@@ -104,6 +131,18 @@ class SquadTable {
 
     draw() {
         this.datatable.draw();
+    }
+
+    static #decorate_skill(lvl, type, mode='compact') {
+        if(mode === 'compact') {
+            return `<span class='badge' style='color: ${Player.levels[type][lvl].txt_color}; 
+                background-color: ${Player.levels[type][lvl].bg_color}'>${lvl}</span>`
+        }
+        if(mode === 'extended') {
+            return `<span class='badge' style='color: ${Player.levels[type][lvl].txt_color}; 
+                background-color: ${Player.levels[type][lvl].bg_color}'>${Player.levels[type][lvl].name} (${lvl})</span>`
+        }
+        return lvl;
     }
 }
 

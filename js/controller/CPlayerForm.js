@@ -47,6 +47,13 @@ function init() {
 }
 
 function write(player, id="0") {
+    // show appropriate button
+    if(Number.parseInt(id) > 0) {
+        toggle_buttons('edit');
+    }
+    else {
+        toggle_buttons('add');
+    }
     $("#input-player-id").val(id);
     $("#input-player-first").val(player.name.first);
     $("#input-player-nick").val(player.name.nick);
@@ -77,6 +84,17 @@ function read() {
         }
     });
     return player_data;
+}
+
+function toggle_buttons(mode) {
+    if(mode === "add") {
+        $("#btn-save-player").addClass('d-none');
+        $("#btn-add-player").removeClass('d-none');
+    }
+    if(mode === "edit") {
+        $("#btn-add-player").addClass('d-none');
+        $("#btn-save-player").removeClass('d-none');
+    }
 }
 
 export {init, write, read};

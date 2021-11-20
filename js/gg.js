@@ -14,7 +14,8 @@ let players = {};
 
 function main() {
     let squad = new Squad().from_simple_obj(storage_load('squad'));
-    let tb_squad = new SquadTable();
+    let tb_squad = new SquadTable().load_data(squad);
+    PlayerForm.init();  // hidden for now
 
     // const tb_squad_placeholder = '<div class="table-responsive px-3"><table id="tb-squad" class="table table-striped table-hover"></table></div>'
     // new SectionCollapsible({
@@ -23,11 +24,6 @@ function main() {
     //     expanded: true,
     //     children: [tb_squad_placeholder],
     // }).render();
-
-    tb_squad.load_data(squad);
-
-    // --- init player form - hidden modal ---
-    PlayerForm.init();
 
     // --- listen to storage changes from other instances (sync) ---
     window.addEventListener('storage', function () {
@@ -43,8 +39,6 @@ function main() {
 
     // --- button add players - opens modal ---
     $("#btn-add-players").on("click", function () {
-        hide_form_buttons();
-        $("#btn-add-player").removeClass('d-none');
         let player = new Player.Player().random();
         PlayerForm.write(player);
     });
@@ -111,9 +105,6 @@ function main() {
     });
     // --- button edit player => bootstrap auto-opens modal with form ---
     tb_squad.datatable.on('click', '.btn-edit-player', function () {
-        hide_form_buttons();  // need to be refactored
-        $("#btn-save-player").removeClass('d-none'); // need to be refactored
-
         let player_id = tb_squad.get_id($(this.closest('tr')));
         PlayerForm.write(squad.get(player_id), player_id);
     });
@@ -159,12 +150,6 @@ function storage_load(name) {
     return JSON.parse(localStorage.getItem(name));
 }
 
-function decorate_skill_value(v) {
-    //return `<span class='badge' style='color: ${skill_lvl[v].txt_color}; background-color: ${skill_lvl[v].bg_color}'>${skill_lvl[v].name} (${v})</span>`
-    return `<span class='badge' style='color: ${Player.levels[v].txt_color}; 
-            background-color: ${Player.levels[v].bg_color}'>${v}</span>`
-}
-
 
 // -------------------------- View -------------------------------------------------------------------------------------
 
@@ -172,10 +157,7 @@ function decorate_skill_value(v) {
 
 //--------------------------- View --------------------------------------------------------------------------------
 
-function hide_form_buttons() {
-    $("#btn-add-player").addClass('d-none');
-    $("#btn-save-player").addClass('d-none');
-}
+
 
 
 
