@@ -3,17 +3,12 @@ import {Squad} from "./model/MSquad.js";
 import * as PlayerForm from "./controller/CPlayerForm.js";
 import * as Toast from "./controller/CToast.js";
 import {SquadTable} from "./controller/CSquadTable.js"
+import * as Storage from "./controller/CPersistentStorage.js"
 
-
-
-
-
-//--------------------------- APP -------------------=------------------------------------------------------------------
-
-let players = {};
+const STORE_SQUAD = "squad";
 
 function main() {
-    let squad = new Squad().from_simple_obj(storage_load('squad'));
+    let squad = new Squad().from_simple_obj(Storage.load(STORE_SQUAD));
     let tb_squad = new SquadTable().load_data(squad);
     PlayerForm.init();  // hidden for now
 
@@ -28,7 +23,7 @@ function main() {
     // --- listen to storage changes from other instances (sync) ---
     window.addEventListener('storage', function () {
         // this event fires only when storage was not modified from within this page
-        squad.from_simple_obj(storage_load('squad'));
+        squad.from_simple_obj(Storage.load(STORE_SQUAD));
         tb_squad.reload(squad);
         // // setting unique to not spam screen with toasts - only one + no autohide (=> delay=-1)
         // Toast.show({
@@ -47,7 +42,7 @@ function main() {
     $("#btn-add-player").on("click", function () {
         let player = new Player.Player(PlayerForm.read());
         let player_id = squad.add(player);
-        storage_save('squad', squad.to_simple_obj())
+        Storage.save(STORE_SQUAD, squad.to_simple_obj())
         tb_squad.append(player, player_id).draw();
         // Toast.show(result);
     });
@@ -55,7 +50,7 @@ function main() {
     $("#btn-save-player").on("click", function () {
         let player_data = PlayerForm.read();
         let player = squad.edit(player_data, player_data.id);
-        storage_save('squad', squad.to_simple_obj())
+        Storage.save(STORE_SQUAD, squad.to_simple_obj())
         // Toast.show(result);
         // after editing rewrite the whole table
         tb_squad.reload(squad);
@@ -99,7 +94,7 @@ function main() {
     tb_squad.datatable.on('click', '.btn-delete-player', function () {
         let player_id = tb_squad.delete($(this.closest('tr')));
         let player_name = squad.remove(player_id);
-        storage_save('squad', squad.to_simple_obj());
+        Storage.save(STORE_SQUAD, squad.to_simple_obj());
         tb_squad.draw();
         //Toast.show(result);
     });
@@ -113,7 +108,7 @@ function main() {
         let old_player_id = tb_squad.get_id($(this.closest('tr')));
         let new_player_id = squad.clone(old_player_id);
         tb_squad.append(squad.get(new_player_id), new_player_id).draw();
-        storage_save('squad', squad.to_simple_obj());
+        Storage.save(STORE_SQUAD, squad.to_simple_obj());
         //Toast.show(result);
     });
     // ------------------------------------------------------------------------------------------------------------
@@ -138,27 +133,5 @@ function main() {
         document.documentElement.scrollTop = 0;
     });
 }
-
-// write data to persistent storage
-function storage_save(name, simple_obj) {
-    localStorage.setItem(name, JSON.stringify(simple_obj));
-    return name;
-}
-
-// load data from persistent storage
-function storage_load(name) {
-    return JSON.parse(localStorage.getItem(name));
-}
-
-
-// -------------------------- View -------------------------------------------------------------------------------------
-
-
-
-//--------------------------- View --------------------------------------------------------------------------------
-
-
-
-
 
 main();
