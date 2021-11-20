@@ -1,4 +1,4 @@
-class CollapsibleSection {
+class VCollapsibleSection {
     constructor(props = {
         parent: null,
         name: '',
@@ -47,4 +47,4 @@ class CollapsibleSection {
     }
 }
 
-export {CollapsibleSection};
+export {VCollapsibleSection};
