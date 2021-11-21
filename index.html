@@ -61,9 +61,16 @@
                         </div>
 
                         <!-- Squad Table -->
+
                         <div class="px-3">
                             <table id="tb-squad" class="table table-sm table-striped table-hover" style="width: 100%">
                             </table>
+
+                            <div id="tb-loading-indicator" class="d-flex justify-content-center">
+                                <div class="spinner-border text-info" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -128,6 +135,8 @@
 </div>
 
 <!-- Hidden elements ------------------------------------------------------------------------------------- -->
+
+<section id="off-canvas"></section>
 
 <!-- Back to top button -->
 <button id="btn-back-to-top" type="button" class="btn btn-info btn-floating btn-lg" style="z-index: 1070">
@@ -214,11 +223,6 @@
                                 </select>
                             </div>
                         </div>
-
-                        <!--                        &lt;!&ndash; Submit button &ndash;&gt;-->
-                        <!--                        <button type="submit" class="btn btn-primary btn-block mb-4">-->
-                        <!--                            Place order-->
-                        <!--                        </button>-->
                     </form>
                 </section>
             </div>

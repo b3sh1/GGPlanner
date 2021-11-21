@@ -19,7 +19,7 @@ class SquadTable {
             }
         }
         tb_squad_header.push({title: "Edit", width: 155});
-        return $('#tb-squad').DataTable({
+        this.dttb = $('#tb-squad').DataTable({
             paging: false,
             searching: false,
             bInfo: false,
@@ -63,6 +63,8 @@ class SquadTable {
                 $('td:last-child', row).css('min-width', '155px');
             },
         });
+        $("#tb-loading-indicator").addClass('d-none');  // hide loading spinner
+        return this.dttb;
     }
 
     load_data(squad) {
