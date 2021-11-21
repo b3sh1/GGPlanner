@@ -4,12 +4,14 @@ import * as PlayerForm from "./controller/CPlayerForm.js";
 import * as Toast from "./controller/CToast.js";
 import {SquadTable} from "./controller/CSquadTable.js"
 import * as Storage from "./controller/CPersistentStorage.js"
+import * as Header from "./controller/CHeader.js"
 
 const STORE_SQUAD = "squad";
 
 function main() {
     let squad = new Squad().from_simple_obj(Storage.load(STORE_SQUAD));
     let tb_squad = new SquadTable().load_data(squad);
+    Header.init();
     PlayerForm.init();  // hidden for now
 
     // const tb_squad_placeholder = '<div class="table-responsive px-3"><table id="tb-squad" class="table table-striped table-hover"></table></div>'
@@ -163,4 +165,9 @@ function main() {
     });
 }
 
+// await new Promise(r => setTimeout(r, 5000));
 main();
+
+// $(document).ready(function () {
+//     main();
+// });
