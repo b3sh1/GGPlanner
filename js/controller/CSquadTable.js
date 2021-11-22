@@ -3,9 +3,9 @@ import * as Icons from "../view/VIcons.js";
 
 
 // these two decoration types cannot be turned on simultaneously
-const DECORATE_SKILLS = true;  // apply color badges according to skill lvl
+const DECORATE_SKILLS = false;  // apply color badges according to skill lvl
 const DECORATE_COLUMNS = false;  // apply cell colors according to skill lvl
-const DECORATE_ICONS = true;  // put icons if attribute specifies it
+const DECORATE_ICONS = true;  // put icons if attribute specifies it (e.q. specialties)
 
 
 class SquadTable {
@@ -91,13 +91,7 @@ class SquadTable {
         // other player attributes
         for (let attr in Player.attributes) {
             if (Player.attributes[attr].tb_show) {
-                let skill_lvl = player[attr];
-                if(DECORATE_SKILLS) {
-                    skill_lvl = SquadTable.#decorate_skill(player[attr], Player.attributes[attr].type);
-                }
-                if(DECORATE_ICONS) {
-                    skill_lvl = SquadTable.#decorate_icon(player[attr], Player.attributes[attr].type);
-                }
+                let skill_lvl = SquadTable.#decorate_skill(player[attr], Player.attributes[attr].type);
                 row.push(skill_lvl);
             }
         }
@@ -144,13 +138,18 @@ class SquadTable {
     }
 
     static #decorate_skill(lvl, type, mode='compact') {
-        if(mode === 'compact' && ('bg_color' in Player.levels[type][lvl])) {
-            return `<span class='badge' style='color: ${Player.levels[type][lvl].txt_color}; 
+        if(DECORATE_SKILLS) {
+            if(mode === 'compact' && ('bg_color' in Player.levels[type][lvl])) {
+                return `<span class='badge' style='color: ${Player.levels[type][lvl].txt_color}; 
                 background-color: ${Player.levels[type][lvl].bg_color}'>${lvl}</span>`
-        }
-        if(mode === 'extended' && ('bg_color' in Player.levels[type][lvl])) {
-            return `<span class='badge' style='color: ${Player.levels[type][lvl].txt_color}; 
+            }
+            if(mode === 'extended' && ('bg_color' in Player.levels[type][lvl])) {
+                return `<span class='badge' style='color: ${Player.levels[type][lvl].txt_color}; 
                 background-color: ${Player.levels[type][lvl].bg_color}'>${Player.levels[type][lvl].name} (${lvl})</span>`
+            }
+        }
+        if(DECORATE_ICONS) {
+            return  SquadTable.#decorate_icon(lvl, type);
         }
         // fallback
         return lvl;
