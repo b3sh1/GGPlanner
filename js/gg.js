@@ -25,7 +25,7 @@ function main() {
     // --- listen to storage changes from other instances (sync) ---
     window.addEventListener('storage', function () {
         // this event fires only when storage was not modified from within this page
-        squad.from_simple_obj(Storage.load(STORE_SQUAD));
+        squad = new Squad().from_simple_obj(Storage.load(STORE_SQUAD));
         tb_squad.reload(squad);
         // setting unique to not spam screen with toasts - only one + no autohide (=> delay=-1)
         Toast.show({
