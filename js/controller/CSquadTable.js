@@ -1,5 +1,5 @@
 import * as Player from "../model/MPlayer.js";
-import * as Icons from "../view/VIcons.js";
+import {Icons} from "../view/VIcons.js";
 
 
 // these two decoration types cannot be turned on simultaneously
@@ -158,7 +158,7 @@ class SquadTable {
     static #decorate_icon(lvl, type) {
         if('icon' in Player.levels[type][lvl] && Player.levels[type][lvl].icon)
         {
-            return Icons.specialty[lvl];
+            return Icons[type][lvl];
         }
         // fallback
         return lvl;

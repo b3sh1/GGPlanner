@@ -5,6 +5,7 @@ import * as Toast from "./controller/CToast.js";
 import {SquadTable} from "./controller/CSquadTable.js"
 import * as Storage from "./controller/CPersistentStorage.js"
 import * as Header from "./controller/CHeader.js"
+import {presets} from "./model/MPlayer.js";
 
 const STORE_SQUAD = "squad";
 
@@ -43,7 +44,7 @@ function main() {
     // --- button add player - form submit ---
     $("#btn-add-player").on("click", function () {
         try {
-            let player = new Player.Player(PlayerForm.read());
+            let player = new Player.Player().from_simple_obj(PlayerForm.read());
             let player_id = squad.add(player);
             Storage.save(STORE_SQUAD, squad.to_simple_obj())
             tb_squad.append(player, player_id).draw();
@@ -94,12 +95,16 @@ function main() {
         // edit player
         if (Number.parseInt(player_data.id) > 0) {
             // keep player name
-            let player = new Player.Player(player_data).load_from_preset(Player.presets.default);
+            let player_cfg = Player.presets.default;
+            player_cfg.first = player_data.first;
+            player_cfg.nick = player_data.nick;
+            player_cfg.last = player_data.last;
+            let player = new Player.Player(player_cfg);
             PlayerForm.write(player, player_data.id);
         }
         // add player
         else {
-            let player = new Player.Player(Player.presets.default);
+            let player = new Player.Player();
             PlayerForm.write(player);
         }
         // nick field label update - to not overlap with new randomized value

@@ -4,12 +4,7 @@ const P_NICK = 0.5; // probability of generating nick for player
 
 // --- Player ---
 class Player {
-    constructor(
-        cfg = {
-            years: 17, days: 0, fo: 8, st: 8, gk: 0, df: 0, pm: 0, wg: 0, pg: 0, sc: 0, sp: 0, lo: 20, hg: false, xp: 1,
-            ls: 1, tsi: 0, first: "", nick: "", last: "", ht_id: -1, wage: 300, spec: 0, htms: 0, htms28: 0, cc: 0,
-            fg: 0,
-    }) {
+    constructor(cfg = presets.default) {
         this.age = new Age(cfg.years, cfg.days);
 
         if (!(cfg.first || cfg.nick || cfg.last)) {
@@ -35,6 +30,7 @@ class Player {
     randomize_attributes() {
         for (let attr in attributes) {
             this[attr] = this.#randomize_attribute(levels[attributes[attr].type]);
+            console.log(attributes[attr].type);
         }
         return this;
     }
@@ -178,6 +174,9 @@ class Name {
 
 
 const attributes = {
+    sq:   {name: "Debuted",     type: "bool",	tb_show: true,	form_fld: false, },
+    tf:   {name: "Full training",type: "bool",  tb_show: true,	form_fld: false, },
+    th:   {name: "Half training",type: "bool",	tb_show: true,	form_fld: false, },
     spec: {name: "Specialty",   type: "spec",	tb_show: true,	form_fld: true, },
     st:   {name: "Stamina",     type: "st",	    tb_show: true,	form_fld: true, },
     fo:   {name: "Form",		type: "fo",	    tb_show: false,	form_fld: false, },
@@ -281,8 +280,8 @@ const levels = {
     bool: {
         max: 1,
         min: 0,
-        1: {name: "true",   },
-        0: {name: "false",  },
+        1: {name: "true",  checkbox: true, },
+        0: {name: "false", checkbox: true, },
     },
     num: {
         max: 9999999,
@@ -300,9 +299,10 @@ const levels = {
 
 const presets = {
     default: {
-        "years": 17, "days": 3, "st": 5, "fo": 7, "gk": 5, "df": 5, "pm": 5, "wg": 5, "pg": 5, "sc": 5, "sp": 5,
-        "lo": 20, "ls": 3, "hg": 0, "xp": 2, "spec": 0,
-    },
+        years: 17, days: 3, fo: 7, st: 5, gk: 5, df: 5, pm: 5, wg: 5, pg: 5, sc: 5, sp: 5, lo: 20, hg: 0, xp: 2, ls: 1,
+        tsi: 0, first: "", nick: "", last: "", ht_id: -1, wage: 300, spec: 0, htms: 0, htms28: 0, cc: 0, fg: 1, sq: 1,
+        tf: 1, th: 0,
+    }
 }
 
 const name_pool = {
