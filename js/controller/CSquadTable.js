@@ -1,9 +1,11 @@
 import * as Player from "../model/MPlayer.js";
+import * as Icons from "../view/VIcons.js";
 
 
 // these two decoration types cannot be turned on simultaneously
-const DECORATE_SKILLS = false;  // apply color badges according to skill lvl
+const DECORATE_SKILLS = true;  // apply color badges according to skill lvl
 const DECORATE_COLUMNS = false;  // apply cell colors according to skill lvl
+const DECORATE_ICONS = true;  // put icons if attribute specifies it
 
 
 class SquadTable {
@@ -50,10 +52,13 @@ class SquadTable {
                         let attr = tb_squad_header[i].title.toLowerCase();
                         if(attr in Player.attributes){
                             let attr_type = Player.attributes[attr].type;
-                            let styles = {
-                                color: Player.levels[attr_type][lvl].txt_color,
-                                backgroundColor : Player.levels[attr_type][lvl].bg_color,
-                            };
+                            let styles = {};
+                            if('bg_color' in Player.levels[attr_type][lvl]) {
+                                styles = {
+                                    color: Player.levels[attr_type][lvl].txt_color,
+                                    backgroundColor : Player.levels[attr_type][lvl].bg_color,
+                                }
+                            }
                             $(row).find(`td:eq(${i})`).css(styles);
                         }
                     }
@@ -89,6 +94,9 @@ class SquadTable {
                 let skill_lvl = player[attr];
                 if(DECORATE_SKILLS) {
                     skill_lvl = SquadTable.#decorate_skill(player[attr], Player.attributes[attr].type);
+                }
+                if(DECORATE_ICONS) {
+                    skill_lvl = SquadTable.#decorate_icon(player[attr], Player.attributes[attr].type);
                 }
                 row.push(skill_lvl);
             }
@@ -136,14 +144,24 @@ class SquadTable {
     }
 
     static #decorate_skill(lvl, type, mode='compact') {
-        if(mode === 'compact') {
+        if(mode === 'compact' && ('bg_color' in Player.levels[type][lvl])) {
             return `<span class='badge' style='color: ${Player.levels[type][lvl].txt_color}; 
                 background-color: ${Player.levels[type][lvl].bg_color}'>${lvl}</span>`
         }
-        if(mode === 'extended') {
+        if(mode === 'extended' && ('bg_color' in Player.levels[type][lvl])) {
             return `<span class='badge' style='color: ${Player.levels[type][lvl].txt_color}; 
                 background-color: ${Player.levels[type][lvl].bg_color}'>${Player.levels[type][lvl].name} (${lvl})</span>`
         }
+        // fallback
+        return lvl;
+    }
+
+    static #decorate_icon(lvl, type) {
+        if('icon' in Player.levels[type][lvl] && Player.levels[type][lvl].icon)
+        {
+            return Icons.specialty[lvl];
+        }
+        // fallback
         return lvl;
     }
 }
