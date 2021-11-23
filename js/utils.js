@@ -20,5 +20,14 @@ function constraint_val(val, min_val, max_val) {
     return val;
 }
 
+function round(num, decimals) {
+    let d = Math.pow(10, decimals);
+    return Math.round((num + Number.EPSILON) * d) / d;
+}
 
-export {rand_int, rand_item, capitalize_first, constraint_val};
+function round2(num) {
+    return round(num, 2);
+}
+
+
+export {rand_int, rand_item, capitalize_first, constraint_val, round, round2};

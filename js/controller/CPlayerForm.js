@@ -1,5 +1,5 @@
 import * as Player from "../model/MPlayer.js";
-import {capitalize_first} from "../utils.js";
+import {capitalize_first, round2} from "../utils.js";
 
 function init() {
     let el_form = $('#player-form');
@@ -68,7 +68,7 @@ function write(player, id="0") {
                 $("#select-player-spec").val(player[attr]).change();
                 continue;
             }
-            el_input.val(player[attr]);
+            el_input.val(round2(player[attr]));
             // init label notches to fit the text
             new mdb.Input(el_input.parent('.form-outline').get(0)).init();
         }

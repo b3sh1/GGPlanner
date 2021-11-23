@@ -16,7 +16,7 @@ class Player {
 
         for (let attr in cfg) {
             if (attr in attributes) {
-                this[attr] = cfg[attr];
+                this[attr] = Number.parseFloat(cfg[attr]);
             }
         }
     }
@@ -30,7 +30,6 @@ class Player {
     randomize_attributes() {
         for (let attr in attributes) {
             this[attr] = this.#randomize_attribute(levels[attributes[attr].type]);
-            console.log(attributes[attr].type);
         }
         return this;
     }
@@ -64,7 +63,7 @@ class Player {
     from_simple_obj(obj) {
         for (let attr in attributes) {
             if (attr in obj) {
-                this[attr] = obj[attr];
+                this[attr] = Number.parseFloat(obj[attr]);
             }
         }
 
@@ -88,6 +87,14 @@ class Player {
         return this;
     }
 
+    get_attributes(attrs = ['st', 'gk', 'df', 'pm', 'wg', 'pg', 'sc', 'sp']) {
+        let obj = {};
+        for(let attr of attrs) {
+            obj[attr] = this[attr];
+        }
+        return obj;
+    }
+
     load_from_preset(preset) {
         return this.from_simple_obj(preset);
     }
@@ -97,11 +104,12 @@ class Player {
 // --- Age ---
 class Age {
     constructor(years = 17, days = 0) {
-        this.years = years;
-        this.days = days;
+        this.years = Number.parseInt(years);
+        this.days = Number.parseInt(days);
     }
 
     add_days(days) {
+        days = Number.parseInt(days);
         this.days += days;
         while (this.days >= 112) {
             this.days -= 112;

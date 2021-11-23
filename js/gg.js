@@ -6,6 +6,7 @@ import {SquadTable} from "./controller/CSquadTable.js"
 import * as Storage from "./controller/CPersistentStorage.js"
 import * as Header from "./controller/CHeader.js"
 import {presets} from "./model/MPlayer.js";
+import {Training, TrainingStage, default_stage_cfg} from "./model/MTraining.js";
 
 const STORE_SQUAD = "squad";
 
@@ -14,6 +15,21 @@ function main() {
     let squad = new Squad().from_simple_obj(Storage.load(STORE_SQUAD));
     let tb_squad = new SquadTable().load_data(squad);
     PlayerForm.init();  // hidden for now
+
+    let ts_cfg = default_stage_cfg;
+    ts_cfg.stamina = 0.1;
+    // ts_cfg.stop.weeks.val = 335;
+    // ts_cfg.stop.skill = {active: true, player_id: 8, type: 'pm', lvl: 14.0};
+    ts_cfg.stop.age = {active: true, player_id: 8, years: 20, days: 31};
+    let TS = new TrainingStage(squad, ts_cfg);
+    let T = new Training([TS]);
+    T.calc();
+    console.log(T.stages[0].trained_squad.players[8].age);
+    console.log(T.stages[0].trained_squad.players[8].get_attributes());
+    console.log(T.stages[0].trained_squad.players[8].pm);
+    console.log(T.stages[0].trained_squad.players[9].age);
+    console.log(T.stages[0].trained_squad.players[9].get_attributes());
+    console.log(T.stages[0].trained_squad.players[9].pm);
 
     // const tb_squad_placeholder = '<div class="table-responsive px-3"><table id="tb-squad" class="table table-striped table-hover"></table></div>'
     // new SectionCollapsible({

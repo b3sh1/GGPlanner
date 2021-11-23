@@ -1,5 +1,6 @@
 import * as Player from "../model/MPlayer.js";
 import {Icons} from "../view/VIcons.js";
+import {round2} from "../utils.js";
 
 
 // these two decoration types cannot be turned on simultaneously
@@ -48,7 +49,7 @@ class SquadTable {
             rowCallback: function(row, data, index) {
                 if(DECORATE_COLUMNS) {
                     for(let i=0; i<data.length; i++) {
-                        let lvl = data[i];
+                        let lvl = Number.parseInt(data[i]);
                         let attr = tb_squad_header[i].title.toLowerCase();
                         if(attr in Player.attributes){
                             let attr_type = Player.attributes[attr].type;
@@ -138,14 +139,16 @@ class SquadTable {
     }
 
     static #decorate_skill(lvl, type, mode='compact') {
+        lvl = round2(lvl);
+        let lvl_key = Math.trunc(lvl);
         if(DECORATE_SKILLS) {
-            if(mode === 'compact' && ('bg_color' in Player.levels[type][lvl])) {
-                return `<span class='badge' style='color: ${Player.levels[type][lvl].txt_color}; 
-                background-color: ${Player.levels[type][lvl].bg_color}'>${lvl}</span>`
+            if(mode === 'compact' && ('bg_color' in Player.levels[type][lvl_key])) {
+                return `<span class='badge' style='color: ${Player.levels[type][lvl_key].txt_color}; 
+                background-color: ${Player.levels[type][lvl_key].bg_color}'>${lvl}</span>`
             }
-            if(mode === 'extended' && ('bg_color' in Player.levels[type][lvl])) {
-                return `<span class='badge' style='color: ${Player.levels[type][lvl].txt_color}; 
-                background-color: ${Player.levels[type][lvl].bg_color}'>${Player.levels[type][lvl].name} (${lvl})</span>`
+            if(mode === 'extended' && ('bg_color' in Player.levels[type][lvl_key])) {
+                return `<span class='badge' style='color: ${Player.levels[type][lvl_key].txt_color}; 
+                background-color: ${Player.levels[type][lvl_key].bg_color}'>${Player.levels[type][lvl_key].name} (${lvl})</span>`
             }
         }
         if(DECORATE_ICONS) {
@@ -156,9 +159,10 @@ class SquadTable {
     }
 
     static #decorate_icon(lvl, type) {
-        if('icon' in Player.levels[type][lvl] && Player.levels[type][lvl].icon)
+        let lvl_key = Math.trunc(lvl);
+        if('icon' in Player.levels[type][lvl_key] && Player.levels[type][lvl_key].icon)
         {
-            return Icons[type][lvl];
+            return Icons[type][lvl_key];
         }
         // fallback
         return lvl;
