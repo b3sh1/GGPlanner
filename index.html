@@ -89,8 +89,16 @@
 
                 <div
                         id="collapse_training"
-                        class="collapse px-3"
+                        class="collapse col-auto"
                 >
+                    <!-- Modal Add Training Stages -->
+                    <div class="col-sm p-3">
+                        <button id="btn-add-training-stages" type="button" class="btn btn-info btn-block"
+                                data-mdb-toggle="modal"
+                                data-mdb-target="#modal-add-training-stage">
+                            Add Training Stages
+                        </button>
+                    </div>
                     Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry
                     richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor
                     brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor,
@@ -158,7 +166,7 @@
                 <section id="section-player-form" class="shadow-5 p-4">
                     <form id="player-form">
                         <input type="hidden" id="input-player-id" name="id">
-                        <label hidden for="input-player-id"></label>
+                        <label hidden for="input-player-id">ID</label>
                         <!-- 2 column grid layout with text inputs for the first and last names -->
                         <div class="row">
                             <div class="col-md">
@@ -246,6 +254,155 @@
                 <button id="btn-add-player" type="button" class="d-none btn btn-info ripple-surface"
                         style="min-width: 150px;">
                     Add Player
+                </button>
+                <button type="button" class="btn btn-danger ripple-surface" data-mdb-dismiss="modal"
+                        style="min-width: 84px;">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Add Training Stage -->
+<div class="modal fade" id="modal-add-training-stage" tabindex="-1"
+     aria-labelledby="modal-add-training-stage-lbl" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog" style="max-width: 1200px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-add-training-stage-lbl">
+                    Training Stage Configuration
+                </h5>
+                <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <section id="section-training-stage-form" class="shadow-5 p-4">
+                    <form id="training-stage-form">
+                        <input type="hidden" id="input-training-stage-id" name="id">
+                        <label hidden for="input-training-stage-id">ID</label>
+                        <!-- 2 column grid layout with text inputs for the first and last names -->
+                        <hr class="my-2"/>
+                        <div class="row">
+                            <div class="col col-md">
+                                <div class="form-outline mb-4">
+                                    <input type="number" id="input-coach" name="coach" min="4" max="8"
+                                           class="form-control" autocomplete="off">
+                                    <label class="form-label" for="input-coach" style="margin-left: 0px;">
+                                        Coach
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col col-md">
+                                <div class="form-outline mb-4">
+                                    <input type="number" id="input-assistants" name="assistants" min="0" max="10"
+                                           class="form-control" autocomplete="off">
+                                    <label class="form-label" for="input-assistants" style="margin-left: 0px;">
+                                        Assistants
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col col-md">
+                                <div class="form-outline mb-4">
+                                    <input type="number" id="input-intensity" name="intensity" min="0" max="100"
+                                           class="form-control" autocomplete="off">
+                                    <label class="form-label" for="input-intensity" style="margin-left: 0px;">
+                                        Intensity %
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col col-md">
+                                <div class="form-outline mb-4">
+                                    <input type="number" id="input-stamina" name="stamina" min="10" max="100"
+                                           class="form-control" autocomplete="off">
+                                    <label class="form-label" for="input-stamina" style="margin-left: 0px;">
+                                        Stamina %
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col col-md">
+                                <div class="form-outline mb-4">
+                                    <input type="text" id="input-training" class="form-control" autocomplete="off">
+                                    <label class="form-label" for="input-training" style="margin-left: 0px;">
+                                        Training type
+                                    </label>
+                                </div>
+                                <select id="select-training" name="training"
+                                        class="form-select form-select-sm border border-0 p-0 ps-2"
+                                        aria-label="select training"
+                                        style="color: #c7c7c7; background-color: #424242; z-index: 1080; outline: none;
+                                        box-shadow: none; font-size: 1em; position: relative; top: -53px; left: 2px; width: 99%">
+                                </select>
+                            </div>
+                        </div>
+                        <h5 class="text-center">Training stage stop conditions</h5>
+                        <hr class="my-2"/>
+                        <div class="row">
+                            <div class="col col-lg-6">
+                                <div class="form-outline mb-4">
+                                    <input type="text" id="input-stop-condition" class="form-control" autocomplete="off">
+                                    <label class="form-label" for="input-stop-condition" style="margin-left: 0px;">
+                                        Stop condition
+                                    </label>
+                                </div>
+                                <select id="select-stop-condition" name="training"
+                                        class="form-select form-select-sm border border-0 p-0 ps-2"
+                                        aria-label="select stop condition"
+                                        style="color: #c7c7c7; background-color: #424242; z-index: 1080; outline: none;
+                                        box-shadow: none; font-size: 1em; position: relative; top: -53px; left: 2px; width: 99%">
+                                    <option value="weeks">Train for specified number of weeks</option>
+                                    <option value="age_first">First trained player reach specified age</option>
+                                    <option value="age_last">Last trained player reach specified age</option>
+                                    <option value="skill_first">First trained player reach specified lvl. in trained skill</option>
+                                    <option value="skill_last">Last trained player reach specified lvl. in trained skill</option>
+                                </select>
+                            </div>
+                            <div class="col col-md">
+                                <div class="form-outline mb-4">
+                                    <input type="number" id="input-stop-weeks" name="stop_weeks" min="1" max="335"
+                                           class="form-control" autocomplete="off">
+                                    <label class="form-label" for="input-stop-weeks" style="margin-left: 0px;">
+                                        Weeks #
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col col-md">
+                                <div class="form-outline mb-4">
+                                    <input type="number" id="input-stop-age-years" name="stop_age_years" min="17" max="37"
+                                           class="form-control" autocomplete="off">
+                                    <label class="form-label" for="input-stop-age-years" style="margin-left: 0px;">
+                                        Years
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col col-md">
+                                <div class="form-outline mb-4">
+                                    <input type="number" id="input-stop-age-days" name="stop_age_days" min="0" max="111"
+                                           class="form-control" autocomplete="off">
+                                    <label class="form-label" for="input-stop-age-days" style="margin-left: 0px;">
+                                        Days
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col col-md">
+                                <div class="form-outline mb-4">
+                                    <input type="number" id="input-stop-skill" name="stop_skill" min="1" max="30"
+                                           class="form-control" autocomplete="off">
+                                    <label class="form-label" for="input-stop-skill" style="margin-left: 0px;">
+                                        Skill lvl.
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </div>
+            <div class="modal-footer">
+                <!-- add player -->
+                <button id="btn-add-training-stage" type="button" class="btn btn-info ripple-surface"
+                        style="min-width: 150px;">
+                    Add Training Stage
                 </button>
                 <button type="button" class="btn btn-danger ripple-surface" data-mdb-dismiss="modal"
                         style="min-width: 84px;">

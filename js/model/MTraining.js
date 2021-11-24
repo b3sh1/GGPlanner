@@ -1,23 +1,31 @@
 import {Squad} from "./MSquad.js";
-import {Player} from "./MPlayer.js";
 import {constraint_val} from "../utils.js";
 
 const MAX_TRAINING_WEEKS = 335;
 
+
+// --- Training --------------------------------------------------------------------------------------------------------
 class Training {
-    constructor(stages = [new TrainingStage()]) {
+    constructor(squad, stages = []) {
+        this.starting_squad = squad;
+        this.trained_squads = [];
         this.stages = stages;
     }
 
     calc() {
+        let squad = new Squad().from_simple_obj(this.starting_squad.to_simple_obj());
         for(const stage of this.stages) {
-            stage.calc();
+            squad = stage.calc(squad);
+            this.trained_squads.push(new Squad().from_simple_obj(squad.to_simple_obj()));
         }
-        return this.stages;
+        console.log(squad.players[8].age);
+        console.log(squad.players[8].get_attributes());
+        return squad;
     }
 
-    add_stage(stage_cfg = default_stage_cfg) {
-        this.stages.push(new TrainingStage(stage_cfg));
+    add_stage(training_stage) {
+        this.stages.push(training_stage);
+        return this.stages.length;
     }
 
     to_simple_arr() {
@@ -39,18 +47,18 @@ class Training {
     }
 }
 
+// --- Training Stage --------------------------------------------------------------------------------------------------
 class TrainingStage {
-    constructor(squad, cfg = default_stage_cfg) {
+    constructor(cfg = default_stage_cfg) {
+        cfg = JSON.parse(JSON.stringify(cfg));  // deep-copy
         // init
-        this.squad = squad;
-        this.trained_squad = null;
         for (let key in default_stage_cfg) {
             this[key] = cfg[key];
         }
     }
 
-    calc() {
-        let squad = new Squad().from_simple_obj(this.squad.to_simple_obj());
+    calc(squad) {
+        // let squad = new Squad().from_simple_obj(this.squad.to_simple_obj());
         let stop = false;
         for(let i=0; i<this.stop.weeks.val; i++){
             for(const key in squad.players) {
@@ -98,8 +106,7 @@ class TrainingStage {
                 break;
             }
         }
-        this.trained_squad = squad;
-        return this.trained_squad;
+        return squad;
     }
 
     update_squad(squad) {
@@ -126,15 +133,16 @@ class TrainingStage {
 
 
 const default_stage_cfg = {
-    coach: 7, assistants: 10, intensity: 1.0, stamina: 0.1, training: 'F_PM',
+    coach: 8, assistants: 10, intensity: 1.0, stamina: 0.1, training: 'F_PM',
     stop: {
-        weeks: {active: true, val: MAX_TRAINING_WEEKS},
-        skill: {active: false, player_id: -1, type: null, lvl: -1},
-        age: {active: false, player_id: -1, years: -1, days: -1},
+        weeks: {active: true, val: 16},
+        skill: {active: false, player_id: -1, type: 'pm', lvl: 20},
+        age: {active: false, player_id: -1, years: 37, days: 111},
     }
 }
 
 
+// --- training prediction functions -----------------------------------------------------------------------------------
 function f_age(player_years) {
     return 54/(player_years+37);
 }
@@ -254,6 +262,7 @@ function f_stamina(player_years, stamina_lvl, stamina_share, train_int) {
 }
 
 
+// --- const -----------------------------------------------------------------------------------------------------------
 // training coefficients
 const TC = {
     coach: {
@@ -482,35 +491,35 @@ const training = {
     // all trainable skills
     "ALL": {skills: ['gk', 'df', 'pm', 'wg', 'pg', 'sc', 'sp']},
     // Focused
-    "F_GK": {name: "Keeper", category: "focused", skills: ['gk']},
-    "F_DF": {name: "Defending", category: "focused", skills: ['df']},
-    "F_PM": {name: "Playmaking", category: "focused", skills: ['pm']},
-    "F_WG": {name: "Winger", category: "focused", skills: ['wg']},
-    "F_PG": {name: "Passing", category: "focused", skills: ['pg']},
-    "F_SC": {name: "Scoring", category: "focused", skills: ['sc']},
-    "F_SP": {name: "Set pieces", category: "focused", skills: ['sp']},
+    "F_GK": {name: "Keeper", category: "Focused", skills: ['gk']},
+    "F_DF": {name: "Defending", category: "Focused", skills: ['df']},
+    "F_PM": {name: "Playmaking", category: "Focused", skills: ['pm']},
+    "F_WG": {name: "Winger", category: "Focused", skills: ['wg']},
+    "F_PG": {name: "Passing", category: "Focused", skills: ['pg']},
+    "F_SC": {name: "Scoring", category: "Focused", skills: ['sc']},
+    "F_SP": {name: "Set pieces", category: "Focused", skills: ['sp']},
     // Extended
-    "E_PG": {name: "Passing", category: "extended", skills: ['pg']},
-    "E_DF": {name: "Defending", category: "extended", skills: ['df']},
-    "E_WG": {name: "Winger", category: "extended", skills: ['wg']},
+    "E_DF": {name: "Defending", category: "Extended", skills: ['df']},
+    "E_WG": {name: "Winger", category: "Extended", skills: ['wg']},
+    "E_PG": {name: "Passing", category: "Extended", skills: ['pg']},
     // Combined
-    "C_SC&SP": {name: "Scoring and Set pieces", category: "combined", skills: ['sc', 'sp']},
+    "C_SC&SP": {name: "Scoring and Set pieces", category: "Combined", skills: ['sc', 'sp']},
     // Osmosis
-    "O_F_DF": {name: "Defending", category: "osmosis", subcategory: "focused", skills: ['df']},
-    "O_F_PM": {name: "Playmaking", category: "osmosis", subcategory: "focused", skills: ['pm']},
-    "O_F_WG": {name: "Winger", category: "osmosis", subcategory: "focused", skills: ['wg']},
-    "O_F_PG": {name: "Passing", category: "osmosis", subcategory: "focused", skills: ['pg']},
-    "O_F_SC": {name: "Scoring", category: "osmosis", subcategory: "focused", skills: ['sc']},
-    "O_E_PG": {name: "Passing", category: "osmosis", subcategory: "extended", skills: ['pg']},
-    "O_E_DF": {name: "Defending", category: "osmosis", subcategory: "extended", skills: ['df']},
-    "O_E_WG": {name: "Winger", category: "osmosis", subcategory: "extended", skills: ['wg']},
+    "O_F_DF": {name: "Defending", category: "osmosis", subcategory: "Focused", skills: ['df']},
+    "O_F_PM": {name: "Playmaking", category: "osmosis", subcategory: "Focused", skills: ['pm']},
+    "O_F_WG": {name: "Winger", category: "osmosis", subcategory: "Focused", skills: ['wg']},
+    "O_F_PG": {name: "Passing", category: "osmosis", subcategory: "Focused", skills: ['pg']},
+    "O_F_SC": {name: "Scoring", category: "osmosis", subcategory: "Focused", skills: ['sc']},
+    "O_E_PG": {name: "Passing", category: "osmosis", subcategory: "Extended", skills: ['pg']},
+    "O_E_DF": {name: "Defending", category: "osmosis", subcategory: "Extended", skills: ['df']},
+    "O_E_WG": {name: "Winger", category: "osmosis", subcategory: "Extended", skills: ['wg']},
 }
 
 const categories = {
-    focused: ["F_GK", "F_DF", "F_PM", "F_WG", "F_PG", "F_SC", "F_SP", ],
-    extended: ["E_PG", "E_DF", "E_WG", ],
-    combined: ["C_SC&SP", ],
-    osmosis: ["O_F_DF", "O_F_PM", "O_F_WG", "O_F_PG", "O_F_SC", "O_E_PG", "O_E_DF", "O_E_WG", ],
+    Focused: {training: ["F_GK", "F_DF", "F_PM", "F_WG", "F_PG", "F_SC", "F_SP", ], form_select: true},
+    Extended: {training: ["E_DF", "E_WG", "E_PG", ], form_select: true},
+    Combined: {training: ["C_SC&SP", ], form_select: true},
+    Osmosis: {training: ["O_F_DF", "O_F_PM", "O_F_WG", "O_F_PG", "O_F_SC", "O_E_PG", "O_E_DF", "O_E_WG", ], form_select: false},
 }
 
-export {Training, TrainingStage, default_stage_cfg};
+export {Training, TrainingStage, training, categories, default_stage_cfg, MAX_TRAINING_WEEKS};

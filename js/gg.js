@@ -1,10 +1,11 @@
 import * as Player from "./model/MPlayer.js";
 import {Squad, SquadError} from "./model/MSquad.js";
 import * as PlayerForm from "./controller/CPlayerForm.js";
+import * as TrainingStageForm from "./controller/CTrainingStageForm.js";
 import * as Toast from "./controller/CToast.js";
-import {SquadTable} from "./controller/CSquadTable.js"
-import * as Storage from "./controller/CPersistentStorage.js"
-import * as Header from "./controller/CHeader.js"
+import {SquadTable} from "./controller/CSquadTable.js";
+import * as Storage from "./controller/CPersistentStorage.js";
+import * as Header from "./controller/CHeader.js";
 import {presets} from "./model/MPlayer.js";
 import {Training, TrainingStage, default_stage_cfg} from "./model/MTraining.js";
 
@@ -15,21 +16,35 @@ function main() {
     let squad = new Squad().from_simple_obj(Storage.load(STORE_SQUAD));
     let tb_squad = new SquadTable().load_data(squad);
     PlayerForm.init();  // hidden for now
+    TrainingStageForm.init();
 
-    let ts_cfg = default_stage_cfg;
-    ts_cfg.stamina = 0.1;
-    // ts_cfg.stop.weeks.val = 335;
-    // ts_cfg.stop.skill = {active: true, player_id: 8, type: 'pm', lvl: 14.0};
-    ts_cfg.stop.age = {active: true, player_id: 8, years: 20, days: 31};
-    let TS = new TrainingStage(squad, ts_cfg);
-    let T = new Training([TS]);
-    T.calc();
-    console.log(T.stages[0].trained_squad.players[8].age);
-    console.log(T.stages[0].trained_squad.players[8].get_attributes());
-    console.log(T.stages[0].trained_squad.players[8].pm);
-    console.log(T.stages[0].trained_squad.players[9].age);
-    console.log(T.stages[0].trained_squad.players[9].get_attributes());
-    console.log(T.stages[0].trained_squad.players[9].pm);
+    let training = new Training(squad);
+    // // ts_cfg.stop.weeks.val = 335;
+    // // ts_cfg.stop.skill = {active: true, player_id: 8, type: 'pm', lvl: 14.0};
+    // // ts_cfg.stop.age = {active: true, player_id: 8, years: 18, days: 0};
+    // let TS1 = new TrainingStage();
+    // TS1.training = "F_PM";
+    // TS1.stop.age = {active: true, player_id: 8, years: 18, days: 0};
+    // let TS2 = new TrainingStage();
+    // TS2.training = "F_SC";
+    // TS2.stop.age = {active: true, player_id: 8, years: 19, days: 0};
+    // let T = new Training(squad,[TS1, TS2]);
+    // let TS3 = new TrainingStage();
+    // TS3.training = "F_WG";
+    // TS3.stop.age = {active: true, player_id: 8, years: 21, days: 0};
+    // T.add_stage(TS3);
+    // let trained_squad = T.calc();
+    // console.log(squad.players[8].age);
+    // console.log(squad.players[8].get_attributes());
+    // console.log(trained_squad.players[8].age);
+    // console.log(trained_squad.players[8].get_attributes());
+
+    // console.log(T.stages[2].trained_squad.players[8].age);
+    // console.log(T.stages[2].trained_squad.players[8].get_attributes());
+    // console.log(T.stages[2].trained_squad.players[8].pm);
+    // console.log(T.stages[2].trained_squad.players[9].age);
+    // console.log(T.stages[2].trained_squad.players[9].get_attributes());
+    // console.log(T.stages[2].trained_squad.players[9].pm);
 
     // const tb_squad_placeholder = '<div class="table-responsive px-3"><table id="tb-squad" class="table table-striped table-hover"></table></div>'
     // new SectionCollapsible({
@@ -64,6 +79,7 @@ function main() {
             let player_id = squad.add(player);
             Storage.save(STORE_SQUAD, squad.to_simple_obj())
             tb_squad.append(player, player_id).draw();
+            training.calc();
             Toast.show({result: 'success', reason: 'Added:', msg: player.name.to_str()});
         }
         catch (err) {
@@ -81,6 +97,7 @@ function main() {
             Storage.save(STORE_SQUAD, squad.to_simple_obj())
             // after editing rewrite the whole table
             tb_squad.reload(squad);
+            training.calc();
             Toast.show({result: 'success', reason: 'Edited:', msg: player.name.to_str()});
         }
         catch (err) {
@@ -135,6 +152,7 @@ function main() {
             let player_name = squad.remove(player_id);
             Storage.save(STORE_SQUAD, squad.to_simple_obj());
             tb_squad.draw();
+            training.calc();
             Toast.show({result: 'warning', reason: "Removed:", msg: player_name});
         }
         catch (err) {
@@ -156,6 +174,7 @@ function main() {
             let new_player = squad.get(new_player_id);
             tb_squad.append(new_player, new_player_id).draw();
             Storage.save(STORE_SQUAD, squad.to_simple_obj());
+            training.calc();
             Toast.show({result: 'success', reason: 'Added:', msg: new_player.name.to_str()});
         }
         catch (err) {
@@ -164,9 +183,33 @@ function main() {
             }
         }
     });
+
+    // --- button add training stage - opens modal ---
+    $("#btn-add-training-stages").on("click", function () {
+        let training_stage= new TrainingStage();
+        TrainingStageForm.write(training_stage);
+    });
+    // --- modal add/edit player buttons ---------------------------------------------------------------------------
+    // --- button add player - form submit ---
+    $("#btn-add-training-stage").on("click", function () {
+        try {
+            let training_stage = new TrainingStage(TrainingStageForm.read());
+            let n = training.add_stage(training_stage);
+            let trained_squad = training.calc();
+            Toast.show({result: 'success', reason: 'Added:', msg: `${n}. training stage`});
+        }
+        catch (err) {
+            console.error(err);
+            // if(err instanceof SquadError) {
+            //     Toast.show({result: 'fail', reason: 'Error:', msg: err.message});
+            // }
+        }
+    });
+
     // --- decorate collapsible item with +/- ----------------------------------------------------------------------
     $('.gg-collapsible').on('click', function () {
-        $(this).children('i').toggleClass('fas fa-plus fas fa-minus');
+        $(this).children('svg').toggleClass('fa-plus fa-minus');    // this works when font awesome is imported as js
+        $(this).children('i').toggleClass('fa-plus fa-minus');      // this works when font awesome is imported as css
     });
     // --- back to top button --------------------------------------------------------------------------------------
     let btn_back_to_top = $('#btn-back-to-top');
