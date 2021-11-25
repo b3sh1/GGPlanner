@@ -205,7 +205,6 @@ function main() {
             // }
         }
     });
-
     // --- decorate collapsible item with +/- ----------------------------------------------------------------------
     $('.gg-collapsible').on('click', function () {
         $(this).children('svg').toggleClass('fa-plus fa-minus');    // this works when font awesome is imported as js

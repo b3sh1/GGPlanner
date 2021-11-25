@@ -125,6 +125,15 @@ class Age {
         this.add_days(112);
     }
 
+    is_older_than(years, days) {
+        if(this.years > years) {
+            return true;
+        } else if(this.years === years && this.days > days) {
+            return true
+        }
+        return false;
+    }
+
     randomize() {
         this.years = rand_int(levels.years.min, levels.years.max);
         this.days = rand_int(levels.days.min, levels.days.max);

@@ -1,4 +1,5 @@
 import * as Training from "../model/MTraining.js";
+import {default_stage_cfg} from "../model/MTraining.js";
 
 
 function init() {
@@ -18,6 +19,36 @@ function init() {
         }
     }
     $(html_options).appendTo("#select-training");
+
+    // update condition form fields based on selected field
+    $('#select-stop-condition').on('change', function() {
+        switch ($("#select-stop-condition").val()) {
+            case "weeks": {
+                show_correct_stop_condition_fields(false, false);
+                break;
+            }
+            case "age_first": {
+                show_correct_stop_condition_fields(true, false);
+                break;
+            }
+            case "age_last": {
+                show_correct_stop_condition_fields(true, false);
+                break;
+            }
+            case "skill_first": {
+                show_correct_stop_condition_fields(false, true);
+                break;
+            }
+            case "skill_last": {
+                show_correct_stop_condition_fields(false, true);
+                break;
+            }
+            default: {
+                show_correct_stop_condition_fields(false, false);
+                break;
+            }
+        }
+    });
 }
 
 
@@ -36,23 +67,12 @@ function write(stage, id="0") {
     $("#input-stamina").val(stage.stamina * 100);
     $("#input-training").val(stage.training);
     $("#select-training").val(stage.training).change();
+    $("#input-stop-condition").val(stage.stop.weeks.val);
+    $("#select-stop-condition").val("weeks").change();
     $("#input-stop-weeks").val(stage.stop.weeks.val);
     $("#input-stop-age-years").val(stage.stop.age.years);
     $("#input-stop-age-days").val(stage.stop.age.days);
     $("#input-stop-skill").val(stage.stop.skill.lvl);
-    // show appropriate inputs for stop condition
-    $("#input-stop-weeks").closest(".col").removeClass('d-none');
-    $("#input-stop-age-years").closest(".col").addClass('d-none');
-    $("#input-stop-age-days").closest(".col").addClass('d-none');
-    $("#input-stop-skill").closest(".col").addClass('d-none');
-    if(stage.stop.age.active) {
-        $("#input-stop-weeks").closest(".col").addClass('d-none');
-        $("#input-stop-age-years").closest(".col").removeClass('d-none');
-        $("#input-stop-age-days").closest(".col").removeClass('d-none');
-    } else if(stage.stop.skill.active){
-        $("#input-stop-weeks").closest(".col").addClass('d-none');
-        $("#input-stop-skill").closest(".col").removeClass('d-none');
-    }
 }
 
 function read() {
@@ -113,21 +133,33 @@ function read() {
         }
         default: {
             stage_data.stop = Training.default_stage_cfg;
+            break;
         }
     }
 
     return stage_data;
 }
 
-// function toggle_buttons(mode) {
-//     if(mode === "add") {
-//         $("#btn-save-player").addClass('d-none');
-//         $("#btn-add-player").removeClass('d-none');
-//     }
-//     if(mode === "edit") {
-//         $("#btn-add-player").addClass('d-none');
-//         $("#btn-save-player").removeClass('d-none');
-//     }
-// }
+
+function show_correct_stop_condition_fields(age_active, skill_active) {
+    // show appropriate inputs for stop condition
+    $("#input-stop-weeks").closest(".col").removeClass('d-none');
+    $("#input-stop-age-years").closest(".col").addClass('d-none');
+    $("#input-stop-age-days").closest(".col").addClass('d-none');
+    $("#input-stop-skill").closest(".col").addClass('d-none');
+    if(age_active) {
+        $("#input-stop-weeks").closest(".col").addClass('d-none');
+        $("#input-stop-age-years").closest(".col").removeClass('d-none');
+        $("#input-stop-age-days").closest(".col").removeClass('d-none');
+        // update otlines
+        new mdb.Input($("#input-stop-age-years").parent('.form-outline').get(0)).update();
+        new mdb.Input($("#input-stop-age-days").parent('.form-outline').get(0)).update();
+    } else if(skill_active){
+        $("#input-stop-weeks").closest(".col").addClass('d-none');
+        $("#input-stop-skill").closest(".col").removeClass('d-none');
+        new mdb.Input($("#input-stop-skill").parent('.form-outline').get(0)).update();
+    }
+}
+
 
 export {init, write, read};

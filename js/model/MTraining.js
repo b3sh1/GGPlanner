@@ -60,7 +60,10 @@ class TrainingStage {
     calc(squad) {
         // let squad = new Squad().from_simple_obj(this.squad.to_simple_obj());
         let stop = false;
-        for(let i=0; i<this.stop.weeks.val; i++){
+        let num_trained_players = TrainingStage.#count_training_players(squad);
+        for(let i=0; i<this.stop.weeks.val; i++) {
+            let skill_reach_count = 0;
+            let age_reach_count = 0;
             for(const key in squad.players) {
                 let player = squad.players[key];
                 player.age.add_week();
@@ -88,18 +91,48 @@ class TrainingStage {
                 // update trained player
                 squad.players[key] = player;
                 // training stage break condition
-                if(this.stop.skill.active &&
-                    Number.parseInt(key) === this.stop.skill.player_id &&
+
+                // player reaches specified skill level
+                if(player.sq > 0 &&
+                    player.tf > 0 &&
+                    this.stop.skill.active &&
                     player[this.stop.skill.type] >= this.stop.skill.lvl
                 ) {
-                    stop = true;
+                    // specific player reach skill lvl
+                    if(Number.parseInt(key) === this.stop.skill.player_id) {
+                        stop = true;
+                    }
+                    // first player to reach skill lvl
+                    if(this.stop.skill.player_id === -2) {
+                        stop = true;
+                    }
+                    // last player to reach skill lvl
+                    skill_reach_count++;
+                    if(this.stop.skill.player_id === -99 && skill_reach_count >= num_trained_players) {
+                        stop = true;
+                    }
                 }
-                if(this.stop.age.active &&
-                    Number.parseInt(key) === this.stop.age.player_id &&
-                    player.age.years >= this.stop.age.years &&
-                    player.age.days >= this.stop.age.days
+
+                // player reaches specified age
+                if(player.sq > 0 &&
+                    player.tf > 0 &&
+                    this.stop.age.active &&
+                    player.age.is_older_than(this.stop.age.years, this.stop.age.days)
                 ) {
-                    stop = true;
+                    // specific player reaches age
+                    if(Number.parseInt(key) === this.stop.age.player_id) {
+                        stop = true;
+                    }
+                    // first player reaches age
+                    if(this.stop.age.player_id === -2) {
+                        stop = true;
+                    }
+                    // last player reaches age
+                    // last player to reach skill lvl
+                    age_reach_count++;
+                    if(this.stop.age.player_id === -99 && age_reach_count >= num_trained_players) {
+                        stop = true;
+                    }
                 }
             }
             if(stop) {
@@ -129,13 +162,30 @@ class TrainingStage {
         }
         return this;
     }
+
+    static #count_training_players(squad, minutes = 'full') {
+        let n = 0;
+        let m;
+        if(minutes === 'full') {
+            m = 'tf';
+        }
+        if(minutes === 'half') {
+            m = 'th';
+        }
+        for(const key in squad.players) {
+            if(squad.players[key].sq > 0 && squad.players[key][m] > 0) {
+                n++;
+            }
+        }
+        return n;
+    }
 }
 
 
 const default_stage_cfg = {
     coach: 8, assistants: 10, intensity: 1.0, stamina: 0.1, training: 'F_PM',
     stop: {
-        weeks: {active: true, val: 16},
+        weeks: {active: true, val: 16}, // this should be always active with at most MAX_TRAINING_WEEKS val
         skill: {active: false, player_id: -1, type: 'pm', lvl: 20},
         age: {active: false, player_id: -1, years: 37, days: 111},
     }
