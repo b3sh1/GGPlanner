@@ -143,20 +143,20 @@ function read() {
 
 function show_correct_stop_condition_fields(age_active, skill_active) {
     // show appropriate inputs for stop condition
-    $("#input-stop-weeks").closest(".col").removeClass('d-none');
-    $("#input-stop-age-years").closest(".col").addClass('d-none');
-    $("#input-stop-age-days").closest(".col").addClass('d-none');
-    $("#input-stop-skill").closest(".col").addClass('d-none');
+    $("#input-stop-weeks").closest(".hiding").removeClass('d-none');
+    $("#input-stop-age-years").closest(".hiding").addClass('d-none');
+    $("#input-stop-age-days").closest(".hiding").addClass('d-none');
+    $("#input-stop-skill").closest(".hiding").addClass('d-none');
     if(age_active) {
-        $("#input-stop-weeks").closest(".col").addClass('d-none');
-        $("#input-stop-age-years").closest(".col").removeClass('d-none');
-        $("#input-stop-age-days").closest(".col").removeClass('d-none');
+        $("#input-stop-weeks").closest(".hiding").addClass('d-none');
+        $("#input-stop-age-years").closest(".hiding").removeClass('d-none');
+        $("#input-stop-age-days").closest(".hiding").removeClass('d-none');
         // update otlines
         new mdb.Input($("#input-stop-age-years").parent('.form-outline').get(0)).update();
         new mdb.Input($("#input-stop-age-days").parent('.form-outline').get(0)).update();
     } else if(skill_active){
-        $("#input-stop-weeks").closest(".col").addClass('d-none');
-        $("#input-stop-skill").closest(".col").removeClass('d-none');
+        $("#input-stop-weeks").closest(".hiding").addClass('d-none');
+        $("#input-stop-skill").closest(".hiding").removeClass('d-none');
         new mdb.Input($("#input-stop-skill").parent('.form-outline').get(0)).update();
     }
 }

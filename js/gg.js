@@ -19,32 +19,6 @@ function main() {
     TrainingStageForm.init();
 
     let training = new Training(squad);
-    // // ts_cfg.stop.weeks.val = 335;
-    // // ts_cfg.stop.skill = {active: true, player_id: 8, type: 'pm', lvl: 14.0};
-    // // ts_cfg.stop.age = {active: true, player_id: 8, years: 18, days: 0};
-    // let TS1 = new TrainingStage();
-    // TS1.training = "F_PM";
-    // TS1.stop.age = {active: true, player_id: 8, years: 18, days: 0};
-    // let TS2 = new TrainingStage();
-    // TS2.training = "F_SC";
-    // TS2.stop.age = {active: true, player_id: 8, years: 19, days: 0};
-    // let T = new Training(squad,[TS1, TS2]);
-    // let TS3 = new TrainingStage();
-    // TS3.training = "F_WG";
-    // TS3.stop.age = {active: true, player_id: 8, years: 21, days: 0};
-    // T.add_stage(TS3);
-    // let trained_squad = T.calc();
-    // console.log(squad.players[8].age);
-    // console.log(squad.players[8].get_attributes());
-    // console.log(trained_squad.players[8].age);
-    // console.log(trained_squad.players[8].get_attributes());
-
-    // console.log(T.stages[2].trained_squad.players[8].age);
-    // console.log(T.stages[2].trained_squad.players[8].get_attributes());
-    // console.log(T.stages[2].trained_squad.players[8].pm);
-    // console.log(T.stages[2].trained_squad.players[9].age);
-    // console.log(T.stages[2].trained_squad.players[9].get_attributes());
-    // console.log(T.stages[2].trained_squad.players[9].pm);
 
     // const tb_squad_placeholder = '<div class="table-responsive px-3"><table id="tb-squad" class="table table-striped table-hover"></table></div>'
     // new SectionCollapsible({
