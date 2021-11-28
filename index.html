@@ -61,8 +61,10 @@
                         </div>
 
                         <!-- Squad Table -->
-
-                        <div class="px-3">
+                        <div class="card mx-3">
+                            <div class="card-header">
+                                Players
+                            </div>
                             <table id="tb-squad" class="table table-sm table-striped table-hover" style="width: 100%">
                             </table>
 
@@ -100,21 +102,152 @@
                         </button>
                     </div>
 
-                    <!-- Table with training results -->
-                    <section id="training result">
-                        <h5 class="px-3">Final Trained Squad</h5>
-                    </section>
-                    <hr class="mx-3"/>
-                    <div class="px-3">
-                        <table id="tb-result" class="table table-sm table-striped table-hover" style="width: 100%">
-                        </table>
 
-                        <div id="tb-result-loading-indicator" class="d-flex justify-content-center">
-                            <div class="spinner-border text-info" role="status">
-                                <span class="visually-hidden">Loading...</span>
+                    <div class="accordion px-3" id="accordionExample">
+                        <div class="accordion-item" style="background-color: #303030">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button
+                                        class="btn btn-info btn-block text-start gg-collapsible"
+                                        style="background-color: #303030; border-radius: 0;"
+                                        type="button"
+                                        data-mdb-toggle="collapse"
+                                        data-mdb-target="#collapseOne"
+                                        aria-expanded="true"
+                                        aria-controls="collapseOne"
+                                >
+                                    <i class="fas fa-plus fa-sm mx-2"></i> Stage #1
+                                </button>
+                            </h2>
+                            <div
+                                    id="collapseOne"
+                                    class="accordion-collapse collapse"
+                                    aria-labelledby="headingOne"
+                            >
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="card text-start my-3 ms-3">
+                                            <div class="card-header">
+                                                Training stage setup
+                                            </div>
+                                            <div class="card-body">
+                                                <h5 class="card-title">Special title treatment</h5>
+                                                <p class="card-text">
+                                                    With supporting text below as a natural lead-in to additional content.
+                                                </p>
+                                                <a href="#" class="btn btn-outline-secondary">Button</a>
+                                            </div>
+                                            <div class="card-footer text-muted">
+                                                2 days ago
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="card my-3 me-3">
+                                            <div class="card-header">
+                                                Trained players
+                                            </div>
+                                            <table class="table table-striped">
+                                                <thead>
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">First</th>
+                                                    <th scope="col">Last</th>
+                                                    <th scope="col">Handle</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr>
+                                                    <th scope="row">1</th>
+                                                    <td>Mark</td>
+                                                    <td>Otto</td>
+                                                    <td>@mdo</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">2</th>
+                                                    <td>Jacob</td>
+                                                    <td>Thornton</td>
+                                                    <td>@fat</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">3</th>
+                                                    <td colspan="2">Larry the Bird</td>
+                                                    <td>@twitter</td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="accordion-item" style="background-color: #303030">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button
+                                        class="btn btn-info btn-block text-start gg-collapsible"
+                                        style="background-color: #303030; border-radius: 0;"
+                                        type="button"
+                                        data-mdb-toggle="collapse"
+                                        data-mdb-target="#collapseTwo"
+                                        aria-expanded="false"
+                                        aria-controls="collapseTwo"
+                                >
+                                    <i class="fas fa-plus fa-sm mx-2"></i> Stage #2
+                                </button>
+                            </h2>
+                            <div
+                                    id="collapseTwo"
+                                    class="accordion-collapse collapse"
+                                    aria-labelledby="headingTwo"
+                            >
+                                <div class="accordion-body">
+                                    <strong>This is the second item's accordion body.</strong> It is hidden by
+                                    default, until the collapse plugin adds the appropriate classes that we use to
+                                    style each element. These classes control the overall appearance, as well as the
+                                    showing and hiding via CSS transitions. You can modify any of this with custom CSS
+                                    or overriding our default variables. It's also worth noting that just about any
+                                    HTML can go within the <strong>.accordion-body</strong>, though the transition
+                                    does limit overflow.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item" style="background-color: #303030">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button
+                                        class="btn btn-info btn-block text-start gg-collapsible"
+                                        style="background-color: #303030; border-radius: 0;"
+                                        data-mdb-toggle="collapse"
+                                        data-mdb-target="#collapseThree"
+                                        aria-expanded="false"
+                                        aria-controls="collapseThree"
+                                >
+                                    <i class="fas fa-minus fa-sm mx-2"></i> Final result
+                                </button>
+                            </h2>
+                            <div
+                                    id="collapseThree"
+                                    class="accordion-collapse collapse show"
+                                    aria-labelledby="headingThree"
+                            >
+                                <!-- Table with training results -->
+                                <div class="card m-1">
+                                    <div class="card-header">
+                                        Trained players
+                                    </div>
+                                    <table id="tb-result" class="table table-sm table-striped table-hover" style="width: 100%">
+                                    </table>
+
+                                    <div id="tb-result-loading-indicator" class="d-flex justify-content-center">
+                                        <div class="spinner-border text-info" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+
                 </div>
 
                 <!-- Buttons trigger collapse -->
