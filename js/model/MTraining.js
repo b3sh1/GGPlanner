@@ -18,8 +18,6 @@ class Training {
             squad = stage.calc(squad);
             this.trained_squads.push(new Squad().from_simple_obj(squad.to_simple_obj()));
         }
-        console.log(squad.players[8].age);
-        console.log(squad.players[8].get_attributes());
         return squad;
     }
 
