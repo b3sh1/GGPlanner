@@ -191,9 +191,9 @@ class Name {
 
 
 const attributes = {
-    sq:   {name: "Debuted",     type: "bool",	tb_show: true,	form_fld: false, },
-    tf:   {name: "Full training",type: "bool",  tb_show: true,	form_fld: false, },
-    th:   {name: "Half training",type: "bool",	tb_show: true,	form_fld: false, },
+    sq:   {name: "Debuted",     type: "bool",	tb_show: false,	form_fld: false, },
+    tf:   {name: "Full training",type: "bool",  tb_show: false,	form_fld: false, },
+    th:   {name: "Half training",type: "bool",	tb_show: false,	form_fld: false, },
     spec: {name: "Specialty",   type: "spec",	tb_show: true,	form_fld: true, },
     st:   {name: "Stamina",     type: "st",	    tb_show: true,	form_fld: true, },
     fo:   {name: "Form",		type: "fo",	    tb_show: false,	form_fld: false, },

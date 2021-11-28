@@ -5,11 +5,12 @@ import {round2} from "../utils.js";
 
 // these two decoration types cannot be turned on simultaneously
 const DECORATE_SKILLS = false;  // apply color badges according to skill lvl
+const DECORATE_DIFF = true  // apply color badges according to diff in amount of trained skill lvl
 const DECORATE_COLUMNS = false;  // apply cell colors according to skill lvl
 const DECORATE_ICONS = true;  // put icons if attribute specifies it (e.q. specialties)
 
 
-class SquadTable {
+class ResultTable {
     constructor() {
         this.datatable = this.init_datatable();
     }
@@ -21,8 +22,7 @@ class SquadTable {
                 tb_squad_header.push({title: key.toUpperCase()});
             }
         }
-        tb_squad_header.push({title: "Edit", width: 155});
-        this.dttb = $('#tb-squad').DataTable({
+        this.dttb = $('#tb-result').DataTable({
             paging: false,
             searching: false,
             bInfo: false,
@@ -40,63 +40,44 @@ class SquadTable {
                     targets: [1],
                     responsivePriority: 1,
                 },
-                {
-                    targets: [-1],
-                    orderable: false,
-                    responsivePriority: 2,
-                },
             ],
             rowCallback: function(row, data, index) {
                 if(DECORATE_COLUMNS) {
-                    SquadTable.#decorate_columns(row, data, tb_squad_header);
+                    ResultTable.#decorate_columns(row, data, tb_squad_header);
                 }
             },
             createdRow: function (row, data, dataIndex) {
-                $('td:last-child', row).css('min-width', '155px');
+                $('td:nth-child(2)', row).css('min-width', '155px');
             },
         });
-        $("#tb-squad-loading-indicator").addClass('d-none');  // hide loading spinner
+        $("#tb-result-loading-indicator").addClass('d-none');  // hide loading spinner
         return this.dttb;
     }
 
-    load_data(squad) {
-        for (let id in squad.players) {
-            this.append(squad.players[id], id);
+    load_data(init_squad, trained_squad) {
+        for (let id in trained_squad.players) {
+            this.append(init_squad.players[id], trained_squad.players[id], id);
         }
         this.datatable.draw();
         return this;
     }
 
-    append(player, id) {
+    append(init_player, trained_player, id) {
         // write player to the table
         // name, age
         let row = [
             id,
-            player.name.to_str(),
-            player.age.to_str(),
+            trained_player.name.to_str(),
+            trained_player.age.to_str(),
         ];
         // other player attributes
         for (let attr in Player.attributes) {
             if (Player.attributes[attr].tb_show) {
-                let skill_lvl = SquadTable.#decorate_skill(player[attr], Player.attributes[attr].type);
+                let skill_lvl = ResultTable.#decorate_skill(trained_player[attr], Player.attributes[attr].type);
+                skill_lvl += ResultTable.#decorate_diff(trained_player[attr]-init_player[attr]);
                 row.push(skill_lvl);
             }
         }
-        // edit buttons
-        row.push('' +
-            '<div style="font-size: .75em">' +
-            '<button type="button" class="btn-delete-player btn btn-outline-info btn-sm ripple-surface me-1">' +
-            '<i class="fas fa-times fa-lg"></i>' +
-            '</button>' +
-            '<button type="button" class="btn-clone-player btn btn-outline-info btn-sm ripple-surface me-1">' +
-            '<i class="far fa-clone"></i>' +
-            '</button>' +
-            '<button type="button" class="btn-edit-player btn btn-outline-info btn-sm ripple-surface"' +
-            ' data-mdb-toggle="modal" data-mdb-target="#modal-add-player">' +
-            '<i class="fas fa-pencil-alt"></i>' +
-            '</button>' +
-            '</div>'
-        );
         this.datatable.row.add(row);
         return this;
     }
@@ -115,13 +96,27 @@ class SquadTable {
         this.datatable.clear();
     }
 
-    reload(squad) {
+    reload(init_squad, trained_squad) {
         this.clear();
-        this.load_data(squad);
+        this.load_data(init_squad, trained_squad);
     }
 
     draw() {
         this.datatable.draw();
+    }
+
+    static #decorate_diff(lvl_diff) {
+        if(DECORATE_DIFF) {
+            lvl_diff = round2(lvl_diff);
+            if(lvl_diff > 0){
+                return ` <span class='badge bg-success'>+${lvl_diff}</span>`;
+            }
+            if(lvl_diff < 0){
+                return ` <span class='badge bg-danger'>${lvl_diff}</span>`;
+            }
+        }
+
+        return "";
     }
 
     static #decorate_skill(lvl, type, mode='compact') {
@@ -138,7 +133,7 @@ class SquadTable {
             }
         }
         if(DECORATE_ICONS) {
-            return  SquadTable.#decorate_icon(lvl, type);
+            return  ResultTable.#decorate_icon(lvl, type);
         }
         // fallback
         return lvl;
@@ -173,4 +168,4 @@ class SquadTable {
     }
 }
 
-export {SquadTable};
+export {ResultTable};

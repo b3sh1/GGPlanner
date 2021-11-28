@@ -4,10 +4,12 @@ import * as PlayerForm from "./controller/CPlayerForm.js";
 import * as TrainingStageForm from "./controller/CTrainingStageForm.js";
 import * as Toast from "./controller/CToast.js";
 import {SquadTable} from "./controller/CSquadTable.js";
+import {ResultTable} from "./controller/CResultTable.js";
 import * as Storage from "./controller/CPersistentStorage.js";
 import * as Header from "./controller/CHeader.js";
 import {presets} from "./model/MPlayer.js";
 import {Training, TrainingStage, default_stage_cfg} from "./model/MTraining.js";
+
 
 const STORE_SQUAD = "squad";
 
@@ -15,6 +17,7 @@ function main() {
     // Header.init();
     let squad = new Squad().from_simple_obj(Storage.load(STORE_SQUAD));
     let tb_squad = new SquadTable().load_data(squad);
+    let tb_result = new ResultTable().load_data(squad, squad);
     PlayerForm.init();  // hidden for now
     TrainingStageForm.init();
 
@@ -53,7 +56,8 @@ function main() {
             let player_id = squad.add(player);
             Storage.save(STORE_SQUAD, squad.to_simple_obj())
             tb_squad.append(player, player_id).draw();
-            training.calc();
+            let trained_squad = training.calc();
+            tb_result.reload(squad, trained_squad);
             Toast.show({result: 'success', reason: 'Added:', msg: player.name.to_str()});
         }
         catch (err) {
@@ -71,7 +75,8 @@ function main() {
             Storage.save(STORE_SQUAD, squad.to_simple_obj())
             // after editing rewrite the whole table
             tb_squad.reload(squad);
-            training.calc();
+            let trained_squad = training.calc();
+            tb_result.reload(squad, trained_squad);
             Toast.show({result: 'success', reason: 'Edited:', msg: player.name.to_str()});
         }
         catch (err) {
@@ -126,7 +131,8 @@ function main() {
             let player_name = squad.remove(player_id);
             Storage.save(STORE_SQUAD, squad.to_simple_obj());
             tb_squad.draw();
-            training.calc();
+            let trained_squad = training.calc();
+            tb_result.reload(squad, trained_squad);
             Toast.show({result: 'warning', reason: "Removed:", msg: player_name});
         }
         catch (err) {
@@ -148,7 +154,8 @@ function main() {
             let new_player = squad.get(new_player_id);
             tb_squad.append(new_player, new_player_id).draw();
             Storage.save(STORE_SQUAD, squad.to_simple_obj());
-            training.calc();
+            let trained_squad = training.calc();
+            tb_result.reload(squad, trained_squad);
             Toast.show({result: 'success', reason: 'Added:', msg: new_player.name.to_str()});
         }
         catch (err) {
@@ -170,6 +177,7 @@ function main() {
             let training_stage = new TrainingStage(TrainingStageForm.read());
             let n = training.add_stage(training_stage);
             let trained_squad = training.calc();
+            tb_result.reload(squad, trained_squad);
             Toast.show({result: 'success', reason: 'Added:', msg: `${n}. training stage`});
         }
         catch (err) {
