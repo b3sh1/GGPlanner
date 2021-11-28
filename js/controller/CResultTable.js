@@ -105,14 +105,24 @@ class ResultTable {
         this.datatable.draw();
     }
 
-    static #decorate_diff(lvl_diff) {
+    static #decorate_diff(lvl_diff, mode = 'badge') {
         if(DECORATE_DIFF) {
             lvl_diff = round2(lvl_diff);
             if(lvl_diff > 0){
-                return ` <span class='badge bg-success'>+${lvl_diff}</span>`;
+                if(mode === 'simple') {
+                    return ` (+${lvl_diff})`;
+                }
+                if(mode === 'badge') {
+                    return ` <span class='badge bg-success'>+${lvl_diff}</span>`;
+                }
             }
             if(lvl_diff < 0){
-                return ` <span class='badge bg-danger'>${lvl_diff}</span>`;
+                if(mode === 'simple') {
+                    return ` (${lvl_diff})`;
+                }
+                if(mode === 'badge') {
+                    return ` <span class='badge bg-danger'>${lvl_diff}</span>`;
+                }
             }
         }
 
