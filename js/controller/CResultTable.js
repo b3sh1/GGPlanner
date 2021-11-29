@@ -5,7 +5,8 @@ import {round2} from "../utils.js";
 
 // these two decoration types cannot be turned on simultaneously
 const DECORATE_SKILLS = false;  // apply color badges according to skill lvl
-const DECORATE_DIFF = true  // apply color badges according to diff in amount of trained skill lvl
+const DECORATE_DIFF = true  // apply color badges according to diff in amount of trained skill lvl/age
+const DECORATE_AGE_DIFF = true  // apply color badges according to diff in amount of age
 const DECORATE_COLUMNS = false;  // apply cell colors according to skill lvl
 const DECORATE_ICONS = true;  // put icons if attribute specifies it (e.q. specialties)
 
@@ -68,7 +69,7 @@ class ResultTable {
         let row = [
             id,
             trained_player.name.to_str(),
-            trained_player.age.to_str(),
+            trained_player.age.to_str() + ResultTable.#decorate_age_diff(trained_player.age.diff(init_player.age)),
         ];
         // other player attributes
         for (let attr in Player.attributes) {
@@ -103,6 +104,18 @@ class ResultTable {
 
     draw() {
         this.datatable.draw();
+    }
+
+    static #decorate_age_diff(age_diff, mode = 'badge') {
+        if(DECORATE_AGE_DIFF) {
+            if(mode === 'simple') {
+                return ` (+${age_diff})`;
+            }
+            if(mode === 'badge') {
+                return ` <span class='badge bg-info'>+${age_diff}</span>`;
+            }
+        }
+        return "";
     }
 
     static #decorate_diff(lvl_diff, mode = 'badge') {

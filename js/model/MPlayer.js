@@ -139,6 +139,18 @@ class Age {
         this.days = rand_int(levels.days.min, levels.days.max);
     }
 
+    diff(age) {
+        let days = this.days - age.days;
+        let years = 0;
+        if(days >= 0) {
+            years = this.years - age.years;
+        } else {
+            days += 112;
+            years = this.years - age.years - 1;
+        }
+        return `${years}.${days}`;
+    }
+
     to_str() {
         return `${this.years}.${this.days}`;
     }
