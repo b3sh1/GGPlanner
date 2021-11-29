@@ -316,7 +316,7 @@ const levels = {
 
 const presets = {
     default: {
-        years: 17, days: 3, fo: 7, st: 5, gk: 5, df: 5, pm: 5, wg: 5, pg: 5, sc: 5, sp: 5, lo: 20, hg: 0, xp: 2, ls: 1,
+        years: 17, days: 3, fo: 7, st: 4.99, gk: 5, df: 5, pm: 5, wg: 5, pg: 5, sc: 5, sp: 5, lo: 1, hg: 0, xp: 2, ls: 1,
         tsi: 0, first: "", nick: "", last: "", ht_id: -1, wage: 300, spec: 0, htms: 0, htms28: 0, cc: 0, fg: 1, sq: 1,
         tf: 1, th: 0,
     }

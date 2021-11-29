@@ -9,6 +9,7 @@ import * as Storage from "./controller/CPersistentStorage.js";
 import * as Header from "./controller/CHeader.js";
 import {presets} from "./model/MPlayer.js";
 import {Training, TrainingStage, default_stage_cfg} from "./model/MTraining.js";
+import * as TrainingStageAccordion from "./controller/CTrainingStagesAccordion.js";
 
 
 const STORE_SQUAD = "squad";
@@ -170,22 +171,23 @@ function main() {
         let training_stage= new TrainingStage();
         TrainingStageForm.write(training_stage);
     });
-    // --- modal add/edit player buttons ---------------------------------------------------------------------------
-    // --- button add player - form submit ---
+    // --- modal add training stage ------------------------------------------------------------------------------------
+    // --- button add training stage - form submit ---
     $("#btn-add-training-stage").on("click", function () {
-        try {
-            let training_stage = new TrainingStage(TrainingStageForm.read());
-            let n = training.add_stage(training_stage);
-            let trained_squad = training.calc();
-            tb_result.reload(squad, trained_squad);
-            Toast.show({result: 'success', reason: 'Added:', msg: `${n}. training stage`});
-        }
-        catch (err) {
-            console.error(err);
-            // if(err instanceof SquadError) {
-            //     Toast.show({result: 'fail', reason: 'Error:', msg: err.message});
-            // }
-        }
+        // try {
+        let training_stage = new TrainingStage(TrainingStageForm.read());
+        let n = training.add_stage(training_stage);
+        let trained_squad = training.calc();
+        tb_result.reload(squad, trained_squad);
+        TrainingStageAccordion.add_stage(n, training_stage, training.trained_squads[n]);
+        Toast.show({result: 'success', reason: 'Added:', msg: `${n}. training stage`});
+        // }
+        // catch (err) {
+        //     console.error(err);
+        //     // if(err instanceof SquadError) {
+        //     //     Toast.show({result: 'fail', reason: 'Error:', msg: err.message});
+        //     // }
+        // }
     });
     // --- decorate collapsible item with +/- ----------------------------------------------------------------------
     $('.gg-collapsible').on('click', function () {
