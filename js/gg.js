@@ -61,6 +61,9 @@ function main() {
             tb_squad.append(player, player_id).draw();
             let trained_squad = training.calc();
             tb_result.reload(squad, trained_squad);
+            for(let stage of tbs_stage) {
+                stage.reload(training.trained_squads[stage.stage_n-1], training.trained_squads[stage.stage_n]);
+            }
             Toast.show({result: 'success', reason: 'Added:', msg: player.name.to_str()});
         }
         catch (err) {
@@ -80,6 +83,9 @@ function main() {
             tb_squad.reload(squad);
             let trained_squad = training.calc();
             tb_result.reload(squad, trained_squad);
+            for(let stage of tbs_stage) {
+                stage.reload(training.trained_squads[stage.stage_n-1], training.trained_squads[stage.stage_n]);
+            }
             Toast.show({result: 'success', reason: 'Edited:', msg: player.name.to_str()});
         }
         catch (err) {
@@ -136,6 +142,9 @@ function main() {
             tb_squad.draw();
             let trained_squad = training.calc();
             tb_result.reload(squad, trained_squad);
+            for(let stage of tbs_stage) {
+                stage.reload(training.trained_squads[stage.stage_n-1], training.trained_squads[stage.stage_n]);
+            }
             Toast.show({result: 'warning', reason: "Removed:", msg: player_name});
         }
         catch (err) {
@@ -159,6 +168,9 @@ function main() {
             Storage.save(STORE_SQUAD, squad.to_simple_obj());
             let trained_squad = training.calc();
             tb_result.reload(squad, trained_squad);
+            for(let stage of tbs_stage) {
+                stage.reload(training.trained_squads[stage.stage_n-1], training.trained_squads[stage.stage_n]);
+            }
             Toast.show({result: 'success', reason: 'Added:', msg: new_player.name.to_str()});
         }
         catch (err) {
@@ -184,6 +196,7 @@ function main() {
         TrainingStageAccordion.add_stage(n, training_stage, training.trained_squads[n]);
         let tb_stage = new StageTable(n, training_stage);
         tb_stage.load_data(training.trained_squads[n-1], training.trained_squads[n]);
+        tbs_stage.push(tb_stage);
         Toast.show({result: 'success', reason: 'Added:', msg: `${n}. training stage`});
         // }
         // catch (err) {
@@ -193,8 +206,19 @@ function main() {
         //     // }
         // }
     });
+    // --- training stage checkboxes -----------------------------------------------------------------------------------
+    for(const attr in Player.attributes) {
+        if(Player.attributes[attr].tb_checkbox) {
+            $('#section-training-stages').on('click', `.checkbox-${attr}`, {'attr': attr}, function (event) {
+                let attr = event.data.attr;
+                let stage_n = this.attributes.stage.value;
+                // tbs_stage
+                console.log($(this.closest('tr')));
+            });
+        }
+    }
     // --- decorate collapsible item with +/- ----------------------------------------------------------------------
-    $('.gg-collapsible').on('click', function () {
+    $('body').on('click', '.gg-collapsible', function () {
         $(this).children('svg').toggleClass('fa-plus fa-minus');    // this works when font awesome is imported as js
         $(this).children('i').toggleClass('fa-plus fa-minus');      // this works when font awesome is imported as css
     });

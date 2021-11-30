@@ -46,10 +46,11 @@ class ResultTable {
                 if(DECORATE_COLUMNS) {
                     ResultTable.#decorate_columns(row, data, tb_result_header);
                 }
+                ResultTable.#set_column_width(row, data, tb_result_header, 'Name', 155);
             },
-            createdRow: function (row, data, dataIndex) {
-                $('td:nth-child(2)', row).css('min-width', '155px');
-            },
+            // createdRow: function (row, data, dataIndex) {
+            //     $('td:nth-child(2)', row).css('min-width', '500px');
+            // },
         });
         $("#tb-result-loading-indicator").addClass('d-none');  // hide loading spinner
         return this.dttb;
@@ -186,6 +187,14 @@ class ResultTable {
                     }
                 }
                 $(row).find(`td:eq(${i})`).css(styles);
+            }
+        }
+    }
+
+    static #set_column_width(row, data, tb_header, col_title, min_width) {
+        for(let i=0; i<data.length; i++) {
+            if(tb_header[i].title === col_title) {
+                $(row).find(`td:eq(${i})`).css('min-width', `${min_width}px`);
             }
         }
     }

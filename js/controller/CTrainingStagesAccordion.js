@@ -31,7 +31,6 @@ function generate_html(stage_n, stage) {
             <h2 class="accordion-header" id="h-training-stage-${stage_n}">
                 <button
                         class="btn btn-info btn-block text-start gg-collapsible"
-                        onclick="$(this).children('svg').toggleClass('fa-plus fa-minus');$(this).children('i').toggleClass('fa-plus fa-minus');"
                         style="background-color: #303030; border-radius: 0;"
                         type="button"
                         data-mdb-toggle="collapse"

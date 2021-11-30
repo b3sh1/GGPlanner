@@ -21,10 +21,17 @@ class StageTable {
     }
 
     init_datatable() {
-        let tb_stage_header = [{title: 'id', width: 50}, {title: "Name", width: 300}, {title: "Age", width: 50}];
+        let tb_stage_header = [{title: 'id', width: 50}]
+        for (let attr in Player.attributes) {
+            if (Player.attributes[attr].tb_checkbox) {
+                tb_stage_header.push({title: attr.toUpperCase(), width: 30});
+            }
+        }
+        tb_stage_header.push({title: "Name", width: 300});
+        tb_stage_header.push({title: "Age", width: 50});
         for (let key in this.trained_skills) {
             let skill = this.trained_skills[key];
-            if(skill in Player.attributes && Player.attributes[skill].tb_show) {
+            if(skill in Player.attributes) {
                 tb_stage_header.push({title: skill.toUpperCase()});
             }
         }
@@ -51,9 +58,7 @@ class StageTable {
                 if(DECORATE_COLUMNS) {
                     StageTable.#decorate_columns(row, data, tb_stage_header);
                 }
-            },
-            createdRow: function (row, data, dataIndex) {
-                $('td:nth-child(2)', row).css('min-width', '155px');
+                StageTable.#set_column_width(row, data, tb_stage_header, 'Name', 155);
             },
         });
         $(`#tb-stage-${this.stage_n}-loading-indicator`).addClass('d-none');  // hide loading spinner
@@ -71,15 +76,18 @@ class StageTable {
     append(init_player, trained_player, id) {
         // write player to the table
         // name, age
-        let row = [
-            id,
-            trained_player.name.to_str(),
-            trained_player.age.to_str() + StageTable.#decorate_age_diff(trained_player.age.diff(init_player.age)),
-        ];
+        let row = [id];
+        for (let attr in Player.attributes) {
+            if (Player.attributes[attr].tb_checkbox) {
+                row.push(this.html_checkbox(attr, trained_player[attr]));
+            }
+        }
+        row.push(trained_player.name.to_str());
+        row.push(trained_player.age.to_str() + StageTable.#decorate_age_diff(trained_player.age.diff(init_player.age)));
         // other player attributes
         for (let key in this.trained_skills) {
             let skill = this.trained_skills[key];
-            if (skill in Player.attributes && Player.attributes[skill].tb_show) {
+            if (skill in Player.attributes) {
                 let skill_lvl = StageTable.#decorate_skill(trained_player[skill], Player.attributes[skill].type);
                 skill_lvl += StageTable.#decorate_diff(trained_player[skill]-init_player[skill]);
                 row.push(skill_lvl);
@@ -110,6 +118,18 @@ class StageTable {
 
     draw() {
         this.datatable.draw();
+    }
+
+    html_checkbox(attr, val) {
+        let el_class = `checkbox-stage-${this.stage_n}`;
+        let el_checked = "";
+        if(val > 0) {
+            el_checked = 'checked=""'
+        }
+        return `
+            <div class="form-check">
+                <input stage="${this.stage_n}" class="form-check-input checkbox-${attr}" type="checkbox" name="${attr}" ${el_checked}>
+            </div>`;
     }
 
     static #decorate_age_diff(age_diff, mode = 'badge') {
@@ -195,6 +215,15 @@ class StageTable {
             }
         }
     }
+
+    static #set_column_width(row, data, tb_header, col_title, min_width) {
+        for(let i=0; i<data.length; i++) {
+            if(tb_header[i].title === col_title) {
+                $(row).find(`td:eq(${i})`).css('min-width', `${min_width}px`);
+            }
+        }
+    }
 }
+
 
 export {StageTable};
