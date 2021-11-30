@@ -1,7 +1,7 @@
 import {training} from "../model/MTraining.js";
 
-function add_stage(stage_n, stage, squad) {
-    let el_stage = $(generate_html(stage_n, stage)).appendTo('#section-training-stages');
+function add_stage(stage_n, stage) {
+    return $(generate_html(stage_n, stage)).appendTo('#section-training-stages');
 }
 
 

@@ -5,6 +5,7 @@ import * as TrainingStageForm from "./controller/CTrainingStageForm.js";
 import * as Toast from "./controller/CToast.js";
 import {SquadTable} from "./controller/CSquadTable.js";
 import {ResultTable} from "./controller/CResultTable.js";
+import {StageTable} from "./controller/CStageTable.js";
 import * as Storage from "./controller/CPersistentStorage.js";
 import * as Header from "./controller/CHeader.js";
 import {presets} from "./model/MPlayer.js";
@@ -19,6 +20,7 @@ function main() {
     let squad = new Squad().from_simple_obj(Storage.load(STORE_SQUAD));
     let tb_squad = new SquadTable().load_data(squad);
     let tb_result = new ResultTable().load_data(squad, squad);
+    let tbs_stage = [];
     PlayerForm.init();  // hidden for now
     TrainingStageForm.init();
 
@@ -176,10 +178,12 @@ function main() {
     $("#btn-add-training-stage").on("click", function () {
         // try {
         let training_stage = new TrainingStage(TrainingStageForm.read());
-        let n = training.add_stage(training_stage);
-        let trained_squad = training.calc();
-        tb_result.reload(squad, trained_squad);
+        let n = training.add_stage(training_stage); // auto-calc
+        // let trained_squad = training.calc();
+        tb_result.reload(squad, training.trained_squads[n]);
         TrainingStageAccordion.add_stage(n, training_stage, training.trained_squads[n]);
+        let tb_stage = new StageTable(n, training_stage);
+        tb_stage.load_data(training.trained_squads[n-1], training.trained_squads[n]);
         Toast.show({result: 'success', reason: 'Added:', msg: `${n}. training stage`});
         // }
         // catch (err) {

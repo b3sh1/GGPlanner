@@ -7,13 +7,13 @@ const MAX_TRAINING_WEEKS = 335;
 // --- Training --------------------------------------------------------------------------------------------------------
 class Training {
     constructor(squad, stages = []) {
-        this.starting_squad = squad;
-        this.trained_squads = [];
+        this.trained_squads = [squad];
         this.stages = stages;
     }
 
     calc() {
-        let squad = new Squad().from_simple_obj(this.starting_squad.to_simple_obj());
+        this.trained_squads = [this.trained_squads[0]];
+        let squad = new Squad().from_simple_obj(this.trained_squads[0].to_simple_obj());
         for(const stage of this.stages) {
             squad = stage.calc(squad);
             this.trained_squads.push(new Squad().from_simple_obj(squad.to_simple_obj()));
@@ -23,6 +23,7 @@ class Training {
 
     add_stage(training_stage) {
         this.stages.push(training_stage);
+        this.calc();
         return this.stages.length;
     }
 

@@ -17,10 +17,10 @@ class ResultTable {
     }
 
     init_datatable() {
-        let tb_squad_header = [{title: 'id', width: 50}, {title: "Name", width: 300}, {title: "Age", width: 50}];
-        for (let key in Player.attributes) {
-            if (Player.attributes[key].tb_show) {
-                tb_squad_header.push({title: key.toUpperCase()});
+        let tb_result_header = [{title: 'id', width: 50}, {title: "Name", width: 300}, {title: "Age", width: 50}];
+        for (let attr in Player.attributes) {
+            if (Player.attributes[attr].tb_show) {
+                tb_result_header.push({title: attr.toUpperCase()});
             }
         }
         this.dttb = $('#tb-result').DataTable({
@@ -28,7 +28,7 @@ class ResultTable {
             searching: false,
             bInfo: false,
             order: [[0, "asc"]],
-            columns: tb_squad_header,
+            columns: tb_result_header,
             autoWidth: true,
             responsive: true,
             fixedHeader: false,
@@ -44,7 +44,7 @@ class ResultTable {
             ],
             rowCallback: function(row, data, index) {
                 if(DECORATE_COLUMNS) {
-                    ResultTable.#decorate_columns(row, data, tb_squad_header);
+                    ResultTable.#decorate_columns(row, data, tb_result_header);
                 }
             },
             createdRow: function (row, data, dataIndex) {
