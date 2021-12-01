@@ -170,7 +170,7 @@ class TrainingStage {
 
     unset_checkboxes(player_id) {
         for(const attr in checkboxes) {
-            this[attr].delete(player_id);
+            this[attr].delete(player_id.toString());
         }
         return player_id;
     }
