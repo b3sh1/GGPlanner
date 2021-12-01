@@ -1,5 +1,5 @@
 import * as Player from "../model/MPlayer.js";
-import {training} from "../model/MTraining.js";
+import {training, checkboxes} from "../model/MTraining.js";
 import {Icons} from "../view/VIcons.js";
 import {round2} from "../utils.js";
 
@@ -13,19 +13,19 @@ const DECORATE_ICONS = true;  // put icons if attribute specifies it (e.q. speci
 
 
 class StageTable {
+
     constructor(stage_n, stage) {
         this.trained_skills = ['st'];
         this.trained_skills.push(...training[stage.training].skills);  // extend trained skills from supplied training
         this.stage_n = stage_n;
+        this.stage = stage;
         this.datatable = this.init_datatable();
     }
 
     init_datatable() {
         let tb_stage_header = [{title: 'id', width: 50}]
-        for (let attr in Player.attributes) {
-            if (Player.attributes[attr].tb_checkbox) {
-                tb_stage_header.push({title: attr.toUpperCase(), width: 30});
-            }
+        for(const checkbox_tag in checkboxes) {
+            tb_stage_header.push({title: checkbox_tag.toUpperCase(), width: 30});
         }
         tb_stage_header.push({title: "Name", width: 300});
         tb_stage_header.push({title: "Age", width: 50});
@@ -77,10 +77,12 @@ class StageTable {
         // write player to the table
         // name, age
         let row = [id];
-        for (let attr in Player.attributes) {
-            if (Player.attributes[attr].tb_checkbox) {
-                row.push(this.html_checkbox(attr, trained_player[attr]));
+        for(const attr in checkboxes) {
+            let is_set = false;
+            if(this.stage[attr].has(id)) {
+                is_set = true;
             }
+            row.push(this.html_checkbox(attr, is_set));
         }
         row.push(trained_player.name.to_str());
         row.push(trained_player.age.to_str() + StageTable.#decorate_age_diff(trained_player.age.diff(init_player.age)));
@@ -120,10 +122,9 @@ class StageTable {
         this.datatable.draw();
     }
 
-    html_checkbox(attr, val) {
-        let el_class = `checkbox-stage-${this.stage_n}`;
+    html_checkbox(attr, is_set) {
         let el_checked = "";
-        if(val > 0) {
+        if(is_set) {
             el_checked = 'checked=""'
         }
         return `
@@ -134,11 +135,13 @@ class StageTable {
 
     static #decorate_age_diff(age_diff, mode = 'badge') {
         if(DECORATE_AGE_DIFF) {
-            if(mode === 'simple') {
-                return ` (+${age_diff})`;
-            }
-            if(mode === 'badge') {
-                return ` <span class='badge bg-info'>+${age_diff}</span>`;
+            if(age_diff !== "0.0") {
+                if(mode === 'simple') {
+                    return ` (+${age_diff})`;
+                }
+                if(mode === 'badge') {
+                    return ` <span class='badge bg-info'>+${age_diff}</span>`;
+                }
             }
         }
         return "";

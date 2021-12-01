@@ -109,11 +109,13 @@ class ResultTable {
 
     static #decorate_age_diff(age_diff, mode = 'badge') {
         if(DECORATE_AGE_DIFF) {
-            if(mode === 'simple') {
-                return ` (+${age_diff})`;
-            }
-            if(mode === 'badge') {
-                return ` <span class='badge bg-info'>+${age_diff}</span>`;
+            if(age_diff !== "0.0") {
+                if(mode === 'simple') {
+                    return ` (+${age_diff})`;
+                }
+                if(mode === 'badge') {
+                    return ` <span class='badge bg-info'>+${age_diff}</span>`;
+                }
             }
         }
         return "";

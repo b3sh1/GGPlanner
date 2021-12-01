@@ -203,9 +203,6 @@ class Name {
 
 
 const attributes = {
-    sq:   {name: "Debuted",     type: "bool",	tb_show: false,	tb_checkbox: true,  form_fld: false, },
-    tf:   {name: "Full training",type: "bool",  tb_show: false,	tb_checkbox: true,  form_fld: false, },
-    th:   {name: "Half training",type: "bool",	tb_show: false,	tb_checkbox: true,  form_fld: false, },
     spec: {name: "Specialty",   type: "spec",	tb_show: true,	tb_checkbox: false, form_fld: true,  },
     st:   {name: "Stamina",     type: "st",	    tb_show: true,	tb_checkbox: false, form_fld: true,  },
     fo:   {name: "Form",		type: "fo",	    tb_show: false,	tb_checkbox: false, form_fld: false, },
@@ -329,8 +326,7 @@ const levels = {
 const presets = {
     default: {
         years: 17, days: 3, fo: 7, st: 4.99, gk: 5, df: 5, pm: 5, wg: 5, pg: 5, sc: 5, sp: 5, lo: 1, hg: 0, xp: 2, ls: 1,
-        tsi: 0, first: "", nick: "", last: "", ht_id: -1, wage: 300, spec: 0, htms: 0, htms28: 0, cc: 0, fg: 1, sq: 1,
-        tf: 1, th: 0,
+        tsi: 0, first: "", nick: "", last: "", ht_id: -1, wage: 300, spec: 0, htms: 0, htms28: 0, cc: 0, fg: 1,
     }
 }
 

@@ -48,28 +48,38 @@ class Training {
 
 // --- Training Stage --------------------------------------------------------------------------------------------------
 class TrainingStage {
-    constructor(cfg = default_stage_cfg) {
+    constructor(squad = null, cfg = default_stage_cfg) {
         cfg = JSON.parse(JSON.stringify(cfg));  // deep-copy
         // init
         for (let key in default_stage_cfg) {
-            this[key] = cfg[key];
+            if(key in checkboxes) {
+                this[key] = new Set();
+                if(checkboxes[key] && squad) {
+                    this.set_all_ids(key, squad);
+                }
+            } else {
+                this[key] = cfg[key];
+            }
         }
     }
 
     calc(squad) {
         // let squad = new Squad().from_simple_obj(this.squad.to_simple_obj());
         let stop = false;
-        let num_trained_players = TrainingStage.#count_training_players(squad);
+        let n_fully_training_players = this.count_fully_training_players();
         for(let i=0; i<this.stop.weeks.val; i++) {
             let skill_reach_count = 0;
             let age_reach_count = 0;
-            for(const key in squad.players) {
-                let player = squad.players[key];
+            for(const player_id in squad.players) {
+                if(!this.sq.has(player_id) || (this.ft.size <= 0 && this.ht.size <= 0)) {
+                    continue;
+                }
+                let player = squad.players[player_id];
                 player.age.add_week();
                 let minutes;
-                if(player.tf === 1) {
+                if(this.ft.has(player_id)) {
                     minutes = 'full';
-                } else if(player.th === 1) {
+                } else if(this.ht.has(player_id)) {
                     minutes = 'half';
                 } else {
                     minutes = 'none';
@@ -88,17 +98,16 @@ class TrainingStage {
                 // stamina training
                 player.st += f_stamina(player.age.years, player.st, this.stamina, this.intensity);
                 // update trained player
-                squad.players[key] = player;
+                squad.players[player_id] = player;
                 // training stage break condition
 
                 // player reaches specified skill level
-                if(player.sq > 0 &&
-                    player.tf > 0 &&
+                if(this.ft.has(player_id) &&
                     this.stop.skill.active &&
                     player[this.stop.skill.type] >= this.stop.skill.lvl
                 ) {
                     // specific player reach skill lvl
-                    if(Number.parseInt(key) === this.stop.skill.player_id) {
+                    if(Number.parseInt(player_id) === this.stop.skill.player_id) {
                         stop = true;
                     }
                     // first player to reach skill lvl
@@ -107,19 +116,18 @@ class TrainingStage {
                     }
                     // last player to reach skill lvl
                     skill_reach_count++;
-                    if(this.stop.skill.player_id === -99 && skill_reach_count >= num_trained_players) {
+                    if(this.stop.skill.player_id === -99 && skill_reach_count >= n_fully_training_players) {
                         stop = true;
                     }
                 }
 
                 // player reaches specified age
-                if(player.sq > 0 &&
-                    player.tf > 0 &&
+                if(this.ft.has(player_id) &&
                     this.stop.age.active &&
                     player.age.is_older_than(this.stop.age.years, this.stop.age.days)
                 ) {
                     // specific player reaches age
-                    if(Number.parseInt(key) === this.stop.age.player_id) {
+                    if(Number.parseInt(player_id) === this.stop.age.player_id) {
                         stop = true;
                     }
                     // first player reaches age
@@ -129,7 +137,7 @@ class TrainingStage {
                     // last player reaches age
                     // last player to reach skill lvl
                     age_reach_count++;
-                    if(this.stop.age.player_id === -99 && age_reach_count >= num_trained_players) {
+                    if(this.stop.age.player_id === -99 && age_reach_count >= n_fully_training_players) {
                         stop = true;
                     }
                 }
@@ -141,8 +149,42 @@ class TrainingStage {
         return squad;
     }
 
-    update_squad(squad) {
-        this.squad = squad;
+    count_fully_training_players() {
+        let n = 0;
+        for(const player_id of this.ft) {
+            if(this.sq.has(player_id)) {
+                n++;
+            }
+        }
+        return n;
+    }
+
+    set_default_checkboxes(player_id) {
+        for(const attr in checkboxes) {
+            if(checkboxes[attr]) {
+                this[attr].add(player_id.toString())
+            }
+        }
+        return player_id;
+    }
+
+    unset_checkboxes(player_id) {
+        for(const attr in checkboxes) {
+            this[attr].delete(player_id);
+        }
+        return player_id;
+    }
+
+    set_all_ids(attr, squad) {
+        for(const player_id in squad.players) {
+            this[attr].add(player_id);
+        }
+        return this[attr];
+    }
+
+    unset_all_ids(attr, squad) {
+        this[attr].clear();
+        return this[attr];
     }
 
     to_simple_obj() {
@@ -161,34 +203,21 @@ class TrainingStage {
         }
         return this;
     }
-
-    static #count_training_players(squad, minutes = 'full') {
-        let n = 0;
-        let m;
-        if(minutes === 'full') {
-            m = 'tf';
-        }
-        if(minutes === 'half') {
-            m = 'th';
-        }
-        for(const key in squad.players) {
-            if(squad.players[key].sq > 0 && squad.players[key][m] > 0) {
-                n++;
-            }
-        }
-        return n;
-    }
 }
 
 
 const default_stage_cfg = {
-    coach: 8, assistants: 10, intensity: 1.0, stamina: 0.1, training: 'F_PM',
+    coach: 8, assistants: 10, intensity: 1.0, stamina: 0.1, training: 'F_PM', sq: null, ft: null, ht: null,
     stop: {
         weeks: {active: true, val: 16}, // this should be always active with at most MAX_TRAINING_WEEKS val
         skill: {active: false, player_id: -1, type: 'pm', lvl: 20},
         age: {active: false, player_id: -1, years: 37, days: 111},
     }
 }
+
+
+// if the checkbox should be checked by default or not
+const checkboxes = {'sq': true, 'ft': true, 'ht': false};
 
 
 // --- training prediction functions -----------------------------------------------------------------------------------
@@ -571,4 +600,5 @@ const categories = {
     Osmosis: {training: ["O_F_DF", "O_F_PM", "O_F_WG", "O_F_PG", "O_F_SC", "O_E_PG", "O_E_DF", "O_E_WG", ], form_select: false},
 }
 
-export {Training, TrainingStage, training, categories, default_stage_cfg, MAX_TRAINING_WEEKS};
+
+export {Training, TrainingStage, training, categories, default_stage_cfg, MAX_TRAINING_WEEKS, checkboxes};
