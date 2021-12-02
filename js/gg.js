@@ -59,14 +59,10 @@ function main() {
             let player_id = squad.add(player);
             Storage.save(STORE_SQUAD, squad.to_simple_obj())
             tb_squad.append(player, player_id).draw();
-            for(let stage of training.stages) {
-                stage.set_default_checkboxes(player_id);
-            }
+            set_training_stages_player_default_checkboxes(player_id, training);
             let trained_squad = training.calc();
             tb_result.reload(squad, trained_squad);
-            for(let tb_stage of tbs_stage) {
-                tb_stage.reload(training.trained_squads[tb_stage.stage_n-1], training.trained_squads[tb_stage.stage_n]);
-            }
+            reload_training_stages_tables(tbs_stage, training);
             Toast.show({result: 'success', reason: 'Added:', msg: player.name.to_str()});
         }
         catch (err) {
@@ -74,6 +70,7 @@ function main() {
                 Toast.show({result: 'fail', reason: 'Error:', msg: err.message});
             } else {
                 console.error(err);
+                Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
             }
         }
     });
@@ -86,14 +83,10 @@ function main() {
             Storage.save(STORE_SQUAD, squad.to_simple_obj())
             // after editing rewrite the whole table
             tb_squad.reload(squad);
-            for(let stage of training.stages) {
-                stage.set_default_checkboxes(player_data.id);
-            }
+            set_training_stages_player_default_checkboxes(player_data.id, training);
             let trained_squad = training.calc();
             tb_result.reload(squad, trained_squad);
-            for(let tb_stage of tbs_stage) {
-                tb_stage.reload(training.trained_squads[tb_stage.stage_n-1], training.trained_squads[tb_stage.stage_n]);
-            }
+            reload_training_stages_tables(tbs_stage, training);
             Toast.show({result: 'success', reason: 'Edited:', msg: player.name.to_str()});
         }
         catch (err) {
@@ -101,6 +94,7 @@ function main() {
                 Toast.show({result: 'fail', reason: 'Error:', msg: err.message});
             } else {
                 console.error(err);
+                Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
             }
         }
     });
@@ -150,14 +144,10 @@ function main() {
             let player_name = squad.remove(player_id);
             Storage.save(STORE_SQUAD, squad.to_simple_obj());
             tb_squad.draw();
-            for(let stage of training.stages) {
-                stage.unset_checkboxes(player_id);
-            }
+            unset_training_stages_player_default_checkboxes(player_id, training);
             let trained_squad = training.calc();
             tb_result.reload(squad, trained_squad);
-            for(let tb_stage of tbs_stage) {
-                tb_stage.reload(training.trained_squads[tb_stage.stage_n-1], training.trained_squads[tb_stage.stage_n]);
-            }
+            reload_training_stages_tables(tbs_stage, training);
             Toast.show({result: 'warning', reason: "Removed:", msg: player_name});
         }
         catch (err) {
@@ -165,6 +155,7 @@ function main() {
                 Toast.show({result: 'fail', reason: 'Error:', msg: err.message});
             } else {
                 console.error(err);
+                Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
             }
         }
     });
@@ -181,14 +172,10 @@ function main() {
             let new_player = squad.get(new_player_id);
             tb_squad.append(new_player, new_player_id).draw();
             Storage.save(STORE_SQUAD, squad.to_simple_obj());
-            for(let stage of training.stages) {
-                stage.set_default_checkboxes(new_player_id);
-            }
+            set_training_stages_player_default_checkboxes(new_player_id, training);
             let trained_squad = training.calc();
             tb_result.reload(squad, trained_squad);
-            for(let tb_stage of tbs_stage) {
-                tb_stage.reload(training.trained_squads[tb_stage.stage_n-1], training.trained_squads[tb_stage.stage_n]);
-            }
+            reload_training_stages_tables(tbs_stage, training);
             Toast.show({result: 'success', reason: 'Added:', msg: new_player.name.to_str()});
         }
         catch (err) {
@@ -196,6 +183,7 @@ function main() {
                 Toast.show({result: 'fail', reason: 'Error:', msg: err.message});
             } else {
                 console.error(err);
+                Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
             }
         }
     });
@@ -208,59 +196,87 @@ function main() {
     // --- modal add training stage ------------------------------------------------------------------------------------
     // --- button add training stage - form submit ---
     $("#btn-add-training-stage").on("click", function () {
-        // squad for training stage here is just for initialization of default squad/trained players
-        let training_stage = new TrainingStage(squad).from_simple_obj(TrainingStageForm.read());
-        let n = training.add_stage(training_stage); // auto-calc
-        // let trained_squad = training.calc();
-        tb_result.reload(squad, training.trained_squads[n]);
-        TrainingStageAccordion.add_stage(n, training_stage, training.trained_squads[n]);
-        let tb_stage = new StageTable(n, training_stage);
-        tb_stage.load_data(training.trained_squads[n-1], training.trained_squads[n]);
-        tbs_stage.push(tb_stage);
-        Toast.show({result: 'success', reason: 'Added:', msg: `${n}. training stage`});
+        try {
+            // squad for training stage here is just for initialization of default squad/trained players
+            let training_stage = new TrainingStage(squad).from_simple_obj(TrainingStageForm.read());
+            let stage_n = training.add_stage(training_stage); // auto-calc
+            // let trained_squad = training.calc();
+            tb_result.reload(squad, training.trained_squads[stage_n]);
+            TrainingStageAccordion.add_stage(stage_n, training_stage);
+            let tb_stage = new StageTable(stage_n, training_stage);
+            tb_stage.load_data(training.get_previous_stage_squad(stage_n), training.trained_squads[stage_n]);
+            tbs_stage.push(tb_stage);
+            // --- add listeners to training stages buttons -----------------------------------------------------------
+            $(`#training-stage-${stage_n}-delete`).on('click', {'stage_n': stage_n}, function (e) {
+                let final_trained_squad = training.delete_stage(stage_n);  // auto-calc
+                delete tbs_stage[stage_n-1];
+                TrainingStageAccordion.remove_stage(stage_n);
+                tb_result.reload(squad, final_trained_squad);
+                reload_training_stages_tables(tbs_stage, training);
+                Toast.show({result: 'warning', reason: 'Removed:', msg: `Training stage #${stage_n}`});
+            });
+            $(`#training-stage-${stage_n}-edit`).on('click', {'stage_n': stage_n}, function (e) {
+                console.log(`training-stage-${e.data.stage_n}-edit`);
+            });
+            $(`#training-stage-${stage_n}-up`).on('click', {'stage_n': stage_n}, function (e) {
+                console.log(`training-stage-${e.data.stage_n}-up`);
+            });
+            $(`#training-stage-${stage_n}-down`).on('click', {'stage_n': stage_n}, function (e) {
+                console.log(`training-stage-${e.data.stage_n}-down`);
+            });
+            Toast.show({result: 'success', reason: 'Added:', msg: `Training stage #${stage_n}`});
+        } catch (err) {
+            console.error(err);
+            Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
+        }
     });
+    // -----------------------------------------------------------------------------------------------------------------
     // --- training stage checkboxes -----------------------------------------------------------------------------------
     let el_section_training_stages = $('#section-training-stages');
     for(const attr in checkboxes) {
         // --- when left-clicked then add player to squad/full-training/half-training
-        el_section_training_stages.on('click', `.checkbox-${attr}`, {'attr': attr}, function (event) {
-            let attr = event.data.attr;
-            let stage_n = this.attributes.stage.value;
-            let player_id = tbs_stage[stage_n-1].get_id($(this.closest('tr')));
-            // if checkbox is checked then add player_id to set (sq, ft, ht)
-            if($(this).prop("checked")) {
-                training.stages[stage_n-1][attr].add(player_id);
-            } else {
-                training.stages[stage_n-1][attr].delete(player_id);
-            }
-            let trained_squad = training.calc();
-            tb_result.reload(squad, trained_squad);
-            for(let tb_stage of tbs_stage) {
-                tb_stage.reload(training.trained_squads[tb_stage.stage_n-1], training.trained_squads[tb_stage.stage_n]);
+        el_section_training_stages.on('click', `.checkbox-${attr}`, function () {
+            try {
+                let stage_n = this.attributes.stage.value;
+                let player_id = tbs_stage[stage_n - 1].get_id($(this.closest('tr')));
+                // if checkbox is checked then add player_id to set (sq, ft, ht)
+                if ($(this).prop("checked")) {
+                    training.stages[stage_n - 1][attr].add(player_id);
+                } else {
+                    training.stages[stage_n - 1][attr].delete(player_id);
+                }
+                let trained_squad = training.calc();
+                tb_result.reload(squad, trained_squad);
+                reload_training_stages_tables(tbs_stage, training);
+            } catch (err) {
+                console.error(err);
+                Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
             }
         });
         // --- when right-clicked then select all checkboxes a that type for this stage -----------------------------
-        el_section_training_stages.on('contextmenu', `.checkbox-${attr}`, {'attr': attr}, function (event) {
-            event.preventDefault();
-            let attr = event.data.attr;
-            let stage_n = this.attributes.stage.value;
-            // if checkbox is checked then add player_id to set (sq, ft, ht)
-            if($(this).prop("checked")) {
-                training.stages[stage_n-1].unset_all_ids(attr, squad);
-            } else {
-                training.stages[stage_n-1].set_all_ids(attr, squad);
-            }
-            let trained_squad = training.calc();
-            tb_result.reload(squad, trained_squad);
-            for(let tb_stage of tbs_stage) {
-                tb_stage.reload(training.trained_squads[tb_stage.stage_n-1], training.trained_squads[tb_stage.stage_n]);
+        el_section_training_stages.on('contextmenu', `.checkbox-${attr}`, function (e) {
+            e.preventDefault();
+            try {
+                let stage_n = this.attributes.stage.value;
+                // if checkbox is checked then add player_id to set (sq, ft, ht)
+                if ($(this).prop("checked")) {
+                    training.stages[stage_n - 1].unset_all_ids(attr, squad);
+                } else {
+                    training.stages[stage_n - 1].set_all_ids(attr, squad);
+                }
+                let trained_squad = training.calc();
+                tb_result.reload(squad, trained_squad);
+                reload_training_stages_tables(tbs_stage, training);
+            } catch (err) {
+                console.error(err);
+                Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
             }
         });
     }
     // --- decorate collapsible item with +/- ----------------------------------------------------------------------
     $('body').on('click', '.gg-collapsible', function () {
         $(this).children('svg').toggleClass('fa-plus fa-minus');    // this works when font awesome is imported as js
-        $(this).children('i').toggleClass('fa-plus fa-minus');      // this works when font awesome is imported as css
+        // $(this).children('i').toggleClass('fa-plus fa-minus');      // this works when font awesome is imported as css
     });
     // --- back to top button --------------------------------------------------------------------------------------
     let btn_back_to_top = $('#btn-back-to-top');
@@ -278,6 +294,30 @@ function main() {
         document.body.scrollTop = 0;
         document.documentElement.scrollTop = 0;
     });
+}
+
+function reload_training_stages_tables(tbs_stage, training) {
+    for (let tb_stage of tbs_stage) {
+        if(tb_stage) {
+            tb_stage.reload(training.get_previous_stage_squad(tb_stage.stage_n), training.trained_squads[tb_stage.stage_n]);
+        }
+    }
+}
+
+function set_training_stages_player_default_checkboxes(player_id, training) {
+    for(const stage of training.stages) {
+        if(stage) {
+            stage.set_default_checkboxes(player_id);
+        }
+    }
+}
+
+function unset_training_stages_player_default_checkboxes(player_id, training) {
+    for(const stage of training.stages) {
+        if(stage) {
+            stage.unset_checkboxes(player_id);
+        }
+    }
 }
 
 // await new Promise(r => setTimeout(r, 5000));

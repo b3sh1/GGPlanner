@@ -4,6 +4,10 @@ function add_stage(stage_n, stage) {
     return $(generate_html(stage_n, stage)).appendTo('#section-training-stages');
 }
 
+function remove_stage(stage_n) {
+    $(`#accordion-training-stage-${stage_n}`).remove();
+}
+
 
 function generate_html(stage_n, stage) {
     let str_stop_condition = 'default';
@@ -27,26 +31,69 @@ function generate_html(stage_n, stage) {
         str_stop_condition = `Training for <strong>${stage.stop.weeks.val} weeks</strong>.`;
     }
     return `
-        <div class="accordion-item" style="background-color: #303030">
+        <div id="accordion-training-stage-${stage_n}" class="accordion-item" style="background-color: #303030">
             <h2 class="accordion-header" id="h-training-stage-${stage_n}">
-                <button
-                        class="btn btn-info btn-block text-start gg-collapsible"
-                        style="background-color: #303030; border-radius: 0;"
-                        type="button"
-                        data-mdb-toggle="collapse"
-                        data-mdb-target="#collapse-training-stage-${stage_n}"
-                        aria-expanded="true"
-                        aria-controls="collapse-training-stage-${stage_n}"
-                >
-                    <i class="fas fa-plus fa-sm mx-2"></i> Stage #${stage_n}
-                </button>
+                <div class="row g-0">
+                    <div class="col-8">
+                        <button
+                            class="btn btn-info btn-block ripple-surface text-start gg-collapsible"
+                            style="background-color: #303030; border-radius: 0;"
+                            type="button"
+                            data-mdb-toggle="collapse"
+                            data-mdb-target="#collapse-training-stage-${stage_n}"
+                            aria-expanded="true"
+                            aria-controls="collapse-training-stage-${stage_n}"
+                        >
+                            <i class="fas fa-plus fa-sm mx-2"></i> Stage #${stage_n}
+                        </button>
+                    </div>
+                    <div class="col-1">
+                        <button
+                            id="training-stage-${stage_n}-delete"
+                            class="btn btn-info btn-block ripple-surface"
+                            style="background-color: #303030; border-radius: 0;"
+                            type="button"
+                        >
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="col-1">
+                        <button
+                            id="training-stage-${stage_n}-edit"
+                            class="btn btn-info btn-block ripple-surface"
+                            style="background-color: #303030; border-radius: 0;"
+                            type="button"
+                        ><i class="fas fa-pencil-alt"></i></button>
+                    </div>
+                    <div class="col-1">
+                        <button
+                            id="training-stage-${stage_n}-up"
+                            class="btn btn-info btn-block ripple-surface"
+                            style="background-color: #303030; border-radius: 0;"
+                            type="button"
+                        >
+                            <i class="fas fa-chevron-up"></i>
+                        </button>
+                    </div>
+                    <div class="col-1">
+                        <button
+                            id="training-stage-${stage_n}-down"
+                            class="btn btn-info btn-block ripple-surface"
+                            style="background-color: #303030; border-radius: 0;"
+                            type="button"
+                        >
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                </div>
+                
             </h2>
             <div
                     id="collapse-training-stage-${stage_n}"
                     class="accordion-collapse collapse"
                     aria-labelledby="h-training-stage-${stage_n}"
             >
-                <div class="row">
+                <div class="row g-1">
                     <div class="col-md-4">
                         <div class="row">
                             <div class="col">
@@ -105,4 +152,4 @@ function generate_html(stage_n, stage) {
     `;
 }
 
-export {add_stage};
+export {add_stage, remove_stage};

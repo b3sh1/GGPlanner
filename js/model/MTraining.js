@@ -15,8 +15,12 @@ class Training {
         this.trained_squads = [this.trained_squads[0]];
         let squad = new Squad().from_simple_obj(this.trained_squads[0].to_simple_obj());
         for(const stage of this.stages) {
-            squad = stage.calc(squad);
-            this.trained_squads.push(new Squad().from_simple_obj(squad.to_simple_obj()));
+            if(stage) {
+                squad = stage.calc(squad);
+                this.trained_squads.push(new Squad().from_simple_obj(squad.to_simple_obj()));
+            } else {
+                this.trained_squads.push(null);
+            }
         }
         return squad;
     }
@@ -25,6 +29,18 @@ class Training {
         this.stages.push(training_stage);
         this.calc();
         return this.stages.length;
+    }
+
+    delete_stage(stage_n) {
+        delete this.stages[stage_n-1];
+        return this.calc();
+    }
+
+    get_previous_stage_squad(stage_n) {
+        if(this.stages[stage_n-2] || stage_n <= 1) {   // stage_n-2 is actually previous stage as they are indexed from 0, counted from 1
+            return this.trained_squads[stage_n-1];  // stage #1 has index 0, but trained squad has index 1 (trained_squad[0] is initial squad that does not belong to any stage)
+        }
+        return this.get_previous_stage_squad(stage_n-1);
     }
 
     to_simple_arr() {
