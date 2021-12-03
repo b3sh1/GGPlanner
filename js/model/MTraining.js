@@ -9,12 +9,14 @@ class Training {
     constructor(squad, stages = []) {
         this.trained_squads = [squad];
         this.stages = stages;
+        this.stages_order = [];
     }
 
     calc() {
         this.trained_squads = [this.trained_squads[0]];
         let squad = new Squad().from_simple_obj(this.trained_squads[0].to_simple_obj());
-        for(const stage of this.stages) {
+        for(const stage_n of this.stages_order) {
+            const stage = this.stages[stage_n-1];
             if(stage) {
                 squad = stage.calc(squad);
                 this.trained_squads.push(new Squad().from_simple_obj(squad.to_simple_obj()));
@@ -27,24 +29,65 @@ class Training {
 
     add_stage(training_stage) {
         this.stages.push(training_stage);
+        const stage_n = this.stages.length;
+        this.stages_order.push(stage_n);
         this.calc();
-        return this.stages.length;
-    }
-
-    delete_stage(stage_n) {
-        delete this.stages[stage_n-1];
-        return this.calc();
+        return stage_n;
     }
 
     edit_stage(stage_data, stage_n) {
         return this.stages[stage_n-1].from_simple_obj(stage_data);
     }
 
-    get_previous_stage_squad(stage_n) {
-        if(this.stages[stage_n-2] || stage_n <= 1) {   // stage_n-2 is actually previous stage as they are indexed from 0, counted from 1
-            return this.trained_squads[stage_n-1];  // stage #1 has index 0, but trained squad has index 1 (trained_squad[0] is initial squad that does not belong to any stage)
+    delete_stage(stage_n) {
+        delete this.stages[stage_n-1];
+        this.stages_order.splice(this.stages_order.indexOf(stage_n), 1);
+        return this.calc();
+    }
+
+    move_stage_order_up(stage_n) {
+        const i = this.stages_order.indexOf(stage_n);
+        if(i > 0) {
+            const previous_stage_n = this.stages_order[i-1];
+            this.stages_order[i-1] = this.stages_order[i];
+            this.stages_order[i] = previous_stage_n;
+            return previous_stage_n;
         }
-        return this.get_previous_stage_squad(stage_n-1);
+        return -1;
+    }
+
+    move_stage_order_down(stage_n) {
+        const i = this.stages_order.indexOf(stage_n);
+        if(i < this.stages_order.length-1) {
+            const next_stage_n = this.stages_order[i+1];
+            this.stages_order[i+1] = this.stages_order[i];
+            this.stages_order[i] = next_stage_n;
+            return next_stage_n;
+        }
+        return -1;
+    }
+
+    get_previous_stage_squad(stage_n) {
+        const i = this.stages_order.indexOf(stage_n);
+        return this.trained_squads[i];
+        // if(this.stages[i-1] || i <= 0) {
+        //     return this.trained_squads[i];
+        // }
+        // return this.get_previous_stage_squad(stage_n - 1);
+        //
+        // if(this.stages[stage_n-2] || stage_n <= 1) {   // stage_n-2 is actually previous stage as they are indexed from 0, counted from 1
+        //     return this.trained_squads[stage_n-1];  // stage #1 has index 0, but trained squad has index 1 (trained_squad[0] is initial squad that does not belong to any stage)
+        // }
+        // return this.get_previous_stage_squad(stage_n-1);
+    }
+
+    get_trained_squad(stage_n) {
+        const i = this.stages_order.indexOf(stage_n);
+        return this.trained_squads[i+1];
+    }
+
+    get_final_trained_squad() {
+        return this.trained_squads[this.stages_order.length];
     }
 
     to_simple_arr() {

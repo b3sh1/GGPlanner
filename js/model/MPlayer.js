@@ -228,9 +228,14 @@ const attributes = {
 
 const levels = {
     skill: {
-        max: 20,
+        max: 25,
         min: 0,
         step: 1.00,
+        25: {name: "divine (+5)", txt_color: "#FFFFFF", bg_color: "#094f29"},
+        24: {name: "divine (+4)", txt_color: "#FFFFFF", bg_color: "#094f29"},
+        23: {name: "divine (+3)", txt_color: "#FFFFFF", bg_color: "#094f29"},
+        22: {name: "divine (+2)", txt_color: "#FFFFFF", bg_color: "#094f29"},
+        21: {name: "divine (+1)", txt_color: "#FFFFFF", bg_color: "#094f29"},
         20: {name: "divine", txt_color: "#FFFFFF", bg_color: "#094f29"},
         19: {name: "utopian", txt_color: "#FFFFFF", bg_color: "#095826"},
         18: {name: "magical", txt_color: "#FFFFFF", bg_color: "#0A6024"},

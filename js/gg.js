@@ -201,14 +201,14 @@ function main() {
             let training_stage = new TrainingStage(squad).from_simple_obj(TrainingStageForm.read());
             let stage_n = training.add_stage(training_stage); // auto-calc
             // let trained_squad = training.calc();
-            tb_result.reload(squad, training.trained_squads[stage_n]);
+            tb_result.reload(squad, training.get_trained_squad(stage_n));
             TrainingStageAccordion.add_stage(stage_n, training_stage);
             let tb_stage = new StageTable(stage_n, training_stage);
-            tb_stage.load_data(training.get_previous_stage_squad(stage_n), training.trained_squads[stage_n]);
+            tb_stage.load_data(training.get_previous_stage_squad(stage_n), training.get_trained_squad(stage_n));
             tbs_stage.push(tb_stage);
             // --- add listeners to training stages buttons -----------------------------------------------------------
             // --- delete training stage ---
-            $(`#training-stage-${stage_n}-delete`).on('click', {'stage_n': stage_n}, function (e) {
+            $(`#training-stage-${stage_n}-delete`).on('click', function () {
                 let final_trained_squad = training.delete_stage(stage_n);  // auto-calc
                 delete tbs_stage[stage_n-1];
                 TrainingStageAccordion.remove_stage(stage_n);
@@ -217,16 +217,24 @@ function main() {
                 Toast.show({result: 'warning', reason: 'Removed:', msg: `Training stage #${stage_n}`});
             });
             // --- edit training stage ==> opens modal ---
-            $(`#training-stage-${stage_n}-edit`).on('click', {'stage_n': stage_n}, function (e) {
+            $(`#training-stage-${stage_n}-edit`).on('click', function () {
                 TrainingStageForm.write(training.stages[stage_n-1], stage_n);
             });
             // --- move training stage up ---
-            $(`#training-stage-${stage_n}-up`).on('click', {'stage_n': stage_n}, function (e) {
-                console.log(`training-stage-${e.data.stage_n}-up`);
+            $(`#training-stage-${stage_n}-up`).on('click', function () {
+                const previous_stage_n = training.move_stage_order_up(stage_n);
+                const final_trained_squad = training.calc();
+                TrainingStageAccordion.move_stage_up(stage_n, previous_stage_n);
+                tb_result.reload(squad, final_trained_squad);
+                reload_training_stages_tables(tbs_stage, training);
             });
             // --- move training stage down ---
-            $(`#training-stage-${stage_n}-down`).on('click', {'stage_n': stage_n}, function (e) {
-                console.log(`training-stage-${e.data.stage_n}-down`);
+            $(`#training-stage-${stage_n}-down`).on('click', function () {
+                const next_stage_n = training.move_stage_order_down(stage_n);
+                const final_trained_squad = training.calc();
+                TrainingStageAccordion.move_stage_down(stage_n, next_stage_n);
+                tb_result.reload(squad, final_trained_squad);
+                reload_training_stages_tables(tbs_stage, training);
             });
             Toast.show({result: 'success', reason: 'Added:', msg: `Training stage #${stage_n}`});
         } catch (err) {
@@ -318,7 +326,7 @@ function main() {
 function reload_training_stages_tables(tbs_stage, training) {
     for (let tb_stage of tbs_stage) {
         if(tb_stage) {
-            tb_stage.reload(training.get_previous_stage_squad(tb_stage.stage_n), training.trained_squads[tb_stage.stage_n]);
+            tb_stage.reload(training.get_previous_stage_squad(tb_stage.stage_n), training.get_trained_squad(tb_stage.stage_n));
         }
     }
 }

@@ -18,6 +18,19 @@ function remove_stage(stage_n) {
 }
 
 
+function move_stage_up(stage_n, previous_stage_n) {
+    if(previous_stage_n > 0) {
+        $(`#accordion-training-stage-${stage_n}`).insertBefore(`#accordion-training-stage-${previous_stage_n}`);
+    }
+}
+
+function move_stage_down(stage_n, next_stage_n) {
+    if(next_stage_n > 0) {
+        $(`#accordion-training-stage-${next_stage_n}`).insertBefore(`#accordion-training-stage-${stage_n}`);
+    }
+}
+
+
 function generate_scaffold(stage_n) {
     return `
         <div id="accordion-training-stage-${stage_n}" class="accordion-item" style="background-color: #303030">
@@ -171,4 +184,4 @@ function generate_cards(stage_n, stage) {
 
 
 
-export {add_stage, edit_stage, remove_stage};
+export {add_stage, edit_stage, remove_stage, move_stage_up, move_stage_down};
