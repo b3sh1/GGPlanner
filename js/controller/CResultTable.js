@@ -23,7 +23,7 @@ class ResultTable {
                 tb_result_header.push({title: attr.toUpperCase()});
             }
         }
-        this.dttb = $('#tb-result').DataTable({
+        let dttb = $('#tb-result').DataTable({
             paging: false,
             searching: false,
             bInfo: false,
@@ -53,7 +53,7 @@ class ResultTable {
             // },
         });
         $("#tb-result-loading-indicator").addClass('d-none');  // hide loading spinner
-        return this.dttb;
+        return dttb;
     }
 
     load_data(init_squad, trained_squad) {

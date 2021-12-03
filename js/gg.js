@@ -207,6 +207,7 @@ function main() {
             tb_stage.load_data(training.get_previous_stage_squad(stage_n), training.trained_squads[stage_n]);
             tbs_stage.push(tb_stage);
             // --- add listeners to training stages buttons -----------------------------------------------------------
+            // --- delete training stage ---
             $(`#training-stage-${stage_n}-delete`).on('click', {'stage_n': stage_n}, function (e) {
                 let final_trained_squad = training.delete_stage(stage_n);  // auto-calc
                 delete tbs_stage[stage_n-1];
@@ -215,16 +216,34 @@ function main() {
                 reload_training_stages_tables(tbs_stage, training);
                 Toast.show({result: 'warning', reason: 'Removed:', msg: `Training stage #${stage_n}`});
             });
+            // --- edit training stage ==> opens modal ---
             $(`#training-stage-${stage_n}-edit`).on('click', {'stage_n': stage_n}, function (e) {
-                console.log(`training-stage-${e.data.stage_n}-edit`);
+                TrainingStageForm.write(training.stages[stage_n-1], stage_n);
             });
+            // --- move training stage up ---
             $(`#training-stage-${stage_n}-up`).on('click', {'stage_n': stage_n}, function (e) {
                 console.log(`training-stage-${e.data.stage_n}-up`);
             });
+            // --- move training stage down ---
             $(`#training-stage-${stage_n}-down`).on('click', {'stage_n': stage_n}, function (e) {
                 console.log(`training-stage-${e.data.stage_n}-down`);
             });
             Toast.show({result: 'success', reason: 'Added:', msg: `Training stage #${stage_n}`});
+        } catch (err) {
+            console.error(err);
+            Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
+        }
+    });
+    // --- button edit training stage ==> save data from form ---
+    $("#btn-save-training-stage").on("click", function () {
+        try {
+            let stage_data = TrainingStageForm.read();
+            let training_stage = training.edit_stage(stage_data, stage_data.id);
+            let trained_squad = training.calc();
+            tb_result.reload(squad, trained_squad);
+            TrainingStageAccordion.edit_stage(stage_data.id, training_stage);
+            reload_training_stages_tables(tbs_stage, training);
+            Toast.show({result: 'success', reason: 'Edited:', msg: `Training stage #${stage_data.id}`});
         } catch (err) {
             console.error(err);
             Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});

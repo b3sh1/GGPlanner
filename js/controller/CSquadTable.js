@@ -22,7 +22,7 @@ class SquadTable {
             }
         }
         tb_squad_header.push({title: "Edit", width: 155});
-        this.dttb = $('#tb-squad').DataTable({
+        let dttb = $('#tb-squad').DataTable({
             paging: false,
             searching: false,
             bInfo: false,
@@ -56,7 +56,7 @@ class SquadTable {
             },
         });
         $("#tb-squad-loading-indicator").addClass('d-none');  // hide loading spinner
-        return this.dttb;
+        return dttb;
     }
 
     load_data(squad) {

@@ -36,6 +36,10 @@ class Training {
         return this.calc();
     }
 
+    edit_stage(stage_data, stage_n) {
+        return this.stages[stage_n-1].from_simple_obj(stage_data);
+    }
+
     get_previous_stage_squad(stage_n) {
         if(this.stages[stage_n-2] || stage_n <= 1) {   // stage_n-2 is actually previous stage as they are indexed from 0, counted from 1
             return this.trained_squads[stage_n-1];  // stage #1 has index 0, but trained squad has index 1 (trained_squad[0] is initial squad that does not belong to any stage)

@@ -15,11 +15,10 @@ const DECORATE_ICONS = true;  // put icons if attribute specifies it (e.q. speci
 class StageTable {
 
     constructor(stage_n, stage) {
-        this.trained_skills = ['st'];
-        this.trained_skills.push(...training[stage.training].skills);  // extend trained skills from supplied training
         this.stage_n = stage_n;
         this.stage = stage;
         this.datatable = this.init_datatable();
+        this.update_columns_visibility();
     }
 
     init_datatable() {
@@ -29,13 +28,13 @@ class StageTable {
         }
         tb_stage_header.push({title: "Name", width: 300});
         tb_stage_header.push({title: "Age", width: 50});
-        for (let key in this.trained_skills) {
-            let skill = this.trained_skills[key];
+        tb_stage_header.push({title: "st".toUpperCase()});
+        for (const skill of training.ALL.skills) {
             if(skill in Player.attributes) {
-                tb_stage_header.push({title: skill.toUpperCase()});
+                tb_stage_header.push({title: skill.toUpperCase(), name: skill});
             }
         }
-        this.dttb = $(`#tb-stage-${this.stage_n}`).DataTable({
+        let dttb = $(`#tb-stage-${this.stage_n}`).DataTable({
             paging: false,
             searching: false,
             bInfo: false,
@@ -62,13 +61,14 @@ class StageTable {
             },
         });
         $(`#tb-stage-${this.stage_n}-loading-indicator`).addClass('d-none');  // hide loading spinner
-        return this.dttb;
+        return dttb;
     }
 
     load_data(init_squad, trained_squad) {
         for (let id in trained_squad.players) {
             this.append(init_squad.players[id], trained_squad.players[id], id);
         }
+        this.update_columns_visibility();
         this.datatable.draw();
         return this;
     }
@@ -86,9 +86,11 @@ class StageTable {
         }
         row.push(trained_player.name.to_str());
         row.push(trained_player.age.to_str() + StageTable.#decorate_age_diff(trained_player.age.diff(init_player.age)));
+        let st_lvl = StageTable.#decorate_skill(trained_player['st'], Player.attributes['st'].type);
+        st_lvl += StageTable.#decorate_diff(trained_player['st']-init_player['st']);
+        row.push(st_lvl);
         // other player attributes
-        for (let key in this.trained_skills) {
-            let skill = this.trained_skills[key];
+        for (let skill of training.ALL.skills) {
             if (skill in Player.attributes) {
                 let skill_lvl = StageTable.#decorate_skill(trained_player[skill], Player.attributes[skill].type);
                 skill_lvl += StageTable.#decorate_diff(trained_player[skill]-init_player[skill]);
@@ -120,6 +122,17 @@ class StageTable {
 
     draw() {
         this.datatable.draw();
+    }
+
+    update_columns_visibility() {
+        let trained_skills = training[this.stage.training].skills;
+        for (const skill of training.ALL.skills) {
+            if(trained_skills.includes(skill)) {
+                this.datatable.column(`${skill}:name`).visible(true);
+            } else {
+                this.datatable.column(`${skill}:name`).visible(false);
+            }
+        }
     }
 
     html_checkbox(attr, is_set) {
