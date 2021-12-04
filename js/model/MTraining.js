@@ -1,7 +1,8 @@
-import {Squad} from "./MSquad.js";
-import {constraint_val} from "../utils.js";
+import {Squad, SquadError} from "./MSquad.js";
+import {constraint_val, examine} from "../utils.js";
 
 const MAX_TRAINING_WEEKS = 335;
+const MAX_TRAINING_STAGES = 68;
 
 
 // --- Training --------------------------------------------------------------------------------------------------------
@@ -28,6 +29,9 @@ class Training {
     }
 
     add_stage(training_stage) {
+        if(this.stages_order.length >= MAX_TRAINING_STAGES) {
+            throw new TrainingError(`Reached maximum number of training stages (${MAX_TRAINING_STAGES})!`);
+        }
         this.stages.push(training_stage);
         const stage_n = this.stages.length;
         this.stages_order.push(stage_n);
@@ -70,15 +74,6 @@ class Training {
     get_previous_stage_squad(stage_n) {
         const i = this.stages_order.indexOf(stage_n);
         return this.trained_squads[i];
-        // if(this.stages[i-1] || i <= 0) {
-        //     return this.trained_squads[i];
-        // }
-        // return this.get_previous_stage_squad(stage_n - 1);
-        //
-        // if(this.stages[stage_n-2] || stage_n <= 1) {   // stage_n-2 is actually previous stage as they are indexed from 0, counted from 1
-        //     return this.trained_squads[stage_n-1];  // stage #1 has index 0, but trained squad has index 1 (trained_squad[0] is initial squad that does not belong to any stage)
-        // }
-        // return this.get_previous_stage_squad(stage_n-1);
     }
 
     get_trained_squad(stage_n) {
@@ -86,26 +81,39 @@ class Training {
         return this.trained_squads[i+1];
     }
 
-    get_final_trained_squad() {
-        return this.trained_squads[this.stages_order.length];
-    }
-
-    to_simple_arr() {
-        let arr = [];
+    to_simple_obj() {
+        // examine(this);
+        let obj = {trained_squads: [], stages: [], stages_order: this.stages_order};
         for(let stage of this.stages) {
-            arr.push(stage.to_simple_obj());
+            if(stage) {
+                obj.stages.push(stage.to_simple_obj());
+            } else {
+                obj.stages.push(null);
+            }
         }
-        return arr;
+        return obj;
     }
 
-    from_simple_arr(arr, rewrite = true) {
-        if(rewrite) {
-            this.stages = [];
+    from_simple_obj(obj) {
+        // examine(obj);
+        if(!obj) {
+            return this;
         }
-        for(let stage_cfg of arr) {
-            this.add_stage(stage_cfg);
+        this.stages_order = obj.stages_order;
+        this.stages = [];
+        for(let stage_cfg of obj.stages) {
+            let training_stage = new TrainingStage().from_simple_obj(stage_cfg);
+            this.stages.push(training_stage);
         }
+        this.calc();
         return this;
+    }
+}
+
+class TrainingError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "TrainingError";
     }
 }
 
@@ -253,7 +261,11 @@ class TrainingStage {
     to_simple_obj() {
         let obj = {};
         for(let key in default_stage_cfg) {
-            obj[key] = this[key];
+            if(key in checkboxes) {
+                obj[key] = Array.from(this[key]);
+            } else {
+                obj[key] = this[key];
+            }
         }
         return obj;
     }
@@ -261,7 +273,11 @@ class TrainingStage {
     from_simple_obj(obj) {
         for(let key in obj) {
             if(key in default_stage_cfg) {
-                this[key] = obj[key];
+                if(key in checkboxes) {
+                    this[key] = new Set(obj[key]);
+                } else {
+                    this[key] = obj[key];
+                }
             }
         }
         return this;
@@ -273,8 +289,8 @@ const default_stage_cfg = {
     coach: 8, assistants: 10, intensity: 1.0, stamina: 0.1, training: 'F_PM', sq: null, ft: null, ht: null,
     stop: {
         weeks: {active: true, val: 16}, // this should be always active with at most MAX_TRAINING_WEEKS val
-        skill: {active: false, player_id: -1, type: 'pm', lvl: 20},
-        age: {active: false, player_id: -1, years: 37, days: 111},
+        skill: {active: false, player_id: -1, type: 'pm', lvl: 15},
+        age: {active: false, player_id: -1, years: 22, days: 0},
     }
 }
 
@@ -632,28 +648,28 @@ const training = {
     // all trainable skills
     "ALL": {skills: ['gk', 'df', 'pm', 'wg', 'pg', 'sc', 'sp']},
     // Focused
-    "F_GK": {name: "Keeper", category: "Focused", skills: ['gk']},
-    "F_DF": {name: "Defending", category: "Focused", skills: ['df']},
-    "F_PM": {name: "Playmaking", category: "Focused", skills: ['pm']},
-    "F_WG": {name: "Winger", category: "Focused", skills: ['wg']},
-    "F_PG": {name: "Passing", category: "Focused", skills: ['pg']},
-    "F_SC": {name: "Scoring", category: "Focused", skills: ['sc']},
-    "F_SP": {name: "Set pieces", category: "Focused", skills: ['sp']},
+    "F_GK": {name: "Keeper", 		short_name: "GK",	category: "Focused", skills: ['gk']},
+    "F_DF": {name: "Defending", 	short_name: "DF",	category: "Focused", skills: ['df']},
+    "F_PM": {name: "Playmaking", 	short_name: "PM",	category: "Focused", skills: ['pm']},
+    "F_WG": {name: "Winger", 		short_name: "WG",	category: "Focused", skills: ['wg']},
+    "F_PG": {name: "Passing", 		short_name: "PG",	category: "Focused", skills: ['pg']},
+    "F_SC": {name: "Scoring", 		short_name: "SC",	category: "Focused", skills: ['sc']},
+    "F_SP": {name: "Set pieces", 	short_name: "SP",	category: "Focused", skills: ['sp']},
     // Extended
-    "E_DF": {name: "Defending", category: "Extended", skills: ['df']},
-    "E_WG": {name: "Winger", category: "Extended", skills: ['wg']},
-    "E_PG": {name: "Passing", category: "Extended", skills: ['pg']},
+    "E_DF": {name: "Defending", 	short_name: "DF(E)",	category: "Extended", skills: ['df']},
+    "E_WG": {name: "Winger", 		short_name: "WG(E)",	category: "Extended", skills: ['wg']},
+    "E_PG": {name: "Passing", 		short_name: "PG(E)",	category: "Extended", skills: ['pg']},
     // Combined
-    "C_SC&SP": {name: "Scoring and Set pieces", category: "Combined", skills: ['sc', 'sp']},
+    "C_SC&SP": {name: "Scoring and Set pieces", short_name: "SC&SP",	category: "Combined", skills: ['sc', 'sp']},
     // Osmosis
-    "O_F_DF": {name: "Defending", category: "osmosis", subcategory: "Focused", skills: ['df']},
-    "O_F_PM": {name: "Playmaking", category: "osmosis", subcategory: "Focused", skills: ['pm']},
-    "O_F_WG": {name: "Winger", category: "osmosis", subcategory: "Focused", skills: ['wg']},
-    "O_F_PG": {name: "Passing", category: "osmosis", subcategory: "Focused", skills: ['pg']},
-    "O_F_SC": {name: "Scoring", category: "osmosis", subcategory: "Focused", skills: ['sc']},
-    "O_E_PG": {name: "Passing", category: "osmosis", subcategory: "Extended", skills: ['pg']},
-    "O_E_DF": {name: "Defending", category: "osmosis", subcategory: "Extended", skills: ['df']},
-    "O_E_WG": {name: "Winger", category: "osmosis", subcategory: "Extended", skills: ['wg']},
+    "O_F_DF": {name: "Defending", 	short_name: "DF(O)",	category: "osmosis", subcategory: "Focused", skills: ['df']},
+    "O_F_PM": {name: "Playmaking", 	short_name: "PM(O)",	category: "osmosis", subcategory: "Focused", skills: ['pm']},
+    "O_F_WG": {name: "Winger", 		short_name: "WG(O)",	category: "osmosis", subcategory: "Focused", skills: ['wg']},
+    "O_F_PG": {name: "Passing", 	short_name: "PG(O)",	category: "osmosis", subcategory: "Focused", skills: ['pg']},
+    "O_F_SC": {name: "Scoring", 	short_name: "SC(O)",	category: "osmosis", subcategory: "Focused", skills: ['sc']},
+    "O_E_PG": {name: "Passing", 	short_name: "PG(EO)",	category: "osmosis", subcategory: "Extended", skills: ['pg']},
+    "O_E_DF": {name: "Defending", 	short_name: "DF(EO)",	category: "osmosis", subcategory: "Extended", skills: ['df']},
+    "O_E_WG": {name: "Winger", 		short_name: "WG(EO)",	category: "osmosis", subcategory: "Extended", skills: ['wg']},
 }
 
 const categories = {
@@ -664,4 +680,4 @@ const categories = {
 }
 
 
-export {Training, TrainingStage, training, categories, default_stage_cfg, MAX_TRAINING_WEEKS, checkboxes};
+export {Training, TrainingError, TrainingStage, training, categories, default_stage_cfg, MAX_TRAINING_WEEKS, checkboxes};

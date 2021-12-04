@@ -9,30 +9,46 @@ import {StageTable} from "./controller/CStageTable.js";
 import * as Storage from "./controller/CPersistentStorage.js";
 import * as Header from "./controller/CHeader.js";
 import {presets} from "./model/MPlayer.js";
-import {Training, TrainingStage, default_stage_cfg, checkboxes} from "./model/MTraining.js";
+import {Training, TrainingError, TrainingStage, default_stage_cfg, checkboxes} from "./model/MTraining.js";
 import * as TrainingStageAccordion from "./controller/CTrainingStagesAccordion.js";
 
 
 const STORE_SQUAD = "squad";
+const STORE_TRAINING = "training";
 
 function main() {
     // Header.init();
+    PlayerForm.init();  // modal
+    TrainingStageForm.init();  // modal
+
     let squad = new Squad().from_simple_obj(Storage.load(STORE_SQUAD));
+    let training = new Training(squad).from_simple_obj(Storage.load(STORE_TRAINING));
     let tb_squad = new SquadTable().load_data(squad);
     let tb_result = new ResultTable().load_data(squad, squad);
     let tbs_stage = [];
-    PlayerForm.init();  // hidden for now
-    TrainingStageForm.init();
 
-    let training = new Training(squad);
+    // init training stages accordion + reload result table
+    for(const i in training.stages_order) {
+        let stage_n = training.stages_order[i];
+        let training_stage = training.stages[stage_n-1];
+        TrainingStageAccordion.add_stage(stage_n, training_stage);
+        if(Number.parseInt(i) === training.stages_order.length-1) {
+            tb_result.reload(squad, training.get_trained_squad(stage_n));
+        }
+    }
+    // init training stages tables
+    for(const n in training.stages) {
+        const stage_n = Number.parseInt(n) + 1;
+        const training_stage = training.stages[n];
+        if(training.stages[n]) {
+            let tb_stage = new StageTable(stage_n, training_stage);
+            tb_stage.load_data(training.get_previous_stage_squad(stage_n), training.get_trained_squad(stage_n));
+            tbs_stage.push(tb_stage);
+        } else {
+            tbs_stage.push(null);
+        }
+    }
 
-    // const tb_squad_placeholder = '<div class="table-responsive px-3"><table id="tb-squad" class="table table-striped table-hover"></table></div>'
-    // new SectionCollapsible({
-    //     parent: $('#squad'),
-    //     name: "squad",
-    //     expanded: true,
-    //     children: [tb_squad_placeholder],
-    // }).render();
 
     // --- listen to storage changes from other instances (sync) ---
     window.addEventListener('storage', function () {
@@ -41,10 +57,9 @@ function main() {
         tb_squad.reload(squad);
         // setting unique to not spam screen with toasts - only one + no autohide (=> delay=-1)
         Toast.show({
-            result: 'warning', reason: 'Warning', msg: 'Data modified from other instance.', delay: -1, unique: true,
+            result: 'warning', reason: 'Warning', msg: 'Data modified from another instance!', delay: -1, unique: true,
         });
     });
-
 
     // --- button add players - opens modal ---
     $("#btn-add-players").on("click", function () {
@@ -200,6 +215,7 @@ function main() {
             // squad for training stage here is just for initialization of default squad/trained players
             let training_stage = new TrainingStage(squad).from_simple_obj(TrainingStageForm.read());
             let stage_n = training.add_stage(training_stage); // auto-calc
+            Storage.save(STORE_TRAINING, training.to_simple_obj());
             // let trained_squad = training.calc();
             tb_result.reload(squad, training.get_trained_squad(stage_n));
             TrainingStageAccordion.add_stage(stage_n, training_stage);
@@ -210,6 +226,7 @@ function main() {
             // --- delete training stage ---
             $(`#training-stage-${stage_n}-delete`).on('click', function () {
                 let final_trained_squad = training.delete_stage(stage_n);  // auto-calc
+                Storage.save(STORE_TRAINING, training.to_simple_obj());
                 delete tbs_stage[stage_n-1];
                 TrainingStageAccordion.remove_stage(stage_n);
                 tb_result.reload(squad, final_trained_squad);
@@ -223,6 +240,7 @@ function main() {
             // --- move training stage up ---
             $(`#training-stage-${stage_n}-up`).on('click', function () {
                 const previous_stage_n = training.move_stage_order_up(stage_n);
+                Storage.save(STORE_TRAINING, training.to_simple_obj());
                 const final_trained_squad = training.calc();
                 TrainingStageAccordion.move_stage_up(stage_n, previous_stage_n);
                 tb_result.reload(squad, final_trained_squad);
@@ -231,6 +249,7 @@ function main() {
             // --- move training stage down ---
             $(`#training-stage-${stage_n}-down`).on('click', function () {
                 const next_stage_n = training.move_stage_order_down(stage_n);
+                Storage.save(STORE_TRAINING, training.to_simple_obj());
                 const final_trained_squad = training.calc();
                 TrainingStageAccordion.move_stage_down(stage_n, next_stage_n);
                 tb_result.reload(squad, final_trained_squad);
@@ -238,8 +257,12 @@ function main() {
             });
             Toast.show({result: 'success', reason: 'Added:', msg: `Training stage #${stage_n}`});
         } catch (err) {
-            console.error(err);
-            Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
+            if(err instanceof TrainingError) {
+                Toast.show({result: 'fail', reason: 'Error:', msg: err.message});
+            } else {
+                console.error(err);
+                Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
+            }
         }
     });
     // --- button edit training stage ==> save data from form ---
@@ -248,6 +271,7 @@ function main() {
             let stage_data = TrainingStageForm.read();
             let training_stage = training.edit_stage(stage_data, stage_data.id);
             let trained_squad = training.calc();
+            Storage.save(STORE_TRAINING, training.to_simple_obj());
             tb_result.reload(squad, trained_squad);
             TrainingStageAccordion.edit_stage(stage_data.id, training_stage);
             reload_training_stages_tables(tbs_stage, training);
@@ -272,6 +296,7 @@ function main() {
                 } else {
                     training.stages[stage_n - 1][attr].delete(player_id);
                 }
+                Storage.save(STORE_TRAINING, training.to_simple_obj());
                 let trained_squad = training.calc();
                 tb_result.reload(squad, trained_squad);
                 reload_training_stages_tables(tbs_stage, training);
@@ -291,6 +316,7 @@ function main() {
                 } else {
                     training.stages[stage_n - 1].set_all_ids(attr, squad);
                 }
+                Storage.save(STORE_TRAINING, training.to_simple_obj());
                 let trained_squad = training.calc();
                 tb_result.reload(squad, trained_squad);
                 reload_training_stages_tables(tbs_stage, training);
@@ -321,6 +347,10 @@ function main() {
         document.body.scrollTop = 0;
         document.documentElement.scrollTop = 0;
     });
+}
+
+function init_from_store(squad, training, tb_squad, tb_result, tbs_stage) {
+
 }
 
 function reload_training_stages_tables(tbs_stage, training) {

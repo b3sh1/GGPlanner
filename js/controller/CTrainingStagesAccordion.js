@@ -2,7 +2,7 @@ import {training} from "../model/MTraining.js";
 
 
 function add_stage(stage_n, stage) {
-    $(generate_scaffold(stage_n)).appendTo('#section-training-stages');
+    $(generate_scaffold(stage_n, stage)).appendTo('#section-training-stages');
     $(generate_cards(stage_n, stage)).appendTo(`#cards-training-stage-${stage_n}`);
 }
 
@@ -31,7 +31,7 @@ function move_stage_down(stage_n, next_stage_n) {
 }
 
 
-function generate_scaffold(stage_n) {
+function generate_scaffold(stage_n, stage) {
     return `
         <div id="accordion-training-stage-${stage_n}" class="accordion-item" style="background-color: #303030">
             <h2 class="accordion-header" id="h-training-stage-${stage_n}">
@@ -46,7 +46,7 @@ function generate_scaffold(stage_n) {
                             aria-expanded="true"
                             aria-controls="collapse-training-stage-${stage_n}"
                         >
-                            <i class="fas fa-plus fa-sm mx-2"></i> Stage #${stage_n}
+                            <i class="fas fa-plus fa-sm mx-2"></i> Stage #${stage_n}: ${training[stage.training].short_name}
                         </button>
                     </div>
                     <div class="col-1">
@@ -155,7 +155,7 @@ function generate_cards(stage_n, stage) {
                     </div>
                     <div class="card-body">                                       
                         <ul class="card-text mx-0 px-0" style="list-style-type:none;">
-                            <li>Training: <strong>${training[stage.training].name}</strong></li>
+                            <li>Training: <strong>${training[stage.training].name} (${training[stage.training].category})</strong></li>
                             <li>Coach: <strong>${stage.coach}</strong></li>
                             <li>Assistans: <strong>${stage.assistants}</strong></li>
                             <li>Intensity: <strong>${stage.intensity * 100}%</strong></li>

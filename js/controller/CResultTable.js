@@ -109,7 +109,7 @@ class ResultTable {
 
     static #decorate_age_diff(age_diff, mode = 'badge') {
         if(DECORATE_AGE_DIFF) {
-            if(age_diff !== "0.0") {
+            if(age_diff !== "0.000") {
                 if(mode === 'simple') {
                     return ` (+${age_diff})`;
                 }

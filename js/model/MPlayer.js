@@ -148,11 +148,11 @@ class Age {
             days += 112;
             years = this.years - age.years - 1;
         }
-        return `${years}.${days}`;
+        return `${years}.${days.toString().padStart(3, '0')}`;
     }
 
     to_str() {
-        return `${this.years}.${this.days}`;
+        return `${this.years}.${this.days.toString().padStart(3, '0')}`;
     }
 }
 

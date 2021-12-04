@@ -29,5 +29,22 @@ function round2(num) {
     return round(num, 2);
 }
 
+function examine(e, r='root') {
+    if(typeof e === 'object') {
+        if(Array.isArray(e)) {
+            for(const v in e) {
+                examine(v, e);
+            }
+        } else {
+            for(const k in e) {
+                if(e.hasOwnProperty(k)) {
+                    examine(e[k], e);
+                }
+            }
+        }
+    } else {
+        console.log(`${r}: ${e} (${typeof e})`);
+    }
+}
 
-export {rand_int, rand_item, capitalize_first, constraint_val, round, round2};
+export {rand_int, rand_item, capitalize_first, constraint_val, round, round2, examine};
