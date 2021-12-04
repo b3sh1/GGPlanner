@@ -17,12 +17,10 @@ class Training {
         this.trained_squads = [this.trained_squads[0]];
         let squad = new Squad().from_simple_obj(this.trained_squads[0].to_simple_obj());
         for(const stage_n of this.stages_order) {
-            const stage = this.stages[stage_n-1];
+            const stage = this.stages[Number.parseInt(stage_n)-1];
             if(stage) {
                 squad = stage.calc(squad);
                 this.trained_squads.push(new Squad().from_simple_obj(squad.to_simple_obj()));
-            } else {
-                this.trained_squads.push(null);
             }
         }
         return squad;
@@ -40,16 +38,20 @@ class Training {
     }
 
     edit_stage(stage_data, stage_n) {
+        stage_n = Number.parseInt(stage_n);
         return this.stages[stage_n-1].from_simple_obj(stage_data);
     }
 
     delete_stage(stage_n) {
+        stage_n = Number.parseInt(stage_n);
         delete this.stages[stage_n-1];
-        this.stages_order.splice(this.stages_order.indexOf(stage_n), 1);
+        const idx = this.stages_order.indexOf(stage_n);
+        this.stages_order.splice(idx, 1);
         return this.calc();
     }
 
     move_stage_order_up(stage_n) {
+        stage_n = Number.parseInt(stage_n);
         const i = this.stages_order.indexOf(stage_n);
         if(i > 0) {
             const previous_stage_n = this.stages_order[i-1];
@@ -61,6 +63,7 @@ class Training {
     }
 
     move_stage_order_down(stage_n) {
+        stage_n = Number.parseInt(stage_n);
         const i = this.stages_order.indexOf(stage_n);
         if(i < this.stages_order.length-1) {
             const next_stage_n = this.stages_order[i+1];
@@ -72,11 +75,13 @@ class Training {
     }
 
     get_previous_stage_squad(stage_n) {
+        stage_n = Number.parseInt(stage_n);
         const i = this.stages_order.indexOf(stage_n);
         return this.trained_squads[i];
     }
 
     get_trained_squad(stage_n) {
+        stage_n = Number.parseInt(stage_n);
         const i = this.stages_order.indexOf(stage_n);
         return this.trained_squads[i+1];
     }
@@ -102,8 +107,12 @@ class Training {
         this.stages_order = obj.stages_order;
         this.stages = [];
         for(let stage_cfg of obj.stages) {
-            let training_stage = new TrainingStage().from_simple_obj(stage_cfg);
-            this.stages.push(training_stage);
+            if(stage_cfg) {
+                let training_stage = new TrainingStage().from_simple_obj(stage_cfg);
+                this.stages.push(training_stage);
+            } else {
+                this.stages.push(null);
+            }
         }
         this.calc();
         return this;

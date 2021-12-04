@@ -51,8 +51,8 @@ function generate_scaffold(stage_n, stage) {
                     </div>
                     <div class="col-1">
                         <button
-                            id="training-stage-${stage_n}-delete"
-                            class="btn btn-info btn-block ripple-surface"
+                            stage="${stage_n}"
+                            class="btn-training-stage-delete btn btn-info btn-block ripple-surface"
                             style="background-color: #303030; border-radius: 0;"
                             type="button"
                         >
@@ -61,8 +61,8 @@ function generate_scaffold(stage_n, stage) {
                     </div>
                     <div class="col-1">
                         <button
-                            id="training-stage-${stage_n}-edit"
-                            class="btn btn-info btn-block ripple-surface"
+                            stage="${stage_n}"
+                            class="btn-training-stage-edit btn btn-info btn-block ripple-surface"
                             style="background-color: #303030; border-radius: 0;"
                             type="button"
                             data-mdb-toggle="modal"
@@ -71,8 +71,8 @@ function generate_scaffold(stage_n, stage) {
                     </div>
                     <div class="col-1">
                         <button
-                            id="training-stage-${stage_n}-up"
-                            class="btn btn-info btn-block ripple-surface"
+                            stage="${stage_n}"
+                            class="btn-training-stage-up btn btn-info btn-block ripple-surface"
                             style="background-color: #303030; border-radius: 0;"
                             type="button"
                         >
@@ -81,8 +81,8 @@ function generate_scaffold(stage_n, stage) {
                     </div>
                     <div class="col-1">
                         <button
-                            id="training-stage-${stage_n}-down"
-                            class="btn btn-info btn-block ripple-surface"
+                            stage="${stage_n}"
+                            class="btn-training-stage-down btn btn-info btn-block ripple-surface"
                             style="background-color: #303030; border-radius: 0;"
                             type="button"
                         >

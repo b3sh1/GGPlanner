@@ -40,7 +40,7 @@ function main() {
     for(const n in training.stages) {
         const stage_n = Number.parseInt(n) + 1;
         const training_stage = training.stages[n];
-        if(training.stages[n]) {
+        if(training_stage) {
             let tb_stage = new StageTable(stage_n, training_stage);
             tb_stage.load_data(training.get_previous_stage_squad(stage_n), training.get_trained_squad(stage_n));
             tbs_stage.push(tb_stage);
@@ -222,39 +222,6 @@ function main() {
             let tb_stage = new StageTable(stage_n, training_stage);
             tb_stage.load_data(training.get_previous_stage_squad(stage_n), training.get_trained_squad(stage_n));
             tbs_stage.push(tb_stage);
-            // --- add listeners to training stages buttons -----------------------------------------------------------
-            // --- delete training stage ---
-            $(`#training-stage-${stage_n}-delete`).on('click', function () {
-                let final_trained_squad = training.delete_stage(stage_n);  // auto-calc
-                Storage.save(STORE_TRAINING, training.to_simple_obj());
-                delete tbs_stage[stage_n-1];
-                TrainingStageAccordion.remove_stage(stage_n);
-                tb_result.reload(squad, final_trained_squad);
-                reload_training_stages_tables(tbs_stage, training);
-                Toast.show({result: 'warning', reason: 'Removed:', msg: `Training stage #${stage_n}`});
-            });
-            // --- edit training stage ==> opens modal ---
-            $(`#training-stage-${stage_n}-edit`).on('click', function () {
-                TrainingStageForm.write(training.stages[stage_n-1], stage_n);
-            });
-            // --- move training stage up ---
-            $(`#training-stage-${stage_n}-up`).on('click', function () {
-                const previous_stage_n = training.move_stage_order_up(stage_n);
-                Storage.save(STORE_TRAINING, training.to_simple_obj());
-                const final_trained_squad = training.calc();
-                TrainingStageAccordion.move_stage_up(stage_n, previous_stage_n);
-                tb_result.reload(squad, final_trained_squad);
-                reload_training_stages_tables(tbs_stage, training);
-            });
-            // --- move training stage down ---
-            $(`#training-stage-${stage_n}-down`).on('click', function () {
-                const next_stage_n = training.move_stage_order_down(stage_n);
-                Storage.save(STORE_TRAINING, training.to_simple_obj());
-                const final_trained_squad = training.calc();
-                TrainingStageAccordion.move_stage_down(stage_n, next_stage_n);
-                tb_result.reload(squad, final_trained_squad);
-                reload_training_stages_tables(tbs_stage, training);
-            });
             Toast.show({result: 'success', reason: 'Added:', msg: `Training stage #${stage_n}`});
         } catch (err) {
             if(err instanceof TrainingError) {
@@ -281,9 +248,47 @@ function main() {
             Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
         }
     });
+    // --- listeners to training stages buttons ------------------------------------------------------------------------
+    let el_section_training_stages = $('#section-training-stages');
+    // --- delete training stage ---
+    // el_section_training_stages.on('click', `.checkbox-${attr}`, function () {
+    el_section_training_stages.on('click', '.btn-training-stage-delete',  function () {
+        let stage_n = this.attributes.stage.value;
+        let final_trained_squad = training.delete_stage(stage_n);  // auto-calc
+        Storage.save(STORE_TRAINING, training.to_simple_obj());
+        delete tbs_stage[stage_n-1];
+        TrainingStageAccordion.remove_stage(stage_n);
+        tb_result.reload(squad, final_trained_squad);
+        reload_training_stages_tables(tbs_stage, training);
+        Toast.show({result: 'warning', reason: 'Removed:', msg: `Training stage #${stage_n}`});
+    });
+    // --- edit training stage ==> opens modal ---
+    el_section_training_stages.on('click', '.btn-training-stage-edit', function () {
+        let stage_n = this.attributes.stage.value;
+        TrainingStageForm.write(training.stages[stage_n-1], stage_n);
+    });
+    // --- move training stage up ---
+    el_section_training_stages.on('click', '.btn-training-stage-up', function () {
+        let stage_n = this.attributes.stage.value;
+        const previous_stage_n = training.move_stage_order_up(stage_n);
+        Storage.save(STORE_TRAINING, training.to_simple_obj());
+        const final_trained_squad = training.calc();
+        TrainingStageAccordion.move_stage_up(stage_n, previous_stage_n);
+        tb_result.reload(squad, final_trained_squad);
+        reload_training_stages_tables(tbs_stage, training);
+    });
+    // --- move training stage down ---
+    el_section_training_stages.on('click', '.btn-training-stage-down', function () {
+        let stage_n = this.attributes.stage.value;
+        const next_stage_n = training.move_stage_order_down(stage_n);
+        Storage.save(STORE_TRAINING, training.to_simple_obj());
+        const final_trained_squad = training.calc();
+        TrainingStageAccordion.move_stage_down(stage_n, next_stage_n);
+        tb_result.reload(squad, final_trained_squad);
+        reload_training_stages_tables(tbs_stage, training);
+    });
     // -----------------------------------------------------------------------------------------------------------------
     // --- training stage checkboxes -----------------------------------------------------------------------------------
-    let el_section_training_stages = $('#section-training-stages');
     for(const attr in checkboxes) {
         // --- when left-clicked then add player to squad/full-training/half-training
         el_section_training_stages.on('click', `.checkbox-${attr}`, function () {
