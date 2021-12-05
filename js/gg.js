@@ -255,8 +255,13 @@ function main() {
     el_section_training_stages.on('click', '.btn-training-stage-delete',  function () {
         let stage_n = this.attributes.stage.value;
         let final_trained_squad = training.delete_stage(stage_n);  // auto-calc
-        Storage.save(STORE_TRAINING, training.to_simple_obj());
         delete tbs_stage[stage_n-1];
+        // if no stages left => empty the null filled training.stages and tbs_stage
+        if(training.stages_order.length <= 0) {
+            training.stages = [];
+            tbs_stage = [];
+        }
+        Storage.save(STORE_TRAINING, training.to_simple_obj());
         TrainingStageAccordion.remove_stage(stage_n);
         tb_result.reload(squad, final_trained_squad);
         reload_training_stages_tables(tbs_stage, training);

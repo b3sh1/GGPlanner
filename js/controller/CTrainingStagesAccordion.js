@@ -8,6 +8,7 @@ function add_stage(stage_n, stage) {
 
 
 function edit_stage(stage_n, stage) {
+    $(`#btn-txt-training-stage-${stage_n}`).text(`Stage #${stage_n}: ${training[stage.training].short_name}`);
     let el_cards = $(`#cards-training-stage-${stage_n}`).empty();
     $(generate_cards(stage_n, stage)).appendTo(el_cards);
 }
@@ -46,7 +47,7 @@ function generate_scaffold(stage_n, stage) {
                             aria-expanded="true"
                             aria-controls="collapse-training-stage-${stage_n}"
                         >
-                            <i class="fas fa-plus fa-sm mx-2"></i> Stage #${stage_n}: ${training[stage.training].short_name}
+                            <i class="fas fa-plus fa-sm mx-2"></i> <span id="btn-txt-training-stage-${stage_n}">Stage #${stage_n}: ${training[stage.training].short_name}</span>
                         </button>
                     </div>
                     <div class="col-1">
