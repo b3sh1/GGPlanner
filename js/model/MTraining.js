@@ -386,7 +386,7 @@ function f_lvl_age_drop(skill_type, calc_lvl, player_years) {
 function f_training(skill_type, skill_lvl, coach_lvl, ass_lvl, train_int, stamina_share, train_type, player_years, play_time) {
     let lvl_gain = f_skill_training_raise(skill_lvl, coach_lvl, ass_lvl, train_int, stamina_share, train_type, player_years, play_time);
     lvl_gain -= f_skill_training_drop(skill_type, skill_lvl + lvl_gain, player_years);
-    return lvl_gain;
+    return Math.max(0.0, lvl_gain);
 }
 
 

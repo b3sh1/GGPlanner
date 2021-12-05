@@ -31,6 +31,10 @@ function move_stage_down(stage_n, next_stage_n) {
     }
 }
 
+function reset() {
+    $('#section-training-stages').html("");
+}
+
 
 function generate_scaffold(stage_n, stage) {
     return `
@@ -185,4 +189,4 @@ function generate_cards(stage_n, stage) {
 
 
 
-export {add_stage, edit_stage, remove_stage, move_stage_up, move_stage_down};
+export {add_stage, edit_stage, remove_stage, move_stage_up, move_stage_down, reset};

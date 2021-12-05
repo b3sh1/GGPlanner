@@ -10,7 +10,7 @@ import * as Storage from "./controller/CPersistentStorage.js";
 import * as Header from "./controller/CHeader.js";
 import {presets} from "./model/MPlayer.js";
 import {Training, TrainingError, TrainingStage, default_stage_cfg, checkboxes} from "./model/MTraining.js";
-import * as TrainingStageAccordion from "./controller/CTrainingStagesAccordion.js";
+import * as TrainingStagesAccordion from "./controller/CTrainingStagesAccordion.js";
 
 
 const STORE_SQUAD = "squad";
@@ -21,40 +21,31 @@ function main() {
     PlayerForm.init();  // modal
     TrainingStageForm.init();  // modal
 
-    let squad = new Squad().from_simple_obj(Storage.load(STORE_SQUAD));
-    let training = new Training(squad).from_simple_obj(Storage.load(STORE_TRAINING));
-    let tb_squad = new SquadTable().load_data(squad);
-    let tb_result = new ResultTable().load_data(squad, squad);
-    let tbs_stage = [];
+    let squad;
+    let training;
+    let tb_squad = new SquadTable();
+    let tb_result = new ResultTable();
+    let tbs_stage;
 
-    // init training stages accordion + reload result table
-    for(const i in training.stages_order) {
-        let stage_n = training.stages_order[i];
-        let training_stage = training.stages[stage_n-1];
-        TrainingStageAccordion.add_stage(stage_n, training_stage);
-        if(Number.parseInt(i) === training.stages_order.length-1) {
-            tb_result.reload(squad, training.get_trained_squad(stage_n));
-        }
-    }
-    // init training stages tables
-    for(const n in training.stages) {
-        const stage_n = Number.parseInt(n) + 1;
-        const training_stage = training.stages[n];
-        if(training_stage) {
-            let tb_stage = new StageTable(stage_n, training_stage);
-            tb_stage.load_data(training.get_previous_stage_squad(stage_n), training.get_trained_squad(stage_n));
-            tbs_stage.push(tb_stage);
-        } else {
-            tbs_stage.push(null);
-        }
-    }
-
+    let init_result = init_from_store(squad, training, tb_squad, tb_result, tbs_stage);
+    squad = init_result.squad;
+    training = init_result.training;
+    tb_squad = init_result.tb_squad;
+    tb_result = init_result.tb_result;
+    tbs_stage = init_result.tbs_stage;
+    Toast.show({
+        result: 'info', reason: 'Info', msg: 'Data loaded from storage.',
+    });
 
     // --- listen to storage changes from other instances (sync) ---
     window.addEventListener('storage', function () {
         // this event fires only when storage was not modified from within this page
-        squad = new Squad().from_simple_obj(Storage.load(STORE_SQUAD));
-        tb_squad.reload(squad);
+        let init_result = init_from_store(squad, training, tb_squad, tb_result, tbs_stage);
+        squad = init_result.squad;
+        training = init_result.training;
+        tb_squad = init_result.tb_squad;
+        tb_result = init_result.tb_result;
+        tbs_stage = init_result.tbs_stage;
         // setting unique to not spam screen with toasts - only one + no autohide (=> delay=-1)
         Toast.show({
             result: 'warning', reason: 'Warning', msg: 'Data modified from another instance!', delay: -1, unique: true,
@@ -218,7 +209,7 @@ function main() {
             Storage.save(STORE_TRAINING, training.to_simple_obj());
             // let trained_squad = training.calc();
             tb_result.reload(squad, training.get_trained_squad(stage_n));
-            TrainingStageAccordion.add_stage(stage_n, training_stage);
+            TrainingStagesAccordion.add_stage(stage_n, training_stage);
             let tb_stage = new StageTable(stage_n, training_stage);
             tb_stage.load_data(training.get_previous_stage_squad(stage_n), training.get_trained_squad(stage_n));
             tbs_stage.push(tb_stage);
@@ -240,7 +231,7 @@ function main() {
             let trained_squad = training.calc();
             Storage.save(STORE_TRAINING, training.to_simple_obj());
             tb_result.reload(squad, trained_squad);
-            TrainingStageAccordion.edit_stage(stage_data.id, training_stage);
+            TrainingStagesAccordion.edit_stage(stage_data.id, training_stage);
             reload_training_stages_tables(tbs_stage, training);
             Toast.show({result: 'success', reason: 'Edited:', msg: `Training stage #${stage_data.id}`});
         } catch (err) {
@@ -262,7 +253,7 @@ function main() {
             tbs_stage = [];
         }
         Storage.save(STORE_TRAINING, training.to_simple_obj());
-        TrainingStageAccordion.remove_stage(stage_n);
+        TrainingStagesAccordion.remove_stage(stage_n);
         tb_result.reload(squad, final_trained_squad);
         reload_training_stages_tables(tbs_stage, training);
         Toast.show({result: 'warning', reason: 'Removed:', msg: `Training stage #${stage_n}`});
@@ -278,7 +269,7 @@ function main() {
         const previous_stage_n = training.move_stage_order_up(stage_n);
         Storage.save(STORE_TRAINING, training.to_simple_obj());
         const final_trained_squad = training.calc();
-        TrainingStageAccordion.move_stage_up(stage_n, previous_stage_n);
+        TrainingStagesAccordion.move_stage_up(stage_n, previous_stage_n);
         tb_result.reload(squad, final_trained_squad);
         reload_training_stages_tables(tbs_stage, training);
     });
@@ -288,7 +279,7 @@ function main() {
         const next_stage_n = training.move_stage_order_down(stage_n);
         Storage.save(STORE_TRAINING, training.to_simple_obj());
         const final_trained_squad = training.calc();
-        TrainingStageAccordion.move_stage_down(stage_n, next_stage_n);
+        TrainingStagesAccordion.move_stage_down(stage_n, next_stage_n);
         tb_result.reload(squad, final_trained_squad);
         reload_training_stages_tables(tbs_stage, training);
     });
@@ -359,8 +350,37 @@ function main() {
     });
 }
 
-function init_from_store(squad, training, tb_squad, tb_result, tbs_stage) {
 
+// init page from permanent storage values
+function init_from_store(squad, training, tb_squad, tb_result, tbs_stage) {
+    squad = new Squad().from_simple_obj(Storage.load(STORE_SQUAD));
+    training = new Training(squad).from_simple_obj(Storage.load(STORE_TRAINING));
+    tb_squad.reload(squad);
+
+    // init training stages accordion + reload result table
+    TrainingStagesAccordion.reset();
+    for(const i in training.stages_order) {
+        let stage_n = training.stages_order[i];
+        let training_stage = training.stages[stage_n-1];
+        TrainingStagesAccordion.add_stage(stage_n, training_stage);
+        if(Number.parseInt(i) === training.stages_order.length-1) {
+            tb_result.reload(squad, training.get_trained_squad(stage_n));
+        }
+    }
+    // init training stages tables
+    tbs_stage = [];
+    for(const n in training.stages) {
+        const stage_n = Number.parseInt(n) + 1;
+        const training_stage = training.stages[n];
+        if(training_stage) {
+            let tb_stage = new StageTable(stage_n, training_stage);
+            tb_stage.load_data(training.get_previous_stage_squad(stage_n), training.get_trained_squad(stage_n));
+            tbs_stage.push(tb_stage);
+        } else {
+            tbs_stage.push(null);
+        }
+    }
+    return {squad: squad, training: training, tb_squad: tb_squad, tb_result: tb_result, tbs_stage: tbs_stage};
 }
 
 function reload_training_stages_tables(tbs_stage, training) {

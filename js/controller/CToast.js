@@ -31,6 +31,10 @@ function show(toast_cfg) {
             toast_class = 'bg-warning';
             toast_icon = 'fa-exclamation-triangle';
             break;
+        case 'info':
+            toast_class = 'bg-info';
+            toast_icon = 'fa-info-circle';
+            break;
         default:
             break;
     }
