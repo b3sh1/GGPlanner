@@ -1,4 +1,4 @@
-import {rand_int, rand_item} from "../utils.js";
+import {constraint_val, rand_int, rand_item, round2} from "../utils.js";
 
 const P_NICK = 0.5; // probability of generating nick for player
 
@@ -20,11 +20,10 @@ class Player {
             }
         }
 
-        this.calc_tsi();
-        this.calc_wage();
-        this.calc_htms();
-        if(this.name.last === 'Khalifah') {
-            console.log(`${this.name.to_str()} (${this.age.to_str()}) => tsi: ${this.tsi} ; wage: ${this.wage} ; htms: ${this.htms} ; htms28: ${this.htms28} `)
+        this.calc_derived_attributes();
+
+        if(this.name.last === "Sofian") {
+            console.log(`${this.name.to_str()} (${this.age.to_str()}) => tsi: ${this.tsi} ; wage: ${this.wage} ; htms: ${this.htms} ; htms28: ${this.htms28}`)
         }
     }
 
@@ -49,30 +48,38 @@ class Player {
         return attr_val;
     }
 
-    calc_tsi() {
-        let tsi = 0;
+    calc_derived_attributes() {
+        // TSI, wage, htms/28
 
-        let age_c = -1;
-        if(this.age.years <= age_reduction.min) {
-            age_c = age_reduction.min;
-        } else if(this.age.years >= age_reduction.max) {
-            age_c = age_reduction.max;
-        } else {
-            age_c = this.age.years;
-        }
+        let age_c = constraint_val(this.age.years, age_reduction.min, age_reduction.max)
+        // if(this.age.years <= age_reduction.min) {
+        //     age_c = age_reduction.min;
+        // } else if(this.age.years >= age_reduction.max) {
+        //     age_c = age_reduction.max;
+        // } else {
+        //     age_c = this.age.years;
+        // }
 
         let max = {skill: 'none', val: -1.0}
-        for(const skill of TSI_SKILLS) {
+        for(const skill of MAIN_SKILLS) {
             if(max.val < this[skill]) {
                 max.skill = skill;
                 max.val = this[skill];
             }
         }
-        if(max.skill === 'gk') {
+        this.#calc_tsi(max.skill, age_c);
+        this.#calc_wage(max.skill, age_c);
+        this.#calc_htms();
+    }
+
+    #calc_tsi(max_skill, age_c) {
+        let tsi;
+
+        if(max_skill === 'gk') {
             tsi = 3 * Math.pow(this.gk, 3.359) * Math.pow(this.fo, 0.5);
             tsi *= age_reduction.age[age_c].tsi_gk;
         } else {
-            tsi = Math.pow(1.03 * Math.pow(this.df-1.0, 3) + 1.03 * Math.pow(this.pm-1.0, 3) + 1.03 * Math.pow(this.sc-1.0, 3) + 1.0 * Math.pow(this.pg-1.0, 3) + 0.84 * Math.pow(this.wg-1.0, 3), 2) * Math.pow(this.st-1.0, 0.5) * Math.pow(this.fo-1.0, 0.5) / 1000;
+            tsi = Math.pow(1.03 * Math.pow(this.df-1.0, 3) + 1.03 * Math.pow(this.pm-1.0, 3) + 1.03 * Math.pow(this.sc-1.0, 3) + Math.pow(this.pg-1.0, 3) + 0.84 * Math.pow(this.wg-1.0, 3), 2) * Math.pow(this.st-1.0, 0.5) * Math.pow(this.fo-1.0, 0.5) / 1000;
             tsi *= age_reduction.age[age_c].tsi;
         }
 
@@ -80,12 +87,51 @@ class Player {
         return this.tsi;
     }
 
-    calc_wage() {
-
+    #calc_wage(max_skill, age_c) {
+        let wage;
+        if(max_skill === 'gk') {
+            // if max gk skill, just return wages
+            if(this.gk-1 >= wage_factor.gk.length-1) {
+                wage = wage_factor.gk[wage_factor.gk.length-1];
+                this.wage = wage * age_reduction.age[age_c].wage;
+                return this.wage;
+            }
+            // if skill is less than maximum, then do linear interpolation between current and next value based on sublevel
+            const gk_full_lvl = constraint_val(Math.floor(this.gk-1), 0, 18);
+            const gk_sub_lvl = round2(this.gk % 1);
+            wage = wage_factor.gk[gk_full_lvl] + (wage_factor.gk[gk_full_lvl+1] - wage_factor.gk[gk_full_lvl]) * gk_sub_lvl;
+        } else {
+            // wage = (main_skill_component + SUM(secondary_skill_component / 2)) * (1 + (set_pieces * 0,0025)) + 250
+            let primary_skill_component = f_wage_component(max_skill, this[max_skill]);
+            let sum_secondary_skills_component = 0;
+            for(const skill of MAIN_SKILLS) {
+                if(skill !== 'gk' && skill !== max_skill) {
+                    sum_secondary_skills_component += f_wage_component(skill, this[skill]) / 2;
+                }
+            }
+            wage = (primary_skill_component + sum_secondary_skills_component) * (1+ (this.sp * 0.0025)) + MIN_WAGE;
+            wage *= age_reduction.age[age_c].wage;
+        }
+        this.wage = Math.round(Math.max(MIN_WAGE, wage));
+        return this.wage;
     }
 
-    calc_htms() {
+    #calc_htms() {
+        let htms = 0;
+        let htms28;
+        // htms
+        for(const skill in htms_factor) {
+            let lvl = constraint_val(Math.floor(this[skill]-1), 0, 19);
+            htms += htms_factor[skill][lvl];
+        }
+        //htms28
+        const y = constraint_val(this.age.years, 17, 35);
+        const d_percentage = this.age.days / 112;
+        htms28 = htms + htms28_factor[y] + (htms28_factor[y+1] - htms28_factor[y]) * d_percentage;
 
+        this.htms = htms;
+        this.htms28 = Math.round(htms28);
+        return {htms: htms, htms28: htms28};
     }
 
 
@@ -131,9 +177,7 @@ class Player {
             this.name.last = obj.last;
         }
 
-        this.calc_tsi();
-        this.calc_wage();
-        this.calc_htms();
+        this.calc_derived_attributes();
 
         return this;
     }
@@ -192,7 +236,7 @@ class Age {
 
     diff(age) {
         let days = this.days - age.days;
-        let years = 0;
+        let years;
         if(days >= 0) {
             years = this.years - age.years;
         } else {
@@ -252,12 +296,20 @@ class Name {
     }
 }
 
+function f_wage_component(skill, lvl) {
+    let wage_component = wage_factor[skill].a * Math.pow(Math.max(lvl-1, 0), wage_factor[skill].b);
+    if(wage_component > 20000) {
+        wage_component = (wage_component - 20000) * wage_factor[skill].c + 20000;
+    }
+    return wage_component;
+}
 
 function round_tsi(tsi) {
     return Math.floor(tsi / 10) * 10;
 }
 
-const TSI_SKILLS = ['gk', 'df', 'pm', 'pg', 'wg', 'sc'];
+const MAIN_SKILLS = ['gk', 'df', 'pm', 'pg', 'wg', 'sc'];
+const MIN_WAGE = 250;
 const age_reduction = {
     min: 27,
     max: 39,
@@ -276,6 +328,48 @@ const age_reduction = {
         38: {tsi: 0.125,    tsi_gk: 0.2,    wage: 0.1   },
         39: {tsi: 0.125,    tsi_gk: 0.1,    wage: 0.1   },
     }
+}
+
+const wage_factor = {
+    df:{a: 0.0007145560, b: 6.4607813171, c: 0.7921, },
+    pm:{a: 0.0009418058, b: 6.4407950328, c: 0.7832, },
+    pg:{a: 0.0004476257, b: 6.5136791026, c: 0.7707, },
+    wg:{a: 0.0004437607, b: 6.4641257225, c: 0.7789, },
+    sc:{a: 0.0009136982, b: 6.4090063683, c: 0.7984, },
+    gk:[250, 270, 350, 450, 610, 830, 1150, 1610, 2250, 3190, 4550, 6450, 9190, 12930, 18130, 24270, 31720, 41150, 53840, 68750],
+}
+
+const htms_factor = {
+    gk: [2, 12, 23, 39, 56, 76, 99, 123, 150, 183, 222, 268, 321, 380, 446, 519, 600, 691, 797, 924],
+    df: [4, 18, 39, 65, 98, 134, 175, 221, 271, 330, 401, 484, 580, 689, 809, 942, 1092, 1268, 1487, 1791],
+    pm: [4, 17, 34, 57, 84, 114, 150, 190, 231, 281, 341, 412, 493, 584, 685, 798, 924, 1070, 1247, 1480],
+    wg: [2, 12, 25, 41, 60, 81, 105, 132, 161, 195, 238, 287, 344, 407, 478, 555, 642, 741, 855, 995],
+    pg: [3, 14, 31, 51, 75, 104, 137, 173, 213, 259, 315, 381, 457, 540, 634, 738, 854, 988, 1148, 1355],
+    sc: [4, 17, 36, 59, 88, 119, 156, 197, 240, 291, 354, 427, 511, 607, 713, 830, 961, 1114, 1300, 1547],
+    sp: [1, 2, 5, 9, 15, 21, 28, 37, 46, 56, 68, 81, 95, 112, 131, 153, 179, 210, 246, 287],
+}
+
+const htms28_factor = {
+    17:	1641,
+    18:	1481,
+    19:	1323,
+    20:	1166,
+    21:	1011,
+    22:	858,
+    23:	708,
+    24:	560,
+    25:	416,
+    26:	274,
+    27:	136,
+    28:	0,
+    29:	-129,
+    30:	-255,
+    31:	-378,
+    32:	-497,
+    33:	-614,
+    34:	-727,
+    35:	-837,
+    36:	-837,
 }
 
 
