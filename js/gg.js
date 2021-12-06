@@ -67,6 +67,7 @@ function main() {
             tb_squad.append(player, player_id).draw();
             set_training_stages_player_default_checkboxes(player_id, training);
             let trained_squad = training.calc();
+            Storage.save(STORE_TRAINING, training.to_simple_obj());
             tb_result.reload(squad, trained_squad);
             reload_training_stages_tables(tbs_stage, training);
             Toast.show({result: 'success', reason: 'Added:', msg: player.name.to_str()});
@@ -91,6 +92,7 @@ function main() {
             tb_squad.reload(squad);
             set_training_stages_player_default_checkboxes(player_data.id, training);
             let trained_squad = training.calc();
+            Storage.save(STORE_TRAINING, training.to_simple_obj());
             tb_result.reload(squad, trained_squad);
             reload_training_stages_tables(tbs_stage, training);
             Toast.show({result: 'success', reason: 'Edited:', msg: player.name.to_str()});
@@ -152,6 +154,7 @@ function main() {
             tb_squad.draw();
             unset_training_stages_player_default_checkboxes(player_id, training);
             let trained_squad = training.calc();
+            Storage.save(STORE_TRAINING, training.to_simple_obj());
             tb_result.reload(squad, trained_squad);
             reload_training_stages_tables(tbs_stage, training);
             Toast.show({result: 'warning', reason: "Removed:", msg: player_name});
@@ -180,6 +183,7 @@ function main() {
             Storage.save(STORE_SQUAD, squad.to_simple_obj());
             set_training_stages_player_default_checkboxes(new_player_id, training);
             let trained_squad = training.calc();
+            Storage.save(STORE_TRAINING, training.to_simple_obj());
             tb_result.reload(squad, trained_squad);
             reload_training_stages_tables(tbs_stage, training);
             Toast.show({result: 'success', reason: 'Added:', msg: new_player.name.to_str()});
@@ -331,6 +335,8 @@ function main() {
     $('body').on('click', '.gg-collapsible', function () {
         $(this).children('svg').toggleClass('fa-plus fa-minus');    // this works when font awesome is imported as js
         // $(this).children('i').toggleClass('fa-plus fa-minus');      // this works when font awesome is imported as css
+        // this.scrollIntoView();  // + scroll this accordion to view
+        // $('html,body').animate({scrollTop: $(this).offset().top}, 'slow');
     });
     // --- back to top button --------------------------------------------------------------------------------------
     let btn_back_to_top = $('#btn-back-to-top');

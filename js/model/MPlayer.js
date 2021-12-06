@@ -19,6 +19,13 @@ class Player {
                 this[attr] = Number.parseFloat(cfg[attr]);
             }
         }
+
+        this.calc_tsi();
+        this.calc_wage();
+        this.calc_htms();
+        if(this.name.last === 'Khalifah') {
+            console.log(`${this.name.to_str()} (${this.age.to_str()}) => tsi: ${this.tsi} ; wage: ${this.wage} ; htms: ${this.htms} ; htms28: ${this.htms28} `)
+        }
     }
 
     random() {
@@ -41,6 +48,46 @@ class Player {
         }
         return attr_val;
     }
+
+    calc_tsi() {
+        let tsi = 0;
+
+        let age_c = -1;
+        if(this.age.years <= age_reduction.min) {
+            age_c = age_reduction.min;
+        } else if(this.age.years >= age_reduction.max) {
+            age_c = age_reduction.max;
+        } else {
+            age_c = this.age.years;
+        }
+
+        let max = {skill: 'none', val: -1.0}
+        for(const skill of TSI_SKILLS) {
+            if(max.val < this[skill]) {
+                max.skill = skill;
+                max.val = this[skill];
+            }
+        }
+        if(max.skill === 'gk') {
+            tsi = 3 * Math.pow(this.gk, 3.359) * Math.pow(this.fo, 0.5);
+            tsi *= age_reduction.age[age_c].tsi_gk;
+        } else {
+            tsi = Math.pow(1.03 * Math.pow(this.df-1.0, 3) + 1.03 * Math.pow(this.pm-1.0, 3) + 1.03 * Math.pow(this.sc-1.0, 3) + 1.0 * Math.pow(this.pg-1.0, 3) + 0.84 * Math.pow(this.wg-1.0, 3), 2) * Math.pow(this.st-1.0, 0.5) * Math.pow(this.fo-1.0, 0.5) / 1000;
+            tsi *= age_reduction.age[age_c].tsi;
+        }
+
+        this.tsi = round_tsi(tsi);
+        return this.tsi;
+    }
+
+    calc_wage() {
+
+    }
+
+    calc_htms() {
+
+    }
+
 
     // for serialization
     to_simple_obj() {
@@ -83,6 +130,10 @@ class Player {
         if ('last' in obj) {
             this.name.last = obj.last;
         }
+
+        this.calc_tsi();
+        this.calc_wage();
+        this.calc_htms();
 
         return this;
     }
@@ -198,6 +249,32 @@ class Name {
             str_name = "Invalid 'Erroneous' Player Name";
         }
         return str_name;
+    }
+}
+
+
+function round_tsi(tsi) {
+    return Math.floor(tsi / 10) * 10;
+}
+
+const TSI_SKILLS = ['gk', 'df', 'pm', 'pg', 'wg', 'sc'];
+const age_reduction = {
+    min: 27,
+    max: 39,
+    age: {
+        27: {tsi: 1,        tsi_gk: 1,      wage: 1     },
+        28: {tsi: 0.875,    tsi_gk: 1,      wage: 1     },
+        29: {tsi: 0.75,     tsi_gk: 1,      wage: 0.9   },
+        30: {tsi: 0.625,    tsi_gk: 1,      wage: 0.8   },
+        31: {tsi: 0.5,      tsi_gk: 0.9,    wage: 0.7   },
+        32: {tsi: 0.375,    tsi_gk: 0.8,    wage: 0.6   },
+        33: {tsi: 0.25,     tsi_gk: 0.7,    wage: 0.5   },
+        34: {tsi: 0.125,    tsi_gk: 0.6,    wage: 0.4   },
+        35: {tsi: 0.125,    tsi_gk: 0.5,    wage: 0.3   },
+        36: {tsi: 0.125,    tsi_gk: 0.4,    wage: 0.2   },
+        37: {tsi: 0.125,    tsi_gk: 0.3,    wage: 0.1   },
+        38: {tsi: 0.125,    tsi_gk: 0.2,    wage: 0.1   },
+        39: {tsi: 0.125,    tsi_gk: 0.1,    wage: 0.1   },
     }
 }
 
