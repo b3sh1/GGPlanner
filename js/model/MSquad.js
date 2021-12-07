@@ -130,4 +130,5 @@ class SquadError extends Error {
     }
 }
 
+
 export {Squad, SquadError};
