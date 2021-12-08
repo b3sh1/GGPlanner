@@ -1,4 +1,5 @@
 import {constraint_val, rand_int, rand_item, round2} from "../utils.js";
+import {prc_for_player_strength_calc} from "./MMatch.js";
 
 const P_NICK = 0.5; // probability of generating nick for player
 
@@ -65,13 +66,6 @@ class Player {
         // TSI, wage, htms/28
 
         let age_c = constraint_val(this.age.years, age_reduction.min, age_reduction.max)
-        // if(this.age.years <= age_reduction.min) {
-        //     age_c = age_reduction.min;
-        // } else if(this.age.years >= age_reduction.max) {
-        //     age_c = age_reduction.max;
-        // } else {
-        //     age_c = this.age.years;
-        // }
 
         let max = {skill: 'none', val: -1.0}
         for(const skill of MAIN_SKILLS) {
@@ -83,7 +77,8 @@ class Player {
         this.#calc_tsi(max.skill, age_c);
         this.#calc_wage(max.skill, age_c);
         this.#calc_htms();
-        this.#calc_rating_contirbutions();
+        // this.#calc_rating_contirbutions();
+        this.#calc_player_strength();
     }
 
     #calc_tsi(max_skill, age_c) {
@@ -161,6 +156,30 @@ class Player {
                         let eff_skill = (this[skill] + (this.lo-1)/19 + (this.hg*0.5) + (Math.log10(this.xp)*4/3)) * Math.pow((this.fo-1)/7, 0.6666);
                         this.rating_contributions[sector][pos][ord] += eff_skill * rc[sector][pos][ord][skill];
                         this.position_ratings[pos][ord] += this.rating_contributions[sector][pos][ord];
+                    }
+                }
+            }
+        }
+    }
+
+    #calc_player_strength() {
+        let prc = prc_for_player_strength_calc;
+        let contribution_by_pos = {};
+        if(this.name.last === 'Sofian' || this.name.last === "Maury") {
+            console.log(`${this.name.to_str()} (${this.age.to_str()}) => tsi: ${this.tsi} ; wage: ${this.wage} ; htms: ${this.htms} ; htms28: ${this.htms28}`);
+        }
+        for(const pos in prc) {
+            contribution_by_pos[pos] = {};
+            for(const ord in prc[pos]) {
+                contribution_by_pos[pos][ord] = {};
+                for(const sector in prc[pos][ord]) {
+                    contribution_by_pos[pos][ord][sector] = 0;
+                    for(const skill in prc[pos][ord][sector]) {
+                        let eff_skill = (this[skill] + (this.lo-1)/19 + (this.hg*0.5) + (Math.log10(this.xp)*4/3)) * Math.pow((this.fo-1)/7, 0.6666);
+                        contribution_by_pos[pos][ord][sector] += eff_skill * prc[pos][ord][sector][skill];
+                    }
+                    if(this.name.last === 'Sofian' || this.name.last === "Maury") {
+                        console.log(`pos: ${pos}; ord: ${ord}; sector: ${sector}; contrib: ${contribution_by_pos[pos][ord][sector]}`);
                     }
                 }
             }
@@ -421,195 +440,8 @@ const htms28_factor = {
 
 
 // rating contribution constants by sector > position > skill
-const rc = {
-    md: {
-        cd: {
-            n: {pm: 0.02775},
-            o: {pm: 0.0444},
-            w: {pm: 0.016649999999999998},
-        },
-        wb: {
-            n: {pm: 0.016649999999999998},
-            o: {pm: 0.0222},
-            m: {pm: 0.0111},
-            d: {pm: 0.0222},
-        },
-        im: {
-            n: {pm: 0.111},
-            o: {pm: 0.10545},
-            d: {pm: 0.10545},
-            w: {pm: 0.0999},
-        },
-        wg: {
-            n: {pm: 0.04995},
-            o: {pm: 0.033299999999999996},
-            m: {pm: 0.033299999999999996},
-            d: {pm: 0.06105000000000001},
-        },
-        fw: {
-            n: {pm: 0.02775},
-            d: {pm: 0.038849999999999996},
-            w: {pm: 0.016649999999999998},
-        }
-    },
-    cd: {
-        gk: {
-            n: {gk: 0.135333285, df: 0.054444425000000005},
-        },
-        cd: {
-            n: {df: 0.1555555},
-            o: {df: 0.11355551500000001},
-            w: {df: 0.10422218500000001},
-        },
-        wb: {
-            n: {df: 0.059111090000000005},
-            o: {df: 0.054444425000000005},
-            m: {df: 0.10888885000000001},
-            d: {df: 0.066888865},
-        },
-        im: {
-            n: {df: 0.062222200000000005},
-            o: {df: 0.024888880000000002},
-            d: {df: 0.09022219000000001},
-            w: {df: 0.051333315000000004},
-        },
-        wg: {
-            n: {df: 0.031111100000000003},
-            o: {df: 0.020222215},
-            m: {df: 0.038888875},
-            d: {df: 0.038888875},
-        },
-    },
-    // sd: {name: 'Side Defense',      },
-    // [goalkeeping_allsides]
-    // keeper    = 0.15555
-    //
-    // [defending_allsides]
-    // keeper      = 0.06375
-    //
-    // [defending_thisside]
-    // CD_norm     = 0.1326
-    // CD_off      = 0.10200000000000001
-    // CD_tw       = 0.20655
-    // WB_norm     = 0.2346
-    // WB_off      = 0.1887
-    // WB_tm       = 0.19125
-    // WB_def      = 0.255
-    // IM_norm     = 0.04845
-    // IM_off      = 0.022949999999999998
-    // IM_def      = 0.06885000000000001
-    // IM_tw       = 0.0612
-    // WI_norm     = 0.08925
-    // WI_off      = 0.056100000000000004
-    // WI_def      = 0.15555
-    // WI_tm       = 0.07395
-    //
-    // [defending_middle]
-    // CD_norm     = 0.0663
-    // CD_off      = 0.051000000000000004
-    // IM_norm     = 0.022949999999999998
-    // IM_off      = 0.0102
-    // IM_def      = 0.0357
 
 
-    // ca: {name: 'Central Attack',    },
-    // [passing_allsides]
-    // IM_norm               = 0.0533775
-    // IM_off                = 0.0792575
-    // IM_def                = 0.029115
-    // IM_tw                 = 0.0372025
-    // WI_norm               = 0.0177925
-    // WI_off                = 0.0210275
-    // WI_def                = 0.008087500000000001
-    // WI_tm                 = 0.02588
-    // FW_norm               = 0.0533775
-    // FW_def                = 0.08572750000000001
-    // FW_def.technical      = 0.08572750000000001
-    // FW_tw                 = 0.0372025
-    //
-    // [scoring_allsides]
-    // IM_norm               = 0.035585
-    // IM_off                = 0.0501425
-    // IM_def                = 0.0210275
-    // FW_norm               = 0.16175
-    // FW_def                = 0.09058000000000001
-    // FW_def.technical      = 0.09058000000000001
-    // FW_tw                 = 0.106755
-
-
-    // sa: {name: 'Side Attack',       },
-    // [passing_middle]
-    // IM_norm               = 0.02483
-    // IM_off                = 0.03438
-    // IM_def                = 0.013370000000000002
-    //
-    // [passing_allsides]
-    // FW_norm               = 0.026740000000000003
-    // FW_def                = 0.05921
-    // FW_def.technical      = 0.07830999999999999
-    //
-    // [passing_thisside]
-    // IM_norm               = 0.04966
-    // IM_off                = 0.06876
-    // IM_def                = 0.026740000000000003
-    // IM_tw                 = 0.05921
-    // WI_norm               = 0.04966
-    // WI_off                = 0.055389999999999995
-    // WI_def                = 0.04011
-    // WI_tm                 = 0.02865
-    // FW_tw                 = 0.04011
-    //
-    // [passing_otherside]
-    // FW_tw                 = 0.01146
-    //
-    // [winger_thisside]
-    // CD_tw                  = 0.04966
-    // WB_norm                = 0.11269
-    // WB_off                 = 0.13179
-    // WB_tm                  = 0.06684999999999999
-    // WB_def                 = 0.08595
-    // IM_tw                 = 0.11269
-    // WI_norm               = 0.16426
-    // WI_off                = 0.191
-    // WI_def                = 0.13179
-    // WI_tm                 = 0.14134
-    // FW_tw                 = 0.12224
-    //
-    // [winger_allsides]
-    // FW_norm               = 0.04584
-    // FW_def                = 0.02483
-    // FW_def.technical      = 0.02483
-    //
-    // [winger_otherside]
-    // FW_tw                 = 0.04011
-    //
-    // [scoring_allsides]
-    // FW_norm               = 0.051570000000000005
-    // FW_def                = 0.02483
-    // FW_def.technical      = 0.02483
-    //
-    // [scoring_otherside]
-    // FW_tw                 = 0.03629
-    //
-    // [scoring_thisside]
-    // FW_tw                 = 0.09741
-}
-
-
-const player_positions = {
-    // gk:  {name: 'Goalkeeper',                   type: 'gk', orders: ['n'],              },
-    // mcd: {name: 'Central Defender (Middle)',    type: 'cd', orders: ['n', 'o'],         },
-    // rcd: {name: 'Central Defender (Right)',     type: 'cd', orders: ['n', 'o', 'w'],    },
-    // lcd: {name: 'Central Defender (Left)',      type: 'cd', orders: ['n', 'o', 'w'],    },
-    // cim: {name: '',          },
-    // rim: {name: '',          },
-    // lim: {name: '',          },
-    // rwg: {name: '',    },
-    // lwg: {name: '',    },
-    // cat: {name: '',      },
-    // rat: {name: '',      },
-    // lat: {name: '',      },
-}
 
 
 const player_orders = {
