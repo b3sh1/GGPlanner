@@ -1,5 +1,5 @@
 import {constraint_val, rand_int, rand_item, round2} from "../utils.js";
-import {prc_for_player_strength_calc} from "./MMatch.js";
+import {prc_for_player_strength_calc, player_strength_sector_multiplier} from "./MMatch.js";
 
 const P_NICK = 0.5; // probability of generating nick for player
 
@@ -22,22 +22,16 @@ class Player {
         }
 
         this.rating_contributions = {};
-        this.position_ratings = {
-            gk: {n:0, },
-            cd: {n:0, o:0, w:0, },
-            wb: {n:0, o:0, m:0, d:0, },
-            im: {n:0, o:0, d:0, w:0, },
-            wg: {n:0, o:0, m:0, d:0, },
-            fw: {n:0, d:0, w:0, },
-        };
+        this.position_strength = {};
+        this.best_position = {};
 
         this.calc_derived_attributes();
 
         if(this.name.last === "Sofian" || this.name.last === "Maury") {
             console.log(`${this.name.to_str()} (${this.age.to_str()}) => tsi: ${this.tsi} ; wage: ${this.wage} ; htms: ${this.htms} ; htms28: ${this.htms28}`);
-            // console.log(this.rating_contributions);
-            // console.log(this.position_ratings);
-            console.log(this.get_best_position());
+            console.log(this.rating_contributions);
+            console.log(this.position_strength);
+            console.log(this.best_position);
         }
     }
 
@@ -63,8 +57,7 @@ class Player {
     }
 
     calc_derived_attributes() {
-        // TSI, wage, htms/28
-
+        // TSI, wage, htms/28, rating contribution
         let age_c = constraint_val(this.age.years, age_reduction.min, age_reduction.max)
 
         let max = {skill: 'none', val: -1.0}
@@ -77,7 +70,6 @@ class Player {
         this.#calc_tsi(max.skill, age_c);
         this.#calc_wage(max.skill, age_c);
         this.#calc_htms();
-        // this.#calc_rating_contirbutions();
         this.#calc_player_strength();
     }
 
@@ -143,63 +135,50 @@ class Player {
         return {htms: htms, htms28: htms28};
     }
 
-    #calc_rating_contirbutions() {
-        for(const sector in rc) {
-            this.rating_contributions[sector] = {};
-            for(const pos in rc[sector]) {
-                this.rating_contributions[sector][pos] = {};
-                // rating_contribution = eff_skill * constant
-                for(const ord in rc[sector][pos]) {
-                    this.rating_contributions[sector][pos][ord] = 0;
-                    for(const skill in rc[sector][pos][ord]) {
-                        // eff_skill = (skill + loyalty + hg + exp) * form
-                        let eff_skill = (this[skill] + (this.lo-1)/19 + (this.hg*0.5) + (Math.log10(this.xp)*4/3)) * Math.pow((this.fo-1)/7, 0.6666);
-                        this.rating_contributions[sector][pos][ord] += eff_skill * rc[sector][pos][ord][skill];
-                        this.position_ratings[pos][ord] += this.rating_contributions[sector][pos][ord];
-                    }
-                }
-            }
-        }
-    }
-
     #calc_player_strength() {
         let prc = prc_for_player_strength_calc;
-        let contribution_by_pos = {};
-        if(this.name.last === 'Sofian' || this.name.last === "Maury") {
-            console.log(`${this.name.to_str()} (${this.age.to_str()}) => tsi: ${this.tsi} ; wage: ${this.wage} ; htms: ${this.htms} ; htms28: ${this.htms28}`);
-        }
+        let contribution_by_pos = {};  // contribution to sector ratings by position
+        let strength_by_pos = {};  // composite rating by position (how good is player at given position)
+        let max_rating_contribution = {pos: null, ord: null, val: -1};  // best position
+        // if(this.name.last === 'Sofian' || this.name.last === "Maury") {
+        //     console.log(`${this.name.to_str()} (${this.age.to_str()}) => tsi: ${this.tsi} ; wage: ${this.wage} ; htms: ${this.htms} ; htms28: ${this.htms28}`);
+        // }
         for(const pos in prc) {
             contribution_by_pos[pos] = {};
+            strength_by_pos[pos] = {};
             for(const ord in prc[pos]) {
                 contribution_by_pos[pos][ord] = {};
+                strength_by_pos[pos][ord] = 0;
                 for(const sector in prc[pos][ord]) {
                     contribution_by_pos[pos][ord][sector] = 0;
                     for(const skill in prc[pos][ord][sector]) {
+                        // effective_skill = (skill + loyalty + hg + exp) * form
                         let eff_skill = (this[skill] + (this.lo-1)/19 + (this.hg*0.5) + (Math.log10(this.xp)*4/3)) * Math.pow((this.fo-1)/7, 0.6666);
+                        // rating_contribution_to_sector = effective_skill * constant_for_that_position_and_order
                         contribution_by_pos[pos][ord][sector] += eff_skill * prc[pos][ord][sector][skill];
                     }
-                    if(this.name.last === 'Sofian' || this.name.last === "Maury") {
-                        console.log(`pos: ${pos}; ord: ${ord}; sector: ${sector}; contrib: ${contribution_by_pos[pos][ord][sector]}`);
-                    }
+                    // if(this.name.last === 'Sofian' || this.name.last === "Maury") {
+                    //     console.log(`pos: ${pos}; ord: ${ord}; sector: ${sector}; contrib: ${contribution_by_pos[pos][ord][sector]}`);
+                    // }
+                    strength_by_pos[pos][ord] += contribution_by_pos[pos][ord][sector] * player_strength_sector_multiplier[sector];
                 }
-            }
-        }
-    }
-
-    get_best_position() {
-        let max_rating_contribution = {pos: null, ord: null, val: -1};
-        for(const pos in this.position_ratings) {
-            for (const ord in this.position_ratings[pos]) {
-                if (max_rating_contribution.val < this.position_ratings[pos][ord]) {
-                    max_rating_contribution.val = this.position_ratings[pos][ord];
+                // find best position
+                // only technical player can play as TDF
+                if(ord === 'td' && this.spec !== 1) {
+                    continue;
+                }
+                if (max_rating_contribution.val < strength_by_pos[pos][ord]) {
+                    max_rating_contribution.val = strength_by_pos[pos][ord];
                     max_rating_contribution.pos = pos;
                     max_rating_contribution.ord = ord;
                 }
             }
         }
-        return max_rating_contribution;
+        this.rating_contributions = contribution_by_pos;
+        this.position_strength = strength_by_pos;
+        this.best_position = max_rating_contribution;
+        return contribution_by_pos;
     }
-
 
     // for serialization
     to_simple_obj() {

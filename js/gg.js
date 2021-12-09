@@ -34,7 +34,7 @@ function main() {
     tb_result = init_result.tb_result;
     tbs_stage = init_result.tbs_stage;
     Toast.show({
-        result: 'info', reason: 'Info', msg: 'Data loaded from storage.',
+        result: 'info', reason: 'Info', msg: 'Data loaded from local storage.',
     });
 
     // --- listen to storage changes from other instances (sync) ---

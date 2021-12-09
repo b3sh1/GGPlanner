@@ -1,22 +1,10 @@
 
 class Match {
-    gk  = {player: null, order: null}
-    mcd = {player: null, order: null}
-    rcd = {player: null, order: null}
-    lcd = {player: null, order: null}
-    rwb = {player: null, order: null}
-    lwb = {player: null, order: null}
-    cim = {player: null, order: null}
-    rim = {player: null, order: null}
-    lim = {player: null, order: null}
-    rwg = {player: null, order: null}
-    lwg = {player: null, order: null}
-    cfw = {player: null, order: null}
-    rfw = {player: null, order: null}
-    lfw = {player: null, order: null}
-
     constructor() {
         this.players_count = 0;
+        for(const position in player_positions) {
+            this[position] = {player: null, order: 'n'};
+        }
     }
 
     add_player(player, position, order) {
@@ -29,7 +17,6 @@ class Match {
 }
 
 class Position {
-
 
     constructor() {
 
@@ -56,6 +43,16 @@ const player_positions = {
     lfw: {name: 'Forward (Left)',  				type: 'fw',	orders: ['n', 'd', 'w'],		},
 }
 
+// this is used in player strength calculation for comparative purposes (which position is best for particular player)
+const player_strength_sector_multiplier = {
+    md: 3,  // md has 3x multiplier because is has only one sector compared to 3x both df and att
+    cd: 1,
+    rd: 1,
+    ld: 1,
+    ca: 1,
+    ra: 1,
+    la: 1,
+};
 
 // rating constants
 const rc = {
@@ -558,4 +555,5 @@ const prc = {
 const prc_for_player_strength_calc = {gk: prc.gk, cd: prc.rcd, im: prc.rim, wg: prc.rwg, fw: prc.rfw};
 
 
-export {prc_for_player_strength_calc};
+
+export {prc_for_player_strength_calc, player_strength_sector_multiplier};
