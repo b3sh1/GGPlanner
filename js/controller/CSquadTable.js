@@ -16,8 +16,8 @@ class SquadTable {
 
     init_datatable() {
         let tb_squad_header = [
-            // {title: 'id', width: 50},
-            {title: "Name", width: 300},
+            {title: 'id', width: 50},
+            {title: "Name", width: 300, className: 'td-collapsible'},
             {title: "Age", width: 50},
         ];
         for (let attr in Player.attributes) {
@@ -33,12 +33,15 @@ class SquadTable {
             order: [[0, "asc"]],
             columns: tb_squad_header,
             autoWidth: true,
-            responsive: true,
+            // responsive: true,
+            responsive: {
+                details: false
+            },
             fixedHeader: false,
             columnDefs: [
                 {
                     targets: [0],
-                    visible: true,
+                    visible: false,
                 },
                 {
                     targets: [1],
@@ -75,7 +78,7 @@ class SquadTable {
         // write player to the table
         // name, age
         let row = [
-            // id,
+            id,
             player.name.to_str(),
             player.age.to_str(),
         ];

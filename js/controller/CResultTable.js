@@ -18,7 +18,7 @@ class ResultTable {
 
     init_datatable() {
         let tb_result_header = [
-            // {title: 'id', width: 50},
+            {title: 'id', width: 50},
             {title: "Name", width: 300},
             {title: "Age", width: 50},
         ];
@@ -39,7 +39,7 @@ class ResultTable {
             columnDefs: [
                 {
                     targets: [0],
-                    visible: true,
+                    visible: false,
                 },
                 {
                     targets: [1],
@@ -72,7 +72,7 @@ class ResultTable {
         // write player to the table
         // name, age
         let row = [
-            // id,
+            id,
             trained_player.name.to_str(),
             trained_player.age.to_str() + ResultTable.#decorate_age_diff(trained_player.age.diff(init_player.age)),
         ];

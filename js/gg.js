@@ -197,6 +197,23 @@ function main() {
             }
         }
     });
+    // -----------------------------------------------------------------------------------------------------------------
+    // --- tb_squad - show player details ---
+    tb_squad.datatable.on('click', 'tbody td.td-collapsible', function () {
+        let tr = $(this).closest('tr');
+        let row = tb_squad.datatable.row(tr);
+        let player_id = tb_squad.get_id(tr);
+        let player = squad.get(player_id);
+
+        if(row.child.isShown()) {
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            row.child(player.tsi).show();
+            tr.addClass('shown');
+        }
+    } );
 
     // --- button add training stage - opens modal ---
     $("#btn-add-training-stages").on("click", function () {
