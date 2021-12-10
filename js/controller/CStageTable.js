@@ -22,7 +22,8 @@ class StageTable {
     }
 
     init_datatable() {
-        let tb_stage_header = [{title: 'id', width: 50}]
+        let tb_stage_header = []
+        // tb_stage_header.push({title: 'id', width: 50});
         for(const checkbox_tag in checkboxes) {
             tb_stage_header.push({title: checkbox_tag.toUpperCase(), width: 30});
         }
@@ -76,7 +77,9 @@ class StageTable {
     append(init_player, trained_player, id) {
         // write player to the table
         // name, age
-        let row = [id];
+        let row = [
+            // id,
+        ];
         for(const attr in checkboxes) {
             let is_set = false;
             if(this.stage[attr].has(id)) {

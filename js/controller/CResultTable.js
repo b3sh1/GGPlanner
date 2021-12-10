@@ -17,7 +17,11 @@ class ResultTable {
     }
 
     init_datatable() {
-        let tb_result_header = [{title: 'id', width: 50}, {title: "Name", width: 300}, {title: "Age", width: 50}];
+        let tb_result_header = [
+            // {title: 'id', width: 50},
+            {title: "Name", width: 300},
+            {title: "Age", width: 50},
+        ];
         for (let attr in Player.attributes) {
             if (Player.attributes[attr].tb_show) {
                 tb_result_header.push({title: attr.toUpperCase()});
@@ -68,7 +72,7 @@ class ResultTable {
         // write player to the table
         // name, age
         let row = [
-            id,
+            // id,
             trained_player.name.to_str(),
             trained_player.age.to_str() + ResultTable.#decorate_age_diff(trained_player.age.diff(init_player.age)),
         ];

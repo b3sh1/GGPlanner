@@ -54,6 +54,21 @@ const player_strength_sector_multiplier = {
     la: 1,
 };
 
+
+// apply overcrowding penalty as if playing 3-5-2 formation
+const player_strength_position_multiplier = {
+    gk: 1.0,
+    wb: 1.0,
+    // cd: 1.0, // 1xCD
+    cd: 0.964,  // 2xCD
+    // cd: 0.9, // 3xCD
+    im: 0.935,  // 2xIM
+    // im: 0.825,  // 3xIM
+    wg: 1.0,
+    fw: 0.945,  // 2xFW
+    // fw: 0.865,   // 3xFW
+}
+
 // rating constants
 const rc = {
     // midfield
@@ -552,8 +567,8 @@ const prc = {
     },
 }
 
-const prc_for_player_strength_calc = {gk: prc.gk, cd: prc.rcd, im: prc.rim, wg: prc.rwg, fw: prc.rfw};
+const prc_for_player_strength_calc = {gk: prc.gk, wb: prc.rwb, cd: prc.rcd, im: prc.rim, wg: prc.rwg, fw: prc.rfw};
 
 
 
-export {prc_for_player_strength_calc, player_strength_sector_multiplier};
+export {prc_for_player_strength_calc, player_strength_sector_multiplier, player_strength_position_multiplier};

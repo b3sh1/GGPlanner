@@ -15,7 +15,11 @@ class SquadTable {
     }
 
     init_datatable() {
-        let tb_squad_header = [{title: 'id', width: 50}, {title: "Name", width: 300}, {title: "Age", width: 50}];
+        let tb_squad_header = [
+            // {title: 'id', width: 50},
+            {title: "Name", width: 300},
+            {title: "Age", width: 50},
+        ];
         for (let attr in Player.attributes) {
             if (Player.attributes[attr].tb_show) {
                 tb_squad_header.push({title: attr.toUpperCase()});
@@ -71,7 +75,7 @@ class SquadTable {
         // write player to the table
         // name, age
         let row = [
-            id,
+            // id,
             player.name.to_str(),
             player.age.to_str(),
         ];

@@ -1,5 +1,5 @@
 import {constraint_val, rand_int, rand_item, round2} from "../utils.js";
-import {prc_for_player_strength_calc, player_strength_sector_multiplier} from "./MMatch.js";
+import {prc_for_player_strength_calc, player_strength_sector_multiplier, player_strength_position_multiplier} from "./MMatch.js";
 
 const P_NICK = 0.5; // probability of generating nick for player
 
@@ -27,12 +27,10 @@ class Player {
 
         this.calc_derived_attributes();
 
-        if(this.name.last === "Sofian" || this.name.last === "Maury") {
-            console.log(`${this.name.to_str()} (${this.age.to_str()}) => tsi: ${this.tsi} ; wage: ${this.wage} ; htms: ${this.htms} ; htms28: ${this.htms28}`);
-            console.log(this.rating_contributions);
-            console.log(this.position_strength);
-            console.log(this.best_position);
-        }
+        console.log(`${this.name.to_str()} (${this.age.to_str()}) => tsi: ${this.tsi}; wage: ${this.wage}; htms: ${this.htms}; htms28: ${this.htms28}; best_position: ${this.best_position.pos}_${this.best_position.ord} = ${this.best_position.val}`);
+        console.log(this.rating_contributions);
+        console.log(this.position_strength);
+        // console.log(this.best_position);
     }
 
     random() {
@@ -140,9 +138,6 @@ class Player {
         let contribution_by_pos = {};  // contribution to sector ratings by position
         let strength_by_pos = {};  // composite rating by position (how good is player at given position)
         let max_rating_contribution = {pos: null, ord: null, val: -1};  // best position
-        // if(this.name.last === 'Sofian' || this.name.last === "Maury") {
-        //     console.log(`${this.name.to_str()} (${this.age.to_str()}) => tsi: ${this.tsi} ; wage: ${this.wage} ; htms: ${this.htms} ; htms28: ${this.htms28}`);
-        // }
         for(const pos in prc) {
             contribution_by_pos[pos] = {};
             strength_by_pos[pos] = {};
@@ -157,10 +152,7 @@ class Player {
                         // rating_contribution_to_sector = effective_skill * constant_for_that_position_and_order
                         contribution_by_pos[pos][ord][sector] += eff_skill * prc[pos][ord][sector][skill];
                     }
-                    // if(this.name.last === 'Sofian' || this.name.last === "Maury") {
-                    //     console.log(`pos: ${pos}; ord: ${ord}; sector: ${sector}; contrib: ${contribution_by_pos[pos][ord][sector]}`);
-                    // }
-                    strength_by_pos[pos][ord] += contribution_by_pos[pos][ord][sector] * player_strength_sector_multiplier[sector];
+                    strength_by_pos[pos][ord] += contribution_by_pos[pos][ord][sector] * player_strength_sector_multiplier[sector] * player_strength_position_multiplier[pos];
                 }
                 // find best position
                 // only technical player can play as TDF
