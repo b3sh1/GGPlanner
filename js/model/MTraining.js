@@ -81,6 +81,11 @@ class Training {
     }
 
     get_trained_squad(stage_n) {
+        // last stage
+        if(stage_n === -1) {
+            return this.trained_squads[this.trained_squads.length-1];
+        }
+        // stage_n
         stage_n = Number.parseInt(stage_n);
         const i = this.stages_order.indexOf(stage_n);
         return this.trained_squads[i+1];

@@ -112,7 +112,7 @@ function generate_scaffold(stage_n, stage) {
                                 Trained players
                             </div>
                             
-                            <table id="tb-stage-${stage_n}" class="table table-sm table-striped table-hover" style="width: 100%">
+                            <table stage="${stage_n}" id="tb-stage-${stage_n}" class="table table-sm table-striped table-hover" style="width: 100%">
                             </table>
 
                             <div id="tb-stage-${stage_n}-loading-indicator" class="d-flex justify-content-center p-4">

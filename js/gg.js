@@ -6,6 +6,7 @@ import * as Toast from "./controller/CToast.js";
 import {SquadTable} from "./controller/CSquadTable.js";
 import {ResultTable} from "./controller/CResultTable.js";
 import {StageTable} from "./controller/CStageTable.js";
+import * as ExtendedPlayerDetails from "./controller/CTablePlayerDetails.js"
 import * as Storage from "./controller/CPersistentStorage.js";
 import * as Header from "./controller/CHeader.js";
 import {presets} from "./model/MPlayer.js";
@@ -197,23 +198,6 @@ function main() {
             }
         }
     });
-    // -----------------------------------------------------------------------------------------------------------------
-    // --- tb_squad - show player details ---
-    tb_squad.datatable.on('click', 'tbody td.td-collapsible', function () {
-        let tr = $(this).closest('tr');
-        let row = tb_squad.datatable.row(tr);
-        let player_id = tb_squad.get_id(tr);
-        let player = squad.get(player_id);
-
-        if(row.child.isShown()) {
-            row.child.hide();
-            tr.removeClass('shown');
-        }
-        else {
-            row.child(player.tsi).show();
-            tr.addClass('shown');
-        }
-    } );
 
     // --- button add training stage - opens modal ---
     $("#btn-add-training-stages").on("click", function () {
@@ -311,7 +295,7 @@ function main() {
         el_section_training_stages.on('click', `.checkbox-${attr}`, function () {
             try {
                 let stage_n = this.attributes.stage.value;
-                let player_id = tbs_stage[stage_n - 1].get_id($(this.closest('tr')));
+                let player_id = tbs_stage[stage_n-1].get_id($(this.closest('tr')));
                 // if checkbox is checked then add player_id to set (sq, ft, ht)
                 if ($(this).prop("checked")) {
                     training.stages[stage_n - 1][attr].add(player_id);
@@ -348,6 +332,60 @@ function main() {
             }
         });
     }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // --- tb_squad - show player details ---
+    tb_squad.datatable.on('click', 'tbody td.td-collapsible', function () {
+        let tr = $(this).closest('tr');
+        let row = tb_squad.datatable.row(tr);
+        let player_id = tb_squad.get_id(tr);
+        let player = squad.get(player_id);
+
+        if(row.child.isShown()) {
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            row.child(ExtendedPlayerDetails.html(player)).show();
+            tr.addClass('shown');
+        }
+    });
+    // -----------------------------------------------------------------------------------------------------------------
+    // --- tb_result - show player details ---
+    tb_result.datatable.on('click', 'tbody td.td-collapsible', function () {
+        let tr = $(this).closest('tr');
+        let row = tb_result.datatable.row(tr);
+        let player_id = tb_result.get_id(tr);
+        let player = training.get_trained_squad(-1).get(player_id);
+
+        if(row.child.isShown()) {
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            row.child(ExtendedPlayerDetails.html(player)).show();
+            tr.addClass('shown');
+        }
+    });
+    // -----------------------------------------------------------------------------------------------------------------
+    // --- tbs_stage - show player details ---
+    el_section_training_stages.on('click', 'tbody td.td-collapsible', function () {
+        let stage_n = this.closest('table').attributes.stage.value;
+        let tr = $(this).closest('tr');
+        let row = tbs_stage[stage_n-1].datatable.row(tr);
+        let player_id = tbs_stage[stage_n-1].get_id(tr);
+        let player = training.get_trained_squad(stage_n).get(player_id);
+
+        if(row.child.isShown()) {
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            row.child(ExtendedPlayerDetails.html(player)).show();
+            tr.addClass('shown');
+        }
+    });
+
     // --- decorate collapsible item with +/- ----------------------------------------------------------------------
     $('body').on('click', '.gg-collapsible', function () {
         $(this).children('svg').toggleClass('fa-plus fa-minus');    // this works when font awesome is imported as js

@@ -1,5 +1,5 @@
 import {constraint_val, rand_int, rand_item, round2} from "../utils.js";
-import {prc_for_player_strength_calc, player_strength_sector_multiplier, player_strength_position_multiplier} from "./MMatch.js";
+import {prc_for_player_strength_calc, player_strength_sector_multiplier, player_strength_position_multiplier, player_position_types, player_orders} from "./MMatch.js";
 
 const P_NICK = 0.5; // probability of generating nick for player
 
@@ -230,6 +230,17 @@ class Player {
     load_from_preset(preset) {
         return this.from_simple_obj(preset);
     }
+
+    best_position_to_str() {
+        let str = `${player_position_types[this.best_position.pos].name}`;
+        if(player_orders[this.best_position.ord].before_pos) {
+            str = `${player_orders[this.best_position.ord].name} ${str}`;
+        } else {
+            str += ` ${player_orders[this.best_position.ord].name}`;
+        }
+        str += ` (${round2(this.best_position.val)})`;
+        return str;
+    }
 }
 
 
@@ -410,42 +421,28 @@ const htms28_factor = {
 }
 
 
-// rating contribution constants by sector > position > skill
-
-
-
-
-const player_orders = {
-    n: {name: 'Normal',         },
-    o: {name: 'Offensive',      },
-    m: {name: 'Towards Middle', },
-    d: {name: 'Defensive',      },
-    w: {name: 'Towards Wing',   },
-}
-
-
 const attributes = {
-    spec: {name: "Specialty",   type: "spec",	tb_show: true,	tb_checkbox: false, form_fld: true,  },
-    st:   {name: "Stamina",     type: "st",	    tb_show: true,	tb_checkbox: false, form_fld: true,  },
-    fo:   {name: "Form",		type: "fo",	    tb_show: false,	tb_checkbox: false, form_fld: false, },
-    gk:   {name: "Goalkeeping", type: "skill",	tb_show: true,	tb_checkbox: false, form_fld: true,  },
-    df:   {name: "Defending",   type: "skill",	tb_show: true,	tb_checkbox: false, form_fld: true,  },
-    pm:   {name: "Playmaking",  type: "skill",	tb_show: true,	tb_checkbox: false, form_fld: true,  },
-    wg:   {name: "Winger",      type: "skill",	tb_show: true,	tb_checkbox: false, form_fld: true,  },
-    pg:   {name: "Passing",     type: "skill",	tb_show: true,	tb_checkbox: false, form_fld: true,  },
-    sc:   {name: "Scoring",     type: "skill",	tb_show: true,	tb_checkbox: false, form_fld: true,  },
-    sp:   {name: "Set pieces",  type: "skill",	tb_show: true,	tb_checkbox: false, form_fld: true,  },
-    lo:   {name: "Loyalty",     type: "skill",	tb_show: false,	tb_checkbox: false, form_fld: false, },
-    ls:   {name: "Leadership",  type: "ls",	    tb_show: false,	tb_checkbox: false, form_fld: false, },
-    hg:   {name: "Homegrown",   type: "bool",	tb_show: false,	tb_checkbox: false, form_fld: false, },
-    xp:   {name: "Experience",  type: "skill",	tb_show: false,	tb_checkbox: false, form_fld: false, },
-    tsi:  {name: "Skill index", type: "num",    tb_show: false,	tb_checkbox: false, form_fld: false, },
-    htms: {name: "HTMS",        type: "num",	tb_show: false,	tb_checkbox: false, form_fld: false, },
-    htms28: {name: "HTMS28",    type: "num",    tb_show: false,	tb_checkbox: false, form_fld: false, },
-    ht_id:  {name: "ID",        type: "num",    tb_show: false,	tb_checkbox: false, form_fld: false, },
-    cc:   {name: "Nationality", type: "num",    tb_show: false,	tb_checkbox: false, form_fld: false, },
-    fg:   {name: "Foreigner",   type: "bool",   tb_show: false,	tb_checkbox: false, form_fld: false, },
-    wage: {name: "Wage",        type: "num",	tb_show: false,	tb_checkbox: false, form_fld: false, },
+    spec: {name: "Specialty",   type: "spec",	tb_show: true,	 tb_exp_left: false, tb_exp_right: true,  form_fld: true,  },
+    st:   {name: "Stamina",     type: "st",	    tb_show: true,	 tb_exp_left: true,  tb_exp_right: false, form_fld: true,  },
+    fo:   {name: "Form",		type: "fo",	    tb_show: false,	 tb_exp_left: false, tb_exp_right: false, form_fld: false, },
+    gk:   {name: "Goalkeeping", type: "skill",	tb_show: true,	 tb_exp_left: true,  tb_exp_right: false, form_fld: true,  },
+    df:   {name: "Defending",   type: "skill",	tb_show: true,	 tb_exp_left: true,  tb_exp_right: false, form_fld: true,  },
+    pm:   {name: "Playmaking",  type: "skill",	tb_show: true,	 tb_exp_left: true,  tb_exp_right: false, form_fld: true,  },
+    wg:   {name: "Winger",      type: "skill",	tb_show: true,	 tb_exp_left: true,  tb_exp_right: false, form_fld: true,  },
+    pg:   {name: "Passing",     type: "skill",	tb_show: true,	 tb_exp_left: true,  tb_exp_right: false, form_fld: true,  },
+    sc:   {name: "Scoring",     type: "skill",	tb_show: true,	 tb_exp_left: true,  tb_exp_right: false, form_fld: true,  },
+    sp:   {name: "Set pieces",  type: "skill",	tb_show: true,	 tb_exp_left: true,  tb_exp_right: false, form_fld: true,  },
+    lo:   {name: "Loyalty",     type: "skill",	tb_show: false,	 tb_exp_left: false, tb_exp_right: false, form_fld: false, },
+    ls:   {name: "Leadership",  type: "ls",	    tb_show: false,	 tb_exp_left: false, tb_exp_right: false, form_fld: false, },
+    hg:   {name: "Homegrown",   type: "bool",	tb_show: false,	 tb_exp_left: false, tb_exp_right: false, form_fld: false, },
+    xp:   {name: "Experience",  type: "skill",	tb_show: false,	 tb_exp_left: false, tb_exp_right: true,  form_fld: false, },
+    tsi:  {name: "TSI",         type: "num",    tb_show: false,	 tb_exp_left: false, tb_exp_right: true,  form_fld: false, },
+    htms: {name: "HTMS",        type: "num",	tb_show: false,	 tb_exp_left: false, tb_exp_right: true,  form_fld: false, },
+    htms28: {name: "HTMS28",    type: "num",    tb_show: false,	 tb_exp_left: false, tb_exp_right: true,  form_fld: false, },
+    ht_id:  {name: "ID",        type: "num",    tb_show: false,	 tb_exp_left: false, tb_exp_right: false, form_fld: false, },
+    cc:   {name: "Nationality", type: "num",    tb_show: false,	 tb_exp_left: false, tb_exp_right: false, form_fld: false, },
+    fg:   {name: "Foreigner",   type: "bool",   tb_show: false,	 tb_exp_left: false, tb_exp_right: false, form_fld: false, },
+    wage: {name: "Wage",        type: "num",	tb_show: false,	 tb_exp_left: false, tb_exp_right: true,  form_fld: false, },
 };
 
 const levels = {
@@ -552,7 +549,7 @@ const levels = {
 
 const presets = {
     default: {
-        years: 17, days: 3, fo: 7, st: 4.99, gk: 5, df: 5, pm: 5, wg: 5, pg: 5, sc: 5, sp: 5, lo: 1, hg: 0, xp: 2, ls: 1,
+        years: 17, days: 0, fo: 7, st: 4.99, gk: 5, df: 5, pm: 5, wg: 5, pg: 5, sc: 5, sp: 5, lo: 1, hg: 0, xp: 2, ls: 1,
         tsi: 0, first: "", nick: "", last: "", ht_id: -1, wage: 300, spec: 0, htms: 0, htms28: 0, cc: 0, fg: 1,
     }
 }

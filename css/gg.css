@@ -9,6 +9,10 @@
     cursor: pointer;
 }
 
+.td-collapsible {
+    cursor: pointer;
+}
+
 /**
  * Datatables Sorting icons on left
  */

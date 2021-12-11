@@ -27,7 +27,7 @@ class StageTable {
         for(const checkbox_tag in checkboxes) {
             tb_stage_header.push({title: checkbox_tag.toUpperCase(), width: 30});
         }
-        tb_stage_header.push({title: "Name", width: 300});
+        tb_stage_header.push({title: "Name", width: 300, className: 'td-collapsible'});
         tb_stage_header.push({title: "Age", width: 50});
         tb_stage_header.push({title: "st".toUpperCase()});
         for (const skill of training.ALL.skills) {
@@ -165,7 +165,7 @@ class StageTable {
 
     static #decorate_diff(lvl_diff, mode = 'badge') {
         if(DECORATE_DIFF) {
-            lvl_diff = round2(lvl_diff);
+            lvl_diff = round2(lvl_diff).toFixed(2);
             if(lvl_diff > 0){
                 if(mode === 'simple') {
                     return ` (+${lvl_diff})`;

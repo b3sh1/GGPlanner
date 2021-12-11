@@ -43,6 +43,26 @@ const player_positions = {
     lfw: {name: 'Forward (Left)',  				type: 'fw',	orders: ['n', 'd', 'w'],		},
 }
 
+
+const player_position_types = {
+    gk: {name: 'Goalkeeper',        },
+    cd: {name: 'Central Defender',	},
+    wb: {name: 'Wing Back',			},
+    im: {name: 'Inner Midfielder',	},
+    wg: {name: 'Winger',  		 	},
+    fw: {name: 'Forward',  			},
+}
+
+const player_orders = {
+    n:	{name: "",					before_pos: false,  },
+    o:	{name: "Offensive",			before_pos: true,   },
+    d:	{name: "Defensive",			before_pos: true,   },
+    td:	{name: "Defensive",	        before_pos: true,   },
+    m:	{name: "Towards Middle",	before_pos: false,  },
+    w:	{name: "Towards Wing",		before_pos: false,  },
+}
+
+
 // this is used in player strength calculation for comparative purposes (which position is best for particular player)
 const player_strength_sector_multiplier = {
     md: 3,  // md has 3x multiplier because is has only one sector compared to 3x both df and att
@@ -571,4 +591,4 @@ const prc_for_player_strength_calc = {gk: prc.gk, wb: prc.rwb, cd: prc.rcd, im: 
 
 
 
-export {prc_for_player_strength_calc, player_strength_sector_multiplier, player_strength_position_multiplier};
+export {prc_for_player_strength_calc, player_strength_sector_multiplier, player_strength_position_multiplier, player_position_types, player_orders};

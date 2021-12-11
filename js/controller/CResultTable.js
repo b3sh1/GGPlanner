@@ -19,7 +19,7 @@ class ResultTable {
     init_datatable() {
         let tb_result_header = [
             {title: 'id', width: 50},
-            {title: "Name", width: 300},
+            {title: "Name", width: 300, className: 'td-collapsible'},
             {title: "Age", width: 50},
         ];
         for (let attr in Player.attributes) {
@@ -127,7 +127,7 @@ class ResultTable {
 
     static #decorate_diff(lvl_diff, mode = 'badge') {
         if(DECORATE_DIFF) {
-            lvl_diff = round2(lvl_diff);
+            lvl_diff = round2(lvl_diff).toFixed(2);
             if(lvl_diff > 0){
                 if(mode === 'simple') {
                     return ` (+${lvl_diff})`;
