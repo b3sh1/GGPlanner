@@ -1,3 +1,4 @@
+import {round0p25} from '../utils.js';
 
 class Match {
     constructor() {
@@ -22,6 +23,10 @@ class Position {
 
     }
 
+}
+
+function ht_rating_to_hatstats(rating, sector) {
+    return hatstats_sector_multiplier[sector] * round0p25(rating, sector) / 0.25;
 }
 
 const MAX_PLAYERS = 11;
@@ -64,8 +69,10 @@ const player_orders = {
 
 
 // this is used in player strength calculation for comparative purposes (which position is best for particular player)
-const player_strength_sector_multiplier = {
+const hatstats_sector_multiplier = {
     md: 3,  // md has 3x multiplier because is has only one sector compared to 3x both df and att
+    df: 1,
+    at: 1,
     cd: 1,
     rd: 1,
     ld: 1,
@@ -75,18 +82,10 @@ const player_strength_sector_multiplier = {
 };
 
 
-// apply overcrowding penalty as if playing 3-5-2 formation
-const player_strength_position_multiplier = {
-    gk: 1.0,
-    wb: 1.0,
-    // cd: 1.0, // 1xCD
-    cd: 0.964,  // 2xCD
-    // cd: 0.9, // 3xCD
-    im: 0.935,  // 2xIM
-    // im: 0.825,  // 3xIM
-    wg: 1.0,
-    fw: 0.945,  // 2xFW
-    // fw: 0.865,   // 3xFW
+const overcrowding_penalties = {
+    cd: {1:1.0, 2: 0.964, 3: 0.9},
+    im: {1:1.0, 2: 0.935, 3: 0.825},
+    fw: {1:1.0, 2: 0.945, 3: 0.865},
 }
 
 // rating constants
@@ -591,4 +590,4 @@ const prc_for_player_strength_calc = {gk: prc.gk, wb: prc.rwb, cd: prc.rcd, im: 
 
 
 
-export {prc_for_player_strength_calc, player_strength_sector_multiplier, player_strength_position_multiplier, player_position_types, player_orders};
+export {ht_rating_to_hatstats, prc_for_player_strength_calc, overcrowding_penalties, player_position_types, player_orders};

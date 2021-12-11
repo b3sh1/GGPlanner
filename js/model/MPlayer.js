@@ -1,5 +1,5 @@
-import {constraint_val, rand_int, rand_item, round2} from "../utils.js";
-import {prc_for_player_strength_calc, player_strength_sector_multiplier, player_strength_position_multiplier, player_position_types, player_orders} from "./MMatch.js";
+import {constraint_val, rand_int, rand_item, round2, round0p25} from "../utils.js";
+import {ht_rating_to_hatstats, prc_for_player_strength_calc, overcrowding_penalties, player_position_types, player_orders} from "./MMatch.js";
 
 const P_NICK = 0.5; // probability of generating nick for player
 
@@ -159,7 +159,13 @@ class Player {
                         // rating_contribution_to_sector = effective_skill * constant_for_that_position_and_order
                         contribution_by_pos[pos][ord][sector] += eff_skill * prc[pos][ord][sector][skill];
                     }
-                    strength_by_pos[pos][ord] += contribution_by_pos[pos][ord][sector] * player_strength_sector_multiplier[sector] * player_strength_position_multiplier[pos];
+                    let overcrowding_penalty = 1.0;
+                    if(pos in overcrowding_penalties) {
+                        // apply overcrowding penalty as if playing 4-4-2 formation (2xCD, 2xIM, 2xFW)
+                        overcrowding_penalty = overcrowding_penalties[pos]['2'];
+                    }
+                    let player_sector_rating = contribution_by_pos[pos][ord][sector] * overcrowding_penalty;
+                    strength_by_pos[pos][ord] += ht_rating_to_hatstats(player_sector_rating, sector);
                 }
                 // find best position
                 // only technical player can play as TDF
@@ -245,7 +251,7 @@ class Player {
         } else {
             str += ` ${player_orders[this.best_position.ord].name}`;
         }
-        str += ` (${round2(this.best_position.val)})`;
+        str += ` (${this.best_position.val} HatStats)`;
         return str;
     }
 }

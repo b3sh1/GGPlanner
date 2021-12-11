@@ -29,6 +29,10 @@ function round2(num) {
     return round(num, 2);
 }
 
+function round0p25(num) {
+    return Math.round(num * 4) / 4;
+}
+
 function examine(e, r='root') {
     if(typeof e === 'object') {
         if(Array.isArray(e)) {
@@ -47,4 +51,4 @@ function examine(e, r='root') {
     }
 }
 
-export {rand_int, rand_item, capitalize_first, constraint_val, round, round2, examine};
+export {rand_int, rand_item, capitalize_first, constraint_val, round, round2, round0p25, examine};
