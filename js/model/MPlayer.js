@@ -65,10 +65,17 @@ class Player {
                 max.val = this[skill];
             }
         }
+        this.#calc_xp();
         this.#calc_tsi(max.skill, age_c);
         this.#calc_wage(max.skill, age_c);
         this.#calc_htms();
         this.#calc_player_strength();
+    }
+
+    // starting at 2xp and raise by 0.6 per season (which is approx. 11 league matches and 3 cup matches every season)
+    #calc_xp() {
+        this.xp = constraint_val((this.age.years - 17) * 0.6 + (this.age.days * 0.6 / 112) + 2, levels.skill.min, levels.skill.max);
+        return this.xp;
     }
 
     #calc_tsi(max_skill, age_c) {
@@ -450,11 +457,11 @@ const levels = {
         max: 25,
         min: 0,
         step: 1.00,
-        25: {name: "divine (+5)", txt_color: "#FFFFFF", bg_color: "#094f29"},
-        24: {name: "divine (+4)", txt_color: "#FFFFFF", bg_color: "#094f29"},
-        23: {name: "divine (+3)", txt_color: "#FFFFFF", bg_color: "#094f29"},
-        22: {name: "divine (+2)", txt_color: "#FFFFFF", bg_color: "#094f29"},
-        21: {name: "divine (+1)", txt_color: "#FFFFFF", bg_color: "#094f29"},
+        25: {name: "divine +5", txt_color: "#FFFFFF", bg_color: "#094f29"},
+        24: {name: "divine +4", txt_color: "#FFFFFF", bg_color: "#094f29"},
+        23: {name: "divine +3", txt_color: "#FFFFFF", bg_color: "#094f29"},
+        22: {name: "divine +2", txt_color: "#FFFFFF", bg_color: "#094f29"},
+        21: {name: "divine +1", txt_color: "#FFFFFF", bg_color: "#094f29"},
         20: {name: "divine", txt_color: "#FFFFFF", bg_color: "#094f29"},
         19: {name: "utopian", txt_color: "#FFFFFF", bg_color: "#095826"},
         18: {name: "magical", txt_color: "#FFFFFF", bg_color: "#0A6024"},
