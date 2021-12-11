@@ -348,6 +348,7 @@ function main() {
         else {
             row.child(ExtendedPlayerDetails.html(player)).show();
             tr.addClass('shown');
+            $("[data-mdb-toggle=popover]").popover();
         }
     });
     // -----------------------------------------------------------------------------------------------------------------
@@ -365,6 +366,7 @@ function main() {
         else {
             row.child(ExtendedPlayerDetails.html(player)).show();
             tr.addClass('shown');
+            $("[data-mdb-toggle=popover]").popover();
         }
     });
     // -----------------------------------------------------------------------------------------------------------------
@@ -383,6 +385,7 @@ function main() {
         else {
             row.child(ExtendedPlayerDetails.html(player)).show();
             tr.addClass('shown');
+            $("[data-mdb-toggle=popover]").popover();
         }
     });
 

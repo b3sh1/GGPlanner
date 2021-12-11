@@ -22,14 +22,14 @@ class Player {
         }
 
         this.rating_contributions = {};
-        this.position_strength = {};
+        this.positions_strength = {};
         this.best_position = {};
 
         this.calc_derived_attributes();
 
         console.log(`${this.name.to_str()} (${this.age.to_str()}) => tsi: ${this.tsi}; wage: ${this.wage}; htms: ${this.htms}; htms28: ${this.htms28}; best_position: ${this.best_position.pos}_${this.best_position.ord} = ${this.best_position.val}`);
         console.log(this.rating_contributions);
-        console.log(this.position_strength);
+        console.log(this.positions_strength);
         // console.log(this.best_position);
     }
 
@@ -180,7 +180,7 @@ class Player {
             }
         }
         this.rating_contributions = contribution_by_pos;
-        this.position_strength = strength_by_pos;
+        this.positions_strength = strength_by_pos;
         this.best_position = max_rating_contribution;
         return contribution_by_pos;
     }
@@ -245,13 +245,56 @@ class Player {
     }
 
     best_position_to_str() {
-        let str = `${player_position_types[this.best_position.pos].name}`;
-        if(player_orders[this.best_position.ord].before_pos) {
-            str = `${player_orders[this.best_position.ord].name} ${str}`;
-        } else {
-            str += ` ${player_orders[this.best_position.ord].name}`;
+        return this.strength_on_position_to_str(this.best_position, 'extended');
+    }
+
+    strength_on_positions_to_str() {
+        let arr = [];
+        let str = '';
+        for(const pos in this.positions_strength) {
+            for(const ord in this.positions_strength[pos]) {
+                let player_strength = {pos: pos, ord: ord, val: this.positions_strength[pos][ord]};
+                arr.push(`${this.strength_on_position_to_str(player_strength)}`);
+            }
         }
-        str += ` (${this.best_position.val} HatStats)`;
+        arr = arr.sort(function (a, b) {
+            return (+b.split(/(\d+)/)[1]) - (+a.split(/(\d+)/)[1]);
+        });
+        for(const strength of arr) {
+            str += `${strength}<br/>`;
+        }
+        return str;
+    }
+
+    strength_on_position_to_str(player_strength, mode='normal') {
+        let str = '';
+        if(mode === 'extended') {
+            str = `${player_position_types[player_strength.pos].name}`;
+            if(player_orders[player_strength.ord].before_pos) {
+                str = `${player_orders[player_strength.ord].name} ${str}`;
+            } else {
+                str += ` ${player_orders[player_strength.ord].name}`;
+            }
+            str += ` (${player_strength.val} HatStats)`;
+        }
+        if(mode === 'normal') {
+            str = `${player_position_types[player_strength.pos].name}`;
+            if(player_orders[player_strength.ord].before_pos) {
+                str = `${player_orders[player_strength.ord].name} ${str}`;
+            } else {
+                str += ` ${player_orders[player_strength.ord].name}`;
+            }
+            str += `: ${player_strength.val}`;
+        }
+        if(mode === 'compact') {
+            str = `${player_position_types[player_strength.pos].short}`;
+            if(player_orders[player_strength.ord].before_pos) {
+                str = `${player_orders[player_strength.ord].short}${str}`;
+            } else {
+                str += `${player_orders[player_strength.ord].short}`;
+            }
+            str += `: ${player_strength.val}`;
+        }
         return str;
     }
 }

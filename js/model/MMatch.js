@@ -50,21 +50,21 @@ const player_positions = {
 
 
 const player_position_types = {
-    gk: {name: 'Goalkeeper',        },
-    cd: {name: 'Central Defender',	},
-    wb: {name: 'Wing Back',			},
-    im: {name: 'Inner Midfielder',	},
-    wg: {name: 'Winger',  		 	},
-    fw: {name: 'Forward',  			},
+    gk: {name: 'Goalkeeper',        short: 'GK'},
+    cd: {name: 'Central Defender',	short: 'CD'},
+    wb: {name: 'Wing Back',			short: 'WB'},
+    im: {name: 'Inner Midfielder',	short: 'IM'},
+    wg: {name: 'Winger',  		 	short: 'W'},
+    fw: {name: 'Forward',  			short: 'F'},
 }
 
 const player_orders = {
-    n:	{name: "",					before_pos: false,  },
-    o:	{name: "Offensive",			before_pos: true,   },
-    d:	{name: "Defensive",			before_pos: true,   },
-    td:	{name: "Defensive",	        before_pos: true,   },
-    m:	{name: "Towards Middle",	before_pos: false,  },
-    w:	{name: "Towards Wing",		before_pos: false,  },
+    n:	{name: "",					short: "",		before_pos: false,  },
+    o:	{name: "Offensive",			short: "O",		before_pos: true,   },
+    d:	{name: "Defensive",			short: "D",		before_pos: true,   },
+    td:	{name: "Defensive",	        short: "D",		before_pos: true,   },
+    m:	{name: "Towards Middle",	short: "TM",	before_pos: false,  },
+    w:	{name: "Towards Wing",		short: "TW",	before_pos: false,  },
 }
 
 

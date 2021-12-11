@@ -13,6 +13,12 @@
     cursor: pointer;
 }
 
+.tr-player-strength {
+    cursor: pointer;
+}
+
+.popover {background-color: slategray;}
+
 /**
  * Datatables Sorting icons on left
  */

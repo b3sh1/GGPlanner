@@ -52,7 +52,12 @@ function generate_right_tbody(player) {
             tbody += generate_row(player, attr);
         }
     }
-    tbody += `<tr></tr><th scope="row">Best position:</th><td>${player.best_position_to_str()}</td></tr>`;
+    tbody += `
+            <tr class="tr-player-strength" tabindex="0" data-mdb-html="true" data-mdb-toggle="popover" data-mdb-trigger="focus"
+                data-mdb-content="${player.strength_on_positions_to_str()}">
+                    <th scope="row">Best position:</th>
+                    <td>${player.best_position_to_str()}</td>
+            </tr>`;
     return tbody;
 }
 
