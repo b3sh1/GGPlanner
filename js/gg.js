@@ -422,6 +422,7 @@ function init_from_store(squad, training, tb_squad, tb_result, tbs_stage) {
     tb_squad.reload(squad);
 
     // init training stages accordion + reload result table
+    tb_result.clear(squad);
     TrainingStagesAccordion.reset();
     for(const i in training.stages_order) {
         let stage_n = training.stages_order[i];

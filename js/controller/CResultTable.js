@@ -64,7 +64,7 @@ class ResultTable {
         for (let id in trained_squad.players) {
             this.append(init_squad.players[id], trained_squad.players[id], id);
         }
-        this.datatable.draw();
+        this.datatable.draw(trained_squad);
         return this;
     }
 
@@ -98,17 +98,74 @@ class ResultTable {
         return this.datatable.row(jq_row).data()[0];
     }
 
-    clear() {
+    clear(squad = null) {
         this.datatable.clear();
+        if(squad) {
+            this.update_summary(squad);
+        }
+        this.datatable.draw();
     }
 
     reload(init_squad, trained_squad) {
-        this.clear();
+        this.datatable.clear();
         this.load_data(init_squad, trained_squad);
+        this.update_summary(trained_squad);
     }
 
-    draw() {
+    draw(trained_squad) {
         this.datatable.draw();
+        this.update_summary(trained_squad);
+    }
+
+    update_summary(squad) {
+        const tb_footer = $('#tb-result-footer');
+        tb_footer.html(`
+            <div class="row pb-0 mb-0">
+                <div class="col-xxl-2 col-lg-3 col-md-4 col-sm-6 pb-0 mb-0">
+                    <table class="w-auto table table-sm table-borderless pb-0 mb-0">
+<!--                    <table class="w-auto table table-sm table-bordered pb-0 mb-0">-->
+                        <tr>
+                            <th scope="row" class="px-0 pb-1">Ø Age:</th>
+                            <td class="px-2 pb-1">${squad.summary.average_age.toLocaleString()}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="px-0 pt-0">Ø Stamina:</th>
+                            <td class="px-2 pt-0">${squad.summary.average_stamina.toLocaleString()}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-xxl-2 col-lg-3 col-md-4 col-sm-6 pb-0 mb-0">
+                    <table class="w-auto table table-sm table-borderless pb-0 mb-0">
+<!--                        <table class="w-auto table table-sm table-bordered pb-0 mb-0">-->
+                        <tr>
+                            <th scope="row" class="px-0 pb-1">Σ TSI:</th>
+                            <td class="px-2 pb-1">${squad.summary.total_tsi.toLocaleString()}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="px-0 pt-0">Ø TSI:</th>
+                            <td class="px-2 pt-0">${squad.summary.average_tsi.toLocaleString()}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-xxl-4 col-md-6 pb-0 mb-0">
+                    <table class="w-auto table table-sm table-borderless pb-0 mb-0">
+<!--                    <table class="w-auto table table-sm table-bordered pb-0 mb-0">-->
+                        <tr>
+                            <th scope="row" class="px-0">Σ Wages:</th>
+                            <td class="px-2 pb-0">${Player.wage_to_str(squad.summary.total_wages)}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-xxl-4 col-md-6 pb-0 mb-0">
+                    <table class="w-auto table table-sm table-borderless pb-0 mb-0">
+<!--                    <table class="w-auto table table-sm table-bordered pb-0 mb-0">-->
+                        <tr>
+                            <th scope="row" class="px-0">Ø Wage:</th>
+                            <td class="px-2 pb-0">${Player.wage_to_str(squad.summary.average_wage)}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>`);
     }
 
     static #decorate_age_diff(age_diff, mode = 'badge') {

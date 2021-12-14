@@ -226,11 +226,13 @@ class TrainingStage {
                         stop = true;
                     }
                 }
+                player.calc_derived_attributes();
             }
             if(stop) {
                 break;
             }
         }
+        squad.update_summary();
         return squad;
     }
 

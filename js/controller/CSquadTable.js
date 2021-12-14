@@ -120,10 +120,11 @@ class SquadTable {
 
     clear() {
         this.datatable.clear();
+        this.datatable.draw();
     }
 
     reload(squad) {
-        this.clear();
+        this.datatable.clear();
         this.load_data(squad);
         this.update_summary(squad);
     }

@@ -116,10 +116,11 @@ class StageTable {
 
     clear() {
         this.datatable.clear();
+        this.datatable.draw();
     }
 
     reload(init_squad, trained_squad) {
-        this.clear();
+        this.datatable.clear();
         this.load_data(init_squad, trained_squad);
     }
 
