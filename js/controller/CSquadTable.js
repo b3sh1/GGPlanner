@@ -125,11 +125,105 @@ class SquadTable {
     reload(squad) {
         this.clear();
         this.load_data(squad);
+        this.update_summary(squad);
     }
 
-    draw() {
+    draw(squad) {
+        this.update_summary(squad);
         this.datatable.draw();
     }
+
+    update_summary(squad) {
+        const tb_footer = $('#tb-squad-footer');
+        console.log(squad.summary);
+        tb_footer.html(`
+            <div class="row pb-0 mb-0">
+                <div class="col-xxl-2 col-lg-3 col-md-4 col-sm-6 pb-0 mb-0">
+                    <table class="w-auto table table-sm table-borderless pb-0 mb-0">
+<!--                    <table class="w-auto table table-sm table-bordered pb-0 mb-0">-->
+                        <tr>
+                            <th scope="row" class="px-0 pb-1">Ø Age:</th>
+                            <td class="px-2 pb-1">${squad.summary.average_age.toLocaleString()}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="px-0 pt-0">Ø Stamina:</th>
+                            <td class="px-2 pt-0">${squad.summary.average_stamina.toLocaleString()}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-xxl-2 col-lg-3 col-md-4 col-sm-6 pb-0 mb-0">
+                    <table class="w-auto table table-sm table-borderless pb-0 mb-0">
+<!--                        <table class="w-auto table table-sm table-bordered pb-0 mb-0">-->
+                        <tr>
+                            <th scope="row" class="px-0 pb-1">Σ TSI:</th>
+                            <td class="px-2 pb-1">${squad.summary.total_tsi.toLocaleString()}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="px-0 pt-0">Ø TSI:</th>
+                            <td class="px-2 pt-0">${squad.summary.average_tsi.toLocaleString()}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-xxl-4 col-md-6 pb-0 mb-0">
+                    <table class="w-auto table table-sm table-borderless pb-0 mb-0">
+<!--                    <table class="w-auto table table-sm table-bordered pb-0 mb-0">-->
+                        <tr>
+                            <th scope="row" class="px-0">Σ Wages:</th>
+                            <td class="px-2 pb-0">${Player.wage_to_str(squad.summary.total_wages)}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-xxl-4 col-md-6 pb-0 mb-0">
+                    <table class="w-auto table table-sm table-borderless pb-0 mb-0">
+<!--                    <table class="w-auto table table-sm table-bordered pb-0 mb-0">-->
+                        <tr>
+                            <th scope="row" class="px-0">Ø Wage:</th>
+                            <td class="px-2 pb-0">${Player.wage_to_str(squad.summary.average_wage)}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>`);
+    }
+
+//     update_summary(squad) {
+//         const tb_footer = $('#tb-squad-footer');
+//         console.log(squad.summary);
+//         tb_footer.html(`
+//                     <table class="w-auto table table-sm table-borderless">
+// <!--                    <table class="table table-sm table-bordered">-->
+//                         <tr>
+//                             <th scope="row" class="px-0 mx-0">Ø age:</th>
+//                             <td>${squad.summary.average_age.toLocaleString()}</td>
+//                         </tr>
+//                         <tr>
+//                             <th scope="row" class="px-0 mx-0">Ø stamina:</th>
+//                             <td>${squad.summary.average_stamina.toLocaleString()}</td>
+//                         </tr>
+//                     </table>
+//                     <table class="w-auto table table-sm table-borderless">
+// <!--                        <table class="table table-sm table-bordered">-->
+//                         <tr>
+//                             <th scope="row" class="px-0">Σ TSI:</th>
+//                             <td>${squad.summary.total_tsi.toLocaleString()}</td>
+//                         </tr>
+//                         <tr>
+//                             <th scope="row" class="px-0">Ø TSI:</th>
+//                             <td>${squad.summary.average_tsi.toLocaleString()}</td>
+//                         </tr>
+//                     </table>
+//                     <table class="w-auto table table-sm table-borderless">
+//                         <tr>
+//                             <th scope="row" class="px-0">Σ wages:</th>
+//                             <td>${Player.wage_to_str(squad.summary.total_wages)}</td>
+//                         </tr>
+//                     </table>
+//                     <table class="w-auto table table-sm table-borderless">
+//                         <tr>
+//                             <th scope="row" class="px-0">Ø wage:</th>
+//                             <td>${Player.wage_to_str(squad.summary.average_wage)}</td>
+//                         </tr>
+//                     </table>`);
+//     }
 
     static #decorate_skill(lvl, type, mode='compact') {
         lvl = round2(lvl);

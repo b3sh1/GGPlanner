@@ -65,7 +65,7 @@ function main() {
             let player = new Player.Player().from_simple_obj(PlayerForm.read());
             let player_id = squad.add(player);
             Storage.save(STORE_SQUAD, squad.to_simple_obj())
-            tb_squad.append(player, player_id).draw();
+            tb_squad.append(player, player_id).draw(squad);
             set_training_stages_player_default_checkboxes(player_id, training);
             let trained_squad = training.calc();
             Storage.save(STORE_TRAINING, training.to_simple_obj());
@@ -152,7 +152,7 @@ function main() {
             let player_id = tb_squad.delete($(this.closest('tr')));
             let player_name = squad.remove(player_id);
             Storage.save(STORE_SQUAD, squad.to_simple_obj());
-            tb_squad.draw();
+            tb_squad.draw(squad);
             unset_training_stages_player_default_checkboxes(player_id, training);
             let trained_squad = training.calc();
             Storage.save(STORE_TRAINING, training.to_simple_obj());
@@ -180,7 +180,7 @@ function main() {
             let old_player_id = tb_squad.get_id($(this.closest('tr')));
             let new_player_id = squad.clone(old_player_id);
             let new_player = squad.get(new_player_id);
-            tb_squad.append(new_player, new_player_id).draw();
+            tb_squad.append(new_player, new_player_id).draw(squad);
             Storage.save(STORE_SQUAD, squad.to_simple_obj());
             set_training_stages_player_default_checkboxes(new_player_id, training);
             let trained_squad = training.calc();

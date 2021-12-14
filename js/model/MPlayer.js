@@ -1,4 +1,4 @@
-import {constraint_val, rand_int, rand_item, round2, round0p25} from "../utils.js";
+import {constraint_val, rand_int, rand_item, round2} from "../utils.js";
 import {ht_rating_to_hatstats, prc_for_player_strength_calc, overcrowding_penalties, player_position_types, player_orders} from "./MMatch.js";
 
 const P_NICK = 0.5; // probability of generating nick for player
@@ -353,6 +353,18 @@ class Age {
     to_str() {
         return `${this.years}.${this.days.toString().padStart(3, '0')}`;
     }
+
+    static average(players_ages = []) {
+        let total_age_raw = 0;
+        let avg_age_raw = 0;
+        for(const player_age of players_ages) {
+            total_age_raw += player_age.years + (player_age.days / 112)
+        }
+        avg_age_raw = total_age_raw / players_ages.length;
+        const years = Math.trunc(avg_age_raw);
+        const days = (avg_age_raw % 1) * 112;
+        return new Age(years, days);
+    }
 }
 
 
@@ -400,6 +412,7 @@ class Name {
     }
 }
 
+
 function f_wage_component(skill, lvl) {
     let wage_component = wage_factor[skill].a * Math.pow(Math.max(lvl-1, 0), wage_factor[skill].b);
     if(wage_component > 20000) {
@@ -407,6 +420,16 @@ function f_wage_component(skill, lvl) {
     }
     return wage_component;
 }
+
+
+function wage_to_str(week_wage) {
+    let week_foreign_wage = Math.trunc(week_wage * 1.2);
+    let season_wage = week_wage * 16;
+    let season_foreign_wage = week_foreign_wage * 16;
+    return `<p class="p-0 mb-1">${week_foreign_wage.toLocaleString()} € <span style="color: #aaaaaa">(${week_wage.toLocaleString()} €)</span>/week</p>
+            <p class="p-0 my-1">${season_foreign_wage.toLocaleString()} € <span style="color: #aaaaaa">(${season_wage.toLocaleString()} €)</span>/season</p>`;
+}
+
 
 function round_tsi(tsi) {
     return Math.floor(tsi / 10) * 10;
@@ -616,4 +639,4 @@ const name_pool = {
     last: ["Wang", "Liu", "Kumar", "Hernandez", "Rodriguez", "Bennet", "Blanc", "Smith", "Doe", "Abadi", "Ayad"],
 }
 
-export {Player, attributes, levels, presets};
+export {Player, Age, wage_to_str, attributes, levels, presets};

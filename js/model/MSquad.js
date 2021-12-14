@@ -1,4 +1,5 @@
 import * as Player from "./MPlayer.js";
+import {round2} from "../utils.js";
 
 const MAX_PLAYERS = 50;
 
@@ -6,6 +7,14 @@ class Squad {
     constructor() {
         this.players = {};
         this.next_id = 1;
+        this.summary = {
+            total_wages: 0,
+            average_wage: 0,
+            total_tsi: 0,
+            average_tsi: 0,
+            average_stamina: 0,
+            average_age: 0,
+        };
     }
 
     get(player_id) {
@@ -33,11 +42,14 @@ class Squad {
 
         this.players[id] = player;
         this.next_id += 1;
+        this.update_summary();
         return id;
     }
 
     edit(player_data, player_id) {
-        return this.players[player_id].from_simple_obj(player_data);
+        const player = this.players[player_id].from_simple_obj(player_data)
+        this.update_summary();
+        return player;
     }
 
     remove(player_id) {
@@ -47,6 +59,7 @@ class Squad {
         }
         let player_name = this.players[player_id].name.to_str();
         delete this.players[player_id];
+        this.update_summary();
         return player_name;
     }
 
@@ -94,6 +107,27 @@ class Squad {
         return -1;
     }
 
+    update_summary() {
+        let total_players = Object.keys(this.players).length;
+        let total_wages = 0;
+        let total_tsi = 0;
+        let total_stamina = 0;
+        let players_ages = [];
+        for(const id in this.players) {
+            total_wages += this.players[id].wage;
+            total_tsi += this.players[id].tsi;
+            total_stamina += this.players[id].st;
+            players_ages.push(this.players[id].age);
+        }
+        this.summary.average_stamina = round2(total_stamina / total_players);
+        this.summary.total_tsi = total_tsi;
+        this.summary.average_tsi = Math.round(total_tsi / total_players);
+        this.summary.total_wages = total_wages;
+        this.summary.average_wage = Math.round(total_wages / total_players);
+        this.summary.average_age = Player.Age.average(players_ages).to_str();
+    }
+
+
     // for serialization
     to_simple_obj() {
         let obj = {next_id: this.next_id, players: {}};
@@ -119,6 +153,7 @@ class Squad {
                 }
             }
         }
+        this.update_summary();
         return this;
     }
 }

@@ -6,7 +6,7 @@ function html(player) {
     let html = '';
 
     let tb_left = `
-        <table class="table table-sm table-hover table-borderless">
+        <table class="w-auto table table-sm table-hover table-borderless">
             <thead>
             </thead>
             <tbody>
@@ -15,7 +15,7 @@ function html(player) {
         </table>`;
 
     let tb_right = `
-        <table class="table table-sm table-hover table-borderless">
+        <table class="w-auto table table-sm table-hover table-borderless">
             <thead>
             </thead>
             <tbody>
@@ -25,10 +25,10 @@ function html(player) {
 
     html = `
         <div class='row'>
-            <div class="col">
+            <div class="col-lg-4">
                 ${tb_left}
             </div>
-            <div class="col">
+            <div class="col-lg-6">
                  ${tb_right}
             </div>
         </div>`;
@@ -85,18 +85,9 @@ function decorate_attr(lvl, type, attr, mode='compact') {
         lvl = decorate_icon(lvl, type);
     } else {
         if(attr === 'wage') {
-            let w_wage = lvl;
-            let w_foreign_wage = Math.trunc(lvl * 1.2);
-            let s_wage = lvl * 16;
-            let s_foreign_wage = w_foreign_wage * 16;
-            return `${w_foreign_wage.toLocaleString()} € <span style="color: #aaaaaa">(${w_wage.toLocaleString()} €)</span>/week<br/>
-                    ${s_foreign_wage.toLocaleString()} € <span style="color: #aaaaaa">(${s_wage.toLocaleString()} €)</span>/season`;
+            return Player.wage_to_str(lvl);
         }
         if(attr === 'tsi') {
-            let w_wage = lvl;
-            let w_foreign_wage = Math.trunc(lvl * 1.2);
-            let s_wage = lvl * 16;
-            let s_foreign_wage = w_foreign_wage * 16;
             return `${lvl.toLocaleString()}`;
         }
     }
