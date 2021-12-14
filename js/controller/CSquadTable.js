@@ -135,7 +135,6 @@ class SquadTable {
 
     update_summary(squad) {
         const tb_footer = $('#tb-squad-footer');
-        console.log(squad.summary);
         tb_footer.html(`
             <div class="row pb-0 mb-0">
                 <div class="col-xxl-2 col-lg-3 col-md-4 col-sm-6 pb-0 mb-0">
@@ -184,46 +183,6 @@ class SquadTable {
                 </div>
             </div>`);
     }
-
-//     update_summary(squad) {
-//         const tb_footer = $('#tb-squad-footer');
-//         console.log(squad.summary);
-//         tb_footer.html(`
-//                     <table class="w-auto table table-sm table-borderless">
-// <!--                    <table class="table table-sm table-bordered">-->
-//                         <tr>
-//                             <th scope="row" class="px-0 mx-0">Ø age:</th>
-//                             <td>${squad.summary.average_age.toLocaleString()}</td>
-//                         </tr>
-//                         <tr>
-//                             <th scope="row" class="px-0 mx-0">Ø stamina:</th>
-//                             <td>${squad.summary.average_stamina.toLocaleString()}</td>
-//                         </tr>
-//                     </table>
-//                     <table class="w-auto table table-sm table-borderless">
-// <!--                        <table class="table table-sm table-bordered">-->
-//                         <tr>
-//                             <th scope="row" class="px-0">Σ TSI:</th>
-//                             <td>${squad.summary.total_tsi.toLocaleString()}</td>
-//                         </tr>
-//                         <tr>
-//                             <th scope="row" class="px-0">Ø TSI:</th>
-//                             <td>${squad.summary.average_tsi.toLocaleString()}</td>
-//                         </tr>
-//                     </table>
-//                     <table class="w-auto table table-sm table-borderless">
-//                         <tr>
-//                             <th scope="row" class="px-0">Σ wages:</th>
-//                             <td>${Player.wage_to_str(squad.summary.total_wages)}</td>
-//                         </tr>
-//                     </table>
-//                     <table class="w-auto table table-sm table-borderless">
-//                         <tr>
-//                             <th scope="row" class="px-0">Ø wage:</th>
-//                             <td>${Player.wage_to_str(squad.summary.average_wage)}</td>
-//                         </tr>
-//                     </table>`);
-//     }
 
     static #decorate_skill(lvl, type, mode='compact') {
         lvl = round2(lvl);

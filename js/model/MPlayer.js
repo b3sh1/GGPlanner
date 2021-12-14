@@ -27,11 +27,19 @@ class Player {
 
         this.calc_derived_attributes();
 
-        console.log(`${this.name.to_str()} (${this.age.to_str()}) => tsi: ${this.tsi}; wage: ${this.wage}; htms: ${this.htms}; htms28: ${this.htms28}; best_position: ${this.best_position.pos}_${this.best_position.ord} = ${this.best_position.val}`);
-        console.log(this.rating_contributions);
-        console.log(this.positions_strength);
+        // console.log(`${this.name.to_str()} (${this.age.to_str()}) => tsi: ${this.tsi}; wage: ${this.wage}; htms: ${this.htms}; htms28: ${this.htms28}; best_position: ${this.best_position.pos}_${this.best_position.ord} = ${this.best_position.val}`);
+        // console.log(this.rating_contributions);
+        // console.log(this.positions_strength);
         // console.log(this.best_position);
     }
+
+    // set(attr, val) {
+    //     if (attr in attributes) {
+    //         this[attr] = Number.parseFloat(cfg[attr]);
+    //     } else {
+    //
+    //     }
+    // }
 
     random() {
         this.age.randomize();
@@ -211,10 +219,10 @@ class Player {
         }
 
         if ('years' in obj) {
-            this.age.years = obj.years;
+            this.age.years = Number.parseInt(obj.years);
         }
         if ('days' in obj) {
-            this.age.days = obj.days;
+            this.age.days = Number.parseInt(obj.days);
         }
 
         if ('first' in obj) {
@@ -302,7 +310,7 @@ class Player {
 
 // --- Age ---
 class Age {
-    constructor(years = 17, days = 0) {
+    constructor(years = '17', days = '0') {
         this.years = Number.parseInt(years);
         this.days = Number.parseInt(days);
     }
