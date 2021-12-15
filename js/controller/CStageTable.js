@@ -42,7 +42,9 @@ class StageTable {
             order: [[0, "asc"]],
             columns: tb_stage_header,
             autoWidth: true,
-            responsive: true,
+            responsive: {
+                details: false
+            },
             fixedHeader: false,
             columnDefs: [
                 {
@@ -71,6 +73,7 @@ class StageTable {
         }
         this.update_columns_visibility();
         this.datatable.draw();
+        this.update_summary(trained_squad);
         return this;
     }
 
@@ -124,8 +127,9 @@ class StageTable {
         this.load_data(init_squad, trained_squad);
     }
 
-    draw() {
+    draw(trained_squad) {
         this.datatable.draw();
+        this.update_summary(trained_squad);
     }
 
     update_columns_visibility() {
@@ -148,6 +152,53 @@ class StageTable {
             <div class="form-check">
                 <input stage="${this.stage_n}" class="form-check-input checkbox-${attr}" type="checkbox" name="${attr}" ${el_checked}>
             </div>`;
+    }
+
+    update_summary(squad) {
+        const tb_footer = $(`#tb-stage-${this.stage_n}-footer`);
+        tb_footer.html(`
+            <div class="row pb-0 mb-0">
+                <div class="col-lg-4 pb-0 mb-0">
+                    <table class="w-auto table table-sm table-borderless pb-0 mb-0">
+<!--                    <table class="w-auto table table-sm table-bordered pb-0 mb-0">-->
+                        <tr>
+                            <th scope="row" class="px-0 pb-1">Ø Age:</th>
+                            <td class="px-2 pb-1">${squad.summary.average_age.toLocaleString()}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="px-0 pt-0">Ø Stamina:</th>
+                            <td class="px-2 pt-0">${squad.summary.average_stamina.toLocaleString()}</td>
+                        </tr>
+                    </table>
+                    <table class="w-auto table table-sm table-borderless pb-0 mb-0">
+<!--                        <table class="w-auto table table-sm table-bordered pb-0 mb-0">-->
+                        <tr>
+                            <th scope="row" class="px-0 pb-1">Σ TSI:</th>
+                            <td class="px-2 pb-1">${squad.summary.total_tsi.toLocaleString()}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="px-0 pt-0">Ø TSI:</th>
+                            <td class="px-2 pt-0">${squad.summary.average_tsi.toLocaleString()}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-lg-8 pb-0 mb-0">
+                    <table class="w-auto table table-sm table-borderless pb-0 mb-0">
+<!--                    <table class="w-auto table table-sm table-bordered pb-0 mb-0">-->
+                        <tr>
+                            <th scope="row" class="px-0">Σ Wages:</th>
+                            <td class="px-2 pb-0">${Player.wage_to_str(squad.summary.total_wages)}</td>
+                        </tr>
+                    </table>
+                    <table class="w-auto table table-sm table-borderless pb-0 mb-0">
+<!--                    <table class="w-auto table table-sm table-bordered pb-0 mb-0">-->
+                        <tr>
+                            <th scope="row" class="px-0">Ø Wage:</th>
+                            <td class="px-2 pb-0">${Player.wage_to_str(squad.summary.average_wage)}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>`);
     }
 
     static #decorate_age_diff(age_diff, mode = 'badge') {

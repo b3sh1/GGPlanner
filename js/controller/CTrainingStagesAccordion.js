@@ -123,6 +123,8 @@ function generate_scaffold(stage_n, stage) {
                                 </div>
                             </div>
                             
+                            <div id="tb-stage-${stage_n}-footer" class="card-footer">
+                            </div>
                         </div>
                     </div>
                 </div>

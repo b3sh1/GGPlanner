@@ -151,7 +151,7 @@ class SquadTable {
                         </tr>
                     </table>
                 </div>
-                <div class="col-xxl-2 col-lg-3 col-md-4 col-sm-6 pb-0 mb-0">
+                <div class="col-xxl-2 col-lg-6 col-md-4 col-sm-6 pb-0 mb-0">
                     <table class="w-auto table table-sm table-borderless pb-0 mb-0">
 <!--                        <table class="w-auto table table-sm table-bordered pb-0 mb-0">-->
                         <tr>
@@ -164,7 +164,7 @@ class SquadTable {
                         </tr>
                     </table>
                 </div>
-                <div class="col-xxl-4 col-md-6 pb-0 mb-0">
+                <div class="col-xxl-4 col-lg-5 col-md-6 pb-0 mb-0">
                     <table class="w-auto table table-sm table-borderless pb-0 mb-0">
 <!--                    <table class="w-auto table table-sm table-bordered pb-0 mb-0">-->
                         <tr>
@@ -173,7 +173,7 @@ class SquadTable {
                         </tr>
                     </table>
                 </div>
-                <div class="col-xxl-4 col-md-6 pb-0 mb-0">
+                <div class="col-xxl-4 col-lg-5 col-md-6 pb-0 mb-0">
                     <table class="w-auto table table-sm table-borderless pb-0 mb-0">
 <!--                    <table class="w-auto table table-sm table-bordered pb-0 mb-0">-->
                         <tr>

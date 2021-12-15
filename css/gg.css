@@ -17,6 +17,11 @@
     cursor: pointer;
 }
 
+.table-hover > tbody > tr.select-row:hover > td,
+.no-hover-row > td {
+    background-color: #424242;
+}
+
 .popover {background-color: slategray;}
 
 /**

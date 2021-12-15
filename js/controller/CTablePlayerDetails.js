@@ -25,10 +25,10 @@ function html(player) {
 
     html = `
         <div class='row'>
-            <div class="col-lg-4">
+            <div class="col-xxl-6 col-lg-12">
                 ${tb_left}
             </div>
-            <div class="col-lg-6">
+            <div class="col-xxl-6 col-lg-12">
                  ${tb_right}
             </div>
         </div>`;

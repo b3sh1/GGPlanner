@@ -347,6 +347,7 @@ function main() {
         }
         else {
             row.child(ExtendedPlayerDetails.html(player)).show();
+            $(row.child()).addClass('no-hover-row');
             tr.addClass('shown');
             $("[data-mdb-toggle=popover]").popover();
         }
@@ -365,6 +366,7 @@ function main() {
         }
         else {
             row.child(ExtendedPlayerDetails.html(player)).show();
+            $(row.child()).addClass('no-hover-row');
             tr.addClass('shown');
             $("[data-mdb-toggle=popover]").popover();
         }
@@ -384,6 +386,7 @@ function main() {
         }
         else {
             row.child(ExtendedPlayerDetails.html(player)).show();
+            $(row.child()).addClass('no-hover-row');
             tr.addClass('shown');
             $("[data-mdb-toggle=popover]").popover();
         }
