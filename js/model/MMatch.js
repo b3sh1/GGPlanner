@@ -12,8 +12,6 @@ class Match {
         if(!this[position].player && this.players_count >= 1) {
             return 'Too many players!'
         }
-
-
     }
 }
 
@@ -32,20 +30,20 @@ function ht_rating_to_hatstats(rating, sector) {
 const MAX_PLAYERS = 11;
 
 const player_positions = {
-    gk:  {name: 'Goalkeeper',               	type: 'gk', orders: ['n'],          		},
-    mcd: {name: 'Central Defender (Middle)',	type: 'cd', orders: ['n', 'o'],     		},
-    rcd: {name: 'Central Defender (Right)', 	type: 'cd', orders: ['n', 'o', 'w'],		},
-    lcd: {name: 'Central Defender (Left)',  	type: 'cd', orders: ['n', 'o', 'w'],		},
-    rwb: {name: 'Wing Back (Right)',			type: 'wb',	orders: ['n', 'o', 'd', 'm'],	},
-    lwb: {name: 'Wing Back (Left)',  			type: 'wb',	orders: ['n', 'o', 'd', 'm'],	},
-    cim: {name: 'Inner Midfielder (Central)',  	type: 'im',	orders: ['n', 'o', 'd'],		},
-    rim: {name: 'Inner Midfielder (Right)',  	type: 'im',	orders: ['n', 'o', 'd', 'w'],	},
-    lim: {name: 'Inner Midfielder (Left)',  	type: 'im',	orders: ['n', 'o', 'd', 'w'],	},
-    rwg: {name: 'Winger (Right)',  				type: 'wg',	orders: ['n', 'o', 'd', 'm'],	},
-    lwg: {name: 'Winger (Left)',  				type: 'wg',	orders: ['n', 'o', 'd', 'm'],	},
-    cfw: {name: 'Forward (Central)',  			type: 'fw',	orders: ['n', 'd', 'w'],		},
-    rfw: {name: 'Forward (Right)',  			type: 'fw',	orders: ['n', 'd', 'w'],		},
-    lfw: {name: 'Forward (Left)',  				type: 'fw',	orders: ['n', 'd', 'w'],		},
+    gk:  {name: 'Goalkeeper',               	type: 'gk', line: 'gk', orders: ['n'],          		},
+    rwb: {name: 'Wing Back (Right)',			type: 'wb', line: 'df', orders: ['n', 'o', 'd', 'm'],	},
+    rcd: {name: 'Central Defender (Right)', 	type: 'cd', line: 'df', orders: ['n', 'o', 'w'],		},
+    mcd: {name: 'Central Defender (Middle)',	type: 'cd', line: 'df', orders: ['n', 'o'],     		},
+    lcd: {name: 'Central Defender (Left)',  	type: 'cd', line: 'df', orders: ['n', 'o', 'w'],		},
+    lwb: {name: 'Wing Back (Left)',  			type: 'wb', line: 'df', orders: ['n', 'o', 'd', 'm'],	},
+    rwg: {name: 'Winger (Right)',  				type: 'wg', line: 'md', orders: ['n', 'o', 'd', 'm'],	},
+    rim: {name: 'Inner Midfielder (Right)',  	type: 'im', line: 'md', orders: ['n', 'o', 'd', 'w'],	},
+    cim: {name: 'Inner Midfielder (Central)',  	type: 'im', line: 'md', orders: ['n', 'o', 'd'],		},
+    lim: {name: 'Inner Midfielder (Left)',  	type: 'im', line: 'md', orders: ['n', 'o', 'd', 'w'],	},
+    lwg: {name: 'Winger (Left)',  				type: 'wg', line: 'md', orders: ['n', 'o', 'd', 'm'],	},
+    rfw: {name: 'Forward (Right)',  			type: 'fw', line: 'at', orders: ['n', 'd', 'w'],		},
+    cfw: {name: 'Forward (Central)',  			type: 'fw', line: 'at', orders: ['n', 'd', 'w'],		},
+    lfw: {name: 'Forward (Left)',  				type: 'fw', line: 'at', orders: ['n', 'd', 'w'],		},
 }
 
 
@@ -590,4 +588,4 @@ const prc_for_player_strength_calc = {gk: prc.gk, wb: prc.rwb, cd: prc.rcd, im: 
 
 
 
-export {ht_rating_to_hatstats, prc_for_player_strength_calc, overcrowding_penalties, player_position_types, player_orders};
+export {ht_rating_to_hatstats, prc_for_player_strength_calc, overcrowding_penalties, player_positions, player_position_types, player_orders};

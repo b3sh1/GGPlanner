@@ -12,6 +12,7 @@ import * as Header from "./controller/CHeader.js";
 import {presets} from "./model/MPlayer.js";
 import {Training, TrainingError, TrainingStage, default_stage_cfg, checkboxes} from "./model/MTraining.js";
 import * as TrainingStagesAccordion from "./controller/CTrainingStagesAccordion.js";
+import * as Lineup from "./controller/CLineup.js";
 
 
 const STORE_SQUAD = "squad";
@@ -21,6 +22,7 @@ function main() {
     // Header.init();
     PlayerForm.init();  // modal
     TrainingStageForm.init();  // modal
+    Lineup.init();
 
     let squad;
     let training;
