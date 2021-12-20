@@ -74,7 +74,7 @@ function main() {
     match.add_player('23', 'lim', 'n', false)   // Khalifah
     match.add_player('23', 'lwg', 'n', false)   // Khalifah
     match.add_player('23', 'rfw', 'n', false)   // Khalifah
-    match.add_player('23', 'lfw', 'n')   // Khalifah
+    match.add_player('84', 'lfw', 'd')   // Ali 'der Bomber' Rodriguez (TDF)
     cards_ratings.update();
 
     // --- button add players - opens modal ---

@@ -170,17 +170,25 @@ class Player {
                 strength_by_pos[pos_type] = {};
             }
             for(const ord in prc[pos]) {
+                // TDF should calc with 'td' order not 'd'
+                let prc_ord = ord;
+                if(pos_type === 'fw' && ord === 'd' && this.spec === 1) {
+                    prc_ord = 'td';
+                }
+                if(ord === 'td') {
+                    continue;
+                }
                 contribution_by_pos[pos][ord] = {};
                 if(pos in prc_for_player_strength_calc) {
                     strength_by_pos[pos_type][ord] = 0;
                 }
-                for(const sector in prc[pos][ord]) {
+                for(const sector in prc[pos][prc_ord]) {
                     contribution_by_pos[pos][ord][sector] = 0;
-                    for(const skill in prc[pos][ord][sector]) {
+                    for(const skill in prc[pos][prc_ord][sector]) {
                         // effective_skill = (skill + loyalty + hg + exp) * form
                         let eff_skill = (this[skill] + (this.lo-1)/19 + (this.hg*0.5) + (Math.log10(this.xp)*4/3)) * Math.pow((this.fo-1)/7, 0.6666);
                         // rating_contribution_to_sector = effective_skill * constant_for_that_position_and_order
-                        contribution_by_pos[pos][ord][sector] += eff_skill * prc[pos][ord][sector][skill];
+                        contribution_by_pos[pos][ord][sector] += eff_skill * prc[pos][prc_ord][sector][skill];
                     }
 
                     // player (position) strength calculation
@@ -198,10 +206,6 @@ class Player {
                     strength_by_pos[pos_type][ord] = round2(strength_by_pos[pos_type][ord]);
                 }
                 // find best position
-                // only technical player can play as TDF
-                if(ord === 'td' && this.spec !== 1) {
-                    continue;
-                }
                 if(pos in prc_for_player_strength_calc) {
                     if (max_rating_contribution.val < strength_by_pos[pos_type][ord]) {
                         max_rating_contribution.val = strength_by_pos[pos_type][ord];
@@ -277,7 +281,7 @@ class Player {
     }
 
     best_position_to_str() {
-        return this.strength_on_position_to_str(this.best_position, 'extended');
+        return this.#strength_on_position_to_str(this.best_position, 'extended');
     }
 
     strength_on_positions_to_str() {
@@ -286,7 +290,7 @@ class Player {
         for(const pos in this.positions_strength) {
             for(const ord in this.positions_strength[pos]) {
                 let player_strength = {pos: pos, ord: ord, val: this.positions_strength[pos][ord]};
-                arr.push(`${this.strength_on_position_to_str(player_strength)}`);
+                arr.push(`${this.#strength_on_position_to_str(player_strength)}`);
             }
         }
         arr = arr.sort(function (a, b) {
@@ -298,7 +302,7 @@ class Player {
         return str;
     }
 
-    strength_on_position_to_str(player_strength, mode='normal') {
+    #strength_on_position_to_str(player_strength, mode='normal') {
         let str = '';
         if(mode === 'extended') {
             str = `${player_position_types[player_strength.pos].name}`;
@@ -313,7 +317,7 @@ class Player {
             str = `${player_position_types[player_strength.pos].name}`;
             if(player_orders[player_strength.ord].before_pos) {
                 str = `${player_orders[player_strength.ord].name} ${str}`;
-            } else {
+            } else if(player_orders[player_strength.ord].name) {
                 str += ` ${player_orders[player_strength.ord].name}`;
             }
             str += `: ${player_strength.val}`;
