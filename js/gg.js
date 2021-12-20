@@ -14,6 +14,7 @@ import {Training, TrainingError, TrainingStage, default_stage_cfg, checkboxes} f
 import * as TrainingStagesAccordion from "./controller/CTrainingStagesAccordion.js";
 import * as Lineup from "./controller/CLineup.js";
 import {Match} from "./model/MMatch.js";
+import {Ratings} from "./controller/CRatings.js";
 
 
 const STORE_SQUAD = "squad";
@@ -31,16 +32,36 @@ function main() {
     let tb_squad = new SquadTable();
     let tb_result = new ResultTable();
     let tbs_stage;
+    let cards_ratings;
 
-    let init_result = init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage);
+    let init_result = init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage, cards_ratings);
     squad = init_result.squad;
     training = init_result.training;
     match = init_result.match;
     tb_squad = init_result.tb_squad;
     tb_result = init_result.tb_result;
     tbs_stage = init_result.tbs_stage;
+    cards_ratings = init_result.cards_ratings;
     Toast.show({
         result: 'info', reason: 'Info', msg: 'Data loaded from local storage.',
+    });
+
+
+    // --- listen to storage changes from other instances (sync) ---
+    window.addEventListener('storage', function () {
+        // this event fires only when storage was not modified from within this page
+        let init_result = init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage, cards_ratings);
+        squad = init_result.squad;
+        training = init_result.training;
+        match = init_result.match;
+        tb_squad = init_result.tb_squad;
+        tb_result = init_result.tb_result;
+        tbs_stage = init_result.tbs_stage;
+        cards_ratings = init_result.cards_ratings;
+        // setting unique to not spam screen with toasts - only one + no autohide (=> delay=-1)
+        Toast.show({
+            result: 'warning', reason: 'Warning', msg: 'Data modified from another instance!', delay: -1, unique: true,
+        });
     });
 
     match.add_player('102', 'gk', 'n', false)   // Sofian
@@ -54,23 +75,7 @@ function main() {
     match.add_player('23', 'lwg', 'n', false)   // Khalifah
     match.add_player('23', 'rfw', 'n', false)   // Khalifah
     match.add_player('23', 'lfw', 'n')   // Khalifah
-
-
-    // --- listen to storage changes from other instances (sync) ---
-    window.addEventListener('storage', function () {
-        // this event fires only when storage was not modified from within this page
-        let init_result = init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage);
-        squad = init_result.squad;
-        training = init_result.training;
-        match = init_result.match;
-        tb_squad = init_result.tb_squad;
-        tb_result = init_result.tb_result;
-        tbs_stage = init_result.tbs_stage;
-        // setting unique to not spam screen with toasts - only one + no autohide (=> delay=-1)
-        Toast.show({
-            result: 'warning', reason: 'Warning', msg: 'Data modified from another instance!', delay: -1, unique: true,
-        });
-    });
+    cards_ratings.update();
 
     // --- button add players - opens modal ---
     $("#btn-add-players").on("click", function () {
@@ -438,7 +443,7 @@ function main() {
 
 
 // init page from permanent storage values
-function init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage) {
+function init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage, cards_ratings) {
     squad = new Squad().from_simple_obj(Storage.load(STORE_SQUAD));
     training = new Training(squad).from_simple_obj(Storage.load(STORE_TRAINING));
     tb_squad.reload(squad);
@@ -459,6 +464,7 @@ function init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage)
     if(!match) {
         match = new Match(squad);
     }
+    cards_ratings = new Ratings(match);
     // init training stages tables
     tbs_stage = [];
     for(const n in training.stages) {
@@ -472,7 +478,7 @@ function init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage)
             tbs_stage.push(null);
         }
     }
-    return {squad: squad, training: training, match: match, tb_squad: tb_squad, tb_result: tb_result, tbs_stage: tbs_stage};
+    return {squad: squad, training: training, match: match, tb_squad: tb_squad, tb_result: tb_result, tbs_stage: tbs_stage, cards_ratings: cards_ratings};
 }
 
 function reload_training_stages_tables(tbs_stage, training) {

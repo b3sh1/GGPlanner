@@ -1,4 +1,6 @@
 import * as Match from "../model/MMatch.js";
+import * as Player from "../model/MPlayer.js";
+import {round2, constraint_val} from "../utils.js";
 
 
 class Ratings {
@@ -10,22 +12,77 @@ class Ratings {
         this.match = match;
     }
 
+    update() {
+        this.#write_sector_ratings();
+        this.#write_hatstats();
+    }
 
-}
+    #write_sector_ratings() {
+        let html = `
+            <table class="w-auto table table-sm table-hover table-borderless">
+                <thead>
+                </thead>
+                <tbody>
+                    ${this.#generate_sector_ratings_tbody()}
+                </tbody>
+            </table>`;
+        this.el_sector_ratings.html(html);
+    }
 
-function init() {
-    const el_sector_ratings = $('#card-sector-ratings');
-    let html = '';
-    let last_line = '';
-    let el_last_line = null;
-    for(const pos in Match.player_positions) {
-        if(last_line !== Match.player_positions[pos].line) {
-            last_line = Match.player_positions[pos].line;
-            el_last_line = $(`<div id="lineup-line-${last_line}" class="row d-flex justify-content-center g-1"></div>`).appendTo(el_lineup);
+    #generate_sector_ratings_tbody() {
+        let html = '';
+        for(const sector in Match.sectors) {
+            html += generate_row(Match.sectors[sector].name, this.match.sector_ratings[sector], 'skill', 'extended');
         }
-        el_last_line.append(generate_position(Match.player_positions[pos].type));
+        return html;
+    }
+
+    #write_hatstats() {
+        let html = `
+            <table class="w-auto table table-sm table-hover table-borderless">
+                <thead>
+                </thead>
+                <tbody>
+                    ${this.#generate_hatstats_tbody()}
+                </tbody>
+            </table>`;
+        this.el_hatstats.html(html);
+    }
+
+    #generate_hatstats_tbody() {
+        let html = '';
+        for(const sector in Match.hatstats_sectors) {
+            html += generate_row(Match.hatstats_sectors[sector].name, this.match.hatstats[sector], null, 'basic');
+        }
+        return html;
     }
 }
 
 
-export {init};
+function generate_row(label, val, type, mode) {
+    let decorated_lvl = decorate_lvl(val, type, mode);
+    return `
+        <tr>
+            <th scope="row">${label}:</th>
+            <td>${decorated_lvl}</td>
+        </tr>`;
+}
+
+
+function decorate_lvl(lvl, type, mode='basic') {
+    if(mode === 'basic') {
+        return lvl;
+    }
+    let lvl_key = Math.trunc(lvl);
+    lvl_key = constraint_val(lvl_key, 0, 20);
+    if(type in Player.levels && lvl_key in Player.levels[type]) {
+        if (mode === 'extended' && ('bg_color' in Player.levels[type][lvl_key])) {
+            return `<span class='badge' style='font-size: .9em; color: ${Player.levels[type][lvl_key].txt_color}; 
+            background-color: ${Player.levels[type][lvl_key].bg_color}'>${Player.levels[type][lvl_key].name} (${lvl})</span>`;
+        }
+    }
+    return lvl;
+}
+
+
+export {Ratings};

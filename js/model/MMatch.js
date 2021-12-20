@@ -87,7 +87,9 @@ class Match {
         }
         this.indirect_free_kicks = {df: 0, at: 0};
         this.tactic = {type: null, lvl: 0};
-        this.hatstats = {df: 0, md: 0, at: 0, total: 0};
+        for(const sector in hatstats_sectors) {
+            this.hatstats[sector] = 0;
+        }
     }
 }
 
@@ -165,6 +167,13 @@ const sectors = {
     ra: {name: "Right Attack",      type: 'at', },
     ca: {name: "Central Attack",    type: 'at', },
     la: {name: "Left Attack",       type: 'at', },
+}
+
+const hatstats_sectors = {
+    df: {name: "Defense",   },
+    md: {name: "Midfield",  },
+    at: {name: "Attack",    },
+    total: {name: "Total",  },
 }
 
 
@@ -683,4 +692,4 @@ const prc_for_player_strength_calc = {
 
 
 
-export {Match, MatchError, ht_player_strength_to_hatstats, SECTOR_RATING_POWER, prc, prc_for_player_strength_calc, overcrowding_penalties, sector_multiplier, player_positions, player_position_types, player_orders};
+export {Match, MatchError, ht_player_strength_to_hatstats, SECTOR_RATING_POWER, prc, prc_for_player_strength_calc, overcrowding_penalties, sector_multiplier, sectors, hatstats_sectors, player_positions, player_position_types, player_orders};
