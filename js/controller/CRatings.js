@@ -15,6 +15,7 @@ class Ratings {
     update() {
         this.#write_sector_ratings();
         this.#write_hatstats();
+        this.#write_idf();
     }
 
     #write_sector_ratings() {
@@ -53,6 +54,27 @@ class Ratings {
         let html = '';
         for(const sector in Match.hatstats_sectors) {
             html += generate_row(Match.hatstats_sectors[sector].name, this.match.hatstats[sector], null, 'basic');
+        }
+        return html;
+    }
+
+    // indirect free kicks
+    #write_idf() {
+        let html = `
+            <table class="w-auto table table-sm table-hover table-borderless">
+                <thead>
+                </thead>
+                <tbody>
+                    ${this.#generate_idf_tbody()}
+                </tbody>
+            </table>`;
+        this.el_indirect_free_kicks.html(html);
+    }
+
+    #generate_idf_tbody() {
+        let html = '';
+        for(const sector in this.match.indirect_free_kicks) {
+            html += generate_row(Match.hatstats_sectors[sector].name, this.match.indirect_free_kicks[sector], 'skill', 'extended');
         }
         return html;
     }

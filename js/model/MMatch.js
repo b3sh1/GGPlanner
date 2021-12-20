@@ -20,26 +20,36 @@ class Match {
     }
 
     add_player(player_id, position, order, calc_ratings=true) {
-        if(!this[position].player_id && this.players_count >= 1) {
+        if(!this[position].player_id && this.players_count >= MAX_PLAYERS) {
             console.error("Cannot have more than 11 players in match lineup!");
             throw new MatchError("Cannot have more than 11 players in match lineup!");
         }
         this[position] = {player_id: player_id, order: order};
+        this.players_count++;
         if(calc_ratings) {
             this.calc_ratings();
         }
     }
 
-    calc_ratings() {
-        this.#reset_ratings();
-        this.#calc_sector_ratings();
-        this.#calc_hatstats()
-        console.log(this.sector_ratings);
-        console.log(this.hatstats);
+    remove_player(player_id) {
+        for(const pos in player_positions) {
+            if(player_id === this[pos].player_id) {
+                this[pos] = {player_id: null, order: 'n'};
+                this.players_count--;
+            }
+        }
     }
 
-    #calc_sector_ratings() {
-        const count_pos_types = {cd: 0, im: 0, fw: 0};
+    calc_ratings() {
+        this.#reset_ratings();
+        this.#calc_sector_ratings_and_idf();    // sector ratings and indirect free kicks
+        this.#calc_hatstats()
+        console.log(this);
+    }
+
+    #calc_sector_ratings_and_idf() {
+        let count_pos_types = {cd: 0, im: 0, fw: 0};
+        let idf = {sum_sc: 0, sum_df: 0, sum_sp: 0, max_sp: -1, gk_sp: 0, gk_gk: 0}
 
         // add player contribution to ratings + count number of player in central positions
         for(const pos in player_positions) {
@@ -54,10 +64,26 @@ class Match {
                 for(const sector in player_rating_contributions) {
                     this.sector_ratings[sector] += player_rating_contributions[sector];
                 }
+
+                if(pos === 'gk') {
+                    idf.gk_sp = player.sp;
+                    idf.gk_gk = player.gk;
+                } else {
+                    if(player.sp > idf.max_sp) {
+                        idf.max_sp = player.sp;
+                    }
+                    idf.sum_sc += player.sc;
+                    idf.sum_df += player.df;
+                    idf.sum_sp += player.sp;
+                }
             }
         }
+        this.#calc_sector_ratings(count_pos_types); // calc final sector ratings
+        this.#calc_idf(idf);    // calc indirect free kicks ratings
+    }
 
-        // calc final sector ratings
+    #calc_sector_ratings(count_pos_types) {
+
         for(const sector in this.sector_ratings) {
             let overcrowding_penalty = 1.0;
             if(sector === 'md') {
@@ -79,6 +105,12 @@ class Match {
             this.hatstats[sectors[sector].type] += partial_sector_hatstats
             this.hatstats.total += partial_sector_hatstats;
         }
+    }
+
+    #calc_idf(idf) {
+        const n = this.players_count;
+        this.indirect_free_kicks.at = round2(0.5 * idf.sum_sc/n + 0.3 * idf.sum_sp/n + 0.09 * idf.max_sp);
+        this.indirect_free_kicks.df = round2(0.4 * idf.sum_df/n + 0.3 * idf.sum_sp/n + 0.1 * idf.gk_sp + 0.08 * idf.gk_gk);
     }
 
     #reset_ratings() {
