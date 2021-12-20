@@ -75,7 +75,7 @@ class Match {
 
     #calc_hatstats() {
         for(const sector in sectors) {
-            let partial_sector_hatstats = ht_rating_to_hatstats(round0p25(this.sector_ratings[sector] - BASE_SECTOR_RATING), sector);
+            let partial_sector_hatstats = sector_multiplier[sector] * (round0p25(this.sector_ratings[sector]) - BASE_SECTOR_RATING) / 0.25;
             this.hatstats[sectors[sector].type] += partial_sector_hatstats
             this.hatstats.total += partial_sector_hatstats;
         }
@@ -99,8 +99,8 @@ class MatchError extends Error {
 }
 
 
-function ht_rating_to_hatstats(rating, sector) {
-    return hatstats_sector_multiplier[sector] * round0p25(rating, sector) / 0.25;
+function ht_player_strength_to_hatstats(rating) {
+    return round0p25(Math.pow(rating, SECTOR_RATING_POWER)) / 0.25;
 }
 
 const MAX_PLAYERS = 11;
@@ -145,7 +145,7 @@ const player_orders = {
 
 
 // this is used in player strength calculation for comparative purposes (which position is best for particular player)
-const hatstats_sector_multiplier = {
+const sector_multiplier = {
     md: 3,  // md has 3x multiplier because is has only one sector compared to 3x both df and att
     df: 1,
     at: 1,
@@ -683,4 +683,4 @@ const prc_for_player_strength_calc = {
 
 
 
-export {Match, MatchError, ht_rating_to_hatstats, prc, prc_for_player_strength_calc, overcrowding_penalties, player_positions, player_position_types, player_orders};
+export {Match, MatchError, ht_player_strength_to_hatstats, SECTOR_RATING_POWER, prc, prc_for_player_strength_calc, overcrowding_penalties, sector_multiplier, player_positions, player_position_types, player_orders};

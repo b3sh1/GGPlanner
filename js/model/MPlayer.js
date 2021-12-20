@@ -1,9 +1,11 @@
-import {constraint_val, rand_int, rand_item, round2} from "../utils.js";
+import {constraint_val, rand_int, rand_item, round0p25, round2} from "../utils.js";
 import {
-    ht_rating_to_hatstats,
+    ht_player_strength_to_hatstats,
+    SECTOR_RATING_POWER,
     prc,
     prc_for_player_strength_calc,
     overcrowding_penalties,
+    sector_multiplier,
     player_position_types,
     player_orders,
     player_positions
@@ -180,15 +182,20 @@ class Player {
                         // rating_contribution_to_sector = effective_skill * constant_for_that_position_and_order
                         contribution_by_pos[pos][ord][sector] += eff_skill * prc[pos][ord][sector][skill];
                     }
-                    let overcrowding_penalty = 1.0;
-                    if(pos in overcrowding_penalties) {
-                        // apply overcrowding penalty as if playing 4-4-2 formation (2xCD, 2xIM, 2xFW)
-                        overcrowding_penalty = overcrowding_penalties[pos]['2'];
-                    }
-                    let player_sector_rating = contribution_by_pos[pos][ord][sector] * overcrowding_penalty;
+
+                    // player (position) strength calculation
                     if(pos in prc_for_player_strength_calc) {
-                        strength_by_pos[pos_type][ord] += ht_rating_to_hatstats(player_sector_rating, sector);
+                        let overcrowding_penalty = 1.0;
+                        if(pos_type in overcrowding_penalties) {
+                            // apply overcrowding penalty as if playing 4-4-2 formation (2xCD, 2xIM, 2xFW)
+                            overcrowding_penalty = overcrowding_penalties[pos_type]['2'];
+                        }
+                        let player_sector_rating = Math.pow(contribution_by_pos[pos][ord][sector] * overcrowding_penalty * sector_multiplier[sector], SECTOR_RATING_POWER);
+                        strength_by_pos[pos_type][ord] += player_sector_rating;
                     }
+                }
+                if(pos in prc_for_player_strength_calc) {
+                    strength_by_pos[pos_type][ord] = round2(strength_by_pos[pos_type][ord]);
                 }
                 // find best position
                 // only technical player can play as TDF
@@ -283,7 +290,7 @@ class Player {
             }
         }
         arr = arr.sort(function (a, b) {
-            return (+b.split(/(\d+)/)[1]) - (+a.split(/(\d+)/)[1]);
+            return (+b.split(/(\d+\.?\d*)/)[1]) - (+a.split(/(\d+\.?\d*)/)[1]);
         });
         for(const strength of arr) {
             str += `${strength}<br/>`;
@@ -300,7 +307,7 @@ class Player {
             } else {
                 str += ` ${player_orders[player_strength.ord].name}`;
             }
-            str += ` (${player_strength.val} HatStats)`;
+            str += ` (${player_strength.val})`;
         }
         if(mode === 'normal') {
             str = `${player_position_types[player_strength.pos].name}`;
