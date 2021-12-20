@@ -10,14 +10,14 @@ function init() {
             last_line = Match.player_positions[pos].line;
             el_last_line = $(`<div id="lineup-line-${last_line}" class="row d-flex justify-content-center g-1"></div>`).appendTo(el_lineup);
         }
-        el_last_line.append(generate_position(pos));
+        el_last_line.append(generate_position(Match.player_positions[pos].type));
     }
 }
 
 function generate_position(pos) {
     let html = `<div class="col-2" style="font-size: 0.9em; font-weight: 200;">
                     <div class="card my-3">
-                        <div class="card-header px-1">
+                        <div class="card-header text-center px-1">
                             PL
                         </div>
     

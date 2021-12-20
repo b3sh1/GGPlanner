@@ -1,33 +1,111 @@
-import {round0p25} from '../utils.js';
+import {round0p25, round2} from '../utils.js';
 
 class Match {
-    constructor() {
+    constructor(squad) {
         this.players_count = 0;
-        for(const position in player_positions) {
-            this[position] = {player: null, order: 'n'};
+        this.squad = squad;
+        for(const pos in player_positions) {
+            this[pos] = {player_id: null, order: 'n'};
+        }
+        this.sector_ratings = {};
+        this.indirect_free_kicks = {};
+        this.tactic = {};
+        this.hatstats = {};
+        this.calc_ratings();
+    }
+
+    change_squad(squad) {
+        this.squad = squad;
+        this.calc_ratings();
+    }
+
+    add_player(player_id, position, order, calc_ratings=true) {
+        if(!this[position].player_id && this.players_count >= 1) {
+            console.error("Cannot have more than 11 players in match lineup!");
+            throw new MatchError("Cannot have more than 11 players in match lineup!");
+        }
+        this[position] = {player_id: player_id, order: order};
+        if(calc_ratings) {
+            this.calc_ratings();
         }
     }
 
-    add_player(player, position, order) {
-        if(!this[position].player && this.players_count >= 1) {
-            return 'Too many players!'
+    calc_ratings() {
+        this.#reset_ratings();
+        this.#calc_sector_ratings();
+        this.#calc_hatstats()
+        console.log(this.sector_ratings);
+        console.log(this.hatstats);
+    }
+
+    #calc_sector_ratings() {
+        const count_pos_types = {cd: 0, im: 0, fw: 0};
+
+        // add player contribution to ratings + count number of player in central positions
+        for(const pos in player_positions) {
+            if(this[pos].player_id) {
+                // count IMs/CDs/FWs to apply overcrowding penalty later
+                if(player_positions[pos].type in count_pos_types) {
+                    count_pos_types[player_positions[pos].type]++;
+                }
+
+                const player = this.squad.players[this[pos].player_id];
+                const player_rating_contributions = player.rating_contributions[pos][this[pos].order];
+                for(const sector in player_rating_contributions) {
+                    this.sector_ratings[sector] += player_rating_contributions[sector];
+                }
+            }
+        }
+
+        // calc final sector ratings
+        for(const sector in this.sector_ratings) {
+            let overcrowding_penalty = 1.0;
+            if(sector === 'md') {
+                overcrowding_penalty = overcrowding_penalties['im'][count_pos_types['im']];
+            }
+            if(sector === 'cd') {
+                overcrowding_penalty = overcrowding_penalties['cd'][count_pos_types['cd']];
+            }
+            if(sector === 'ca') {
+                overcrowding_penalty = overcrowding_penalties['fw'][count_pos_types['fw']];
+            }
+            this.sector_ratings[sector] = round2(Math.pow(this.sector_ratings[sector] * overcrowding_penalty, SECTOR_RATING_POWER) + BASE_SECTOR_RATING);
         }
     }
-}
 
-class Position {
-
-    constructor() {
-
+    #calc_hatstats() {
+        for(const sector in sectors) {
+            let partial_sector_hatstats = ht_rating_to_hatstats(round0p25(this.sector_ratings[sector] - BASE_SECTOR_RATING), sector);
+            this.hatstats[sectors[sector].type] += partial_sector_hatstats
+            this.hatstats.total += partial_sector_hatstats;
+        }
     }
 
+    #reset_ratings() {
+        for(const sector in sectors) {
+            this.sector_ratings[sector] = 0.0;
+        }
+        this.indirect_free_kicks = {df: 0, at: 0};
+        this.tactic = {type: null, lvl: 0};
+        this.hatstats = {df: 0, md: 0, at: 0, total: 0};
+    }
 }
+
+class MatchError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "MatchError";
+    }
+}
+
 
 function ht_rating_to_hatstats(rating, sector) {
     return hatstats_sector_multiplier[sector] * round0p25(rating, sector) / 0.25;
 }
 
 const MAX_PLAYERS = 11;
+const BASE_SECTOR_RATING = 0.75;
+const SECTOR_RATING_POWER = 1.165;
 
 const player_positions = {
     gk:  {name: 'Goalkeeper',               	type: 'gk', line: 'gk', orders: ['n'],          		},
@@ -79,11 +157,21 @@ const hatstats_sector_multiplier = {
     la: 1,
 };
 
+const sectors = {
+    md: {name: "Midfield",          type: 'md', },
+    rd: {name: "Right Defense",     type: 'df', },
+    cd: {name: "Central Defense",   type: 'df', },
+    ld: {name: "Left Defense",      type: 'df', },
+    ra: {name: "Right Attack",      type: 'at', },
+    ca: {name: "Central Attack",    type: 'at', },
+    la: {name: "Left Attack",       type: 'at', },
+}
+
 
 const overcrowding_penalties = {
-    cd: {1:1.0, 2: 0.964, 3: 0.9},
-    im: {1:1.0, 2: 0.935, 3: 0.825},
-    fw: {1:1.0, 2: 0.945, 3: 0.865},
+    cd: {0: 1.0, 1: 1.0, 2: 0.964, 3: 0.9,   },
+    im: {0: 1.0, 1: 1.0, 2: 0.935, 3: 0.825, },
+    fw: {0: 1.0, 1: 1.0, 2: 0.945, 3: 0.865, },
 }
 
 // rating constants
@@ -584,8 +672,15 @@ const prc = {
     },
 }
 
-const prc_for_player_strength_calc = {gk: prc.gk, wb: prc.rwb, cd: prc.rcd, im: prc.rim, wg: prc.rwg, fw: prc.rfw};
+const prc_for_player_strength_calc = {
+    gk: 'gk',
+    rwb: 'wb',
+    rcd: 'cd',
+    rim: 'im',
+    rwg: 'wg',
+    rfw: 'fw',
+};
 
 
 
-export {ht_rating_to_hatstats, prc_for_player_strength_calc, overcrowding_penalties, player_positions, player_position_types, player_orders};
+export {Match, MatchError, ht_rating_to_hatstats, prc, prc_for_player_strength_calc, overcrowding_penalties, player_positions, player_position_types, player_orders};

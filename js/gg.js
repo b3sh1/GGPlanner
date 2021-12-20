@@ -13,6 +13,7 @@ import {presets} from "./model/MPlayer.js";
 import {Training, TrainingError, TrainingStage, default_stage_cfg, checkboxes} from "./model/MTraining.js";
 import * as TrainingStagesAccordion from "./controller/CTrainingStagesAccordion.js";
 import * as Lineup from "./controller/CLineup.js";
+import {Match} from "./model/MMatch.js";
 
 
 const STORE_SQUAD = "squad";
@@ -26,13 +27,15 @@ function main() {
 
     let squad;
     let training;
+    let match;
     let tb_squad = new SquadTable();
     let tb_result = new ResultTable();
     let tbs_stage;
 
-    let init_result = init_from_store(squad, training, tb_squad, tb_result, tbs_stage);
+    let init_result = init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage);
     squad = init_result.squad;
     training = init_result.training;
+    match = init_result.match;
     tb_squad = init_result.tb_squad;
     tb_result = init_result.tb_result;
     tbs_stage = init_result.tbs_stage;
@@ -40,12 +43,26 @@ function main() {
         result: 'info', reason: 'Info', msg: 'Data loaded from local storage.',
     });
 
+    match.add_player('102', 'gk', 'n', false)   // Sofian
+    match.add_player('23', 'rwb', 'n', false)   // Khalifah
+    match.add_player('23', 'mcd', 'n', false)   // Khalifah
+    match.add_player('23', 'lwb', 'n', false)   // Khalifah
+    match.add_player('23', 'rwg', 'n', false)   // Khalifah
+    match.add_player('23', 'rim', 'n', false)   // Khalifah
+    match.add_player('23', 'cim', 'n', false)   // Khalifah
+    match.add_player('23', 'lim', 'n', false)   // Khalifah
+    match.add_player('23', 'lwg', 'n', false)   // Khalifah
+    match.add_player('23', 'rfw', 'n', false)   // Khalifah
+    match.add_player('23', 'lfw', 'n')   // Khalifah
+
+
     // --- listen to storage changes from other instances (sync) ---
     window.addEventListener('storage', function () {
         // this event fires only when storage was not modified from within this page
-        let init_result = init_from_store(squad, training, tb_squad, tb_result, tbs_stage);
+        let init_result = init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage);
         squad = init_result.squad;
         training = init_result.training;
+        match = init_result.match;
         tb_squad = init_result.tb_squad;
         tb_result = init_result.tb_result;
         tbs_stage = init_result.tbs_stage;
@@ -421,7 +438,7 @@ function main() {
 
 
 // init page from permanent storage values
-function init_from_store(squad, training, tb_squad, tb_result, tbs_stage) {
+function init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage) {
     squad = new Squad().from_simple_obj(Storage.load(STORE_SQUAD));
     training = new Training(squad).from_simple_obj(Storage.load(STORE_TRAINING));
     tb_squad.reload(squad);
@@ -434,8 +451,13 @@ function init_from_store(squad, training, tb_squad, tb_result, tbs_stage) {
         let training_stage = training.stages[stage_n-1];
         TrainingStagesAccordion.add_stage(stage_n, training_stage);
         if(Number.parseInt(i) === training.stages_order.length-1) {
-            tb_result.reload(squad, training.get_trained_squad(stage_n));
+            const trained_squad = training.get_trained_squad(stage_n);
+            tb_result.reload(squad, trained_squad);
+            match = new Match(trained_squad);
         }
+    }
+    if(!match) {
+        match = new Match(squad);
     }
     // init training stages tables
     tbs_stage = [];
@@ -450,7 +472,7 @@ function init_from_store(squad, training, tb_squad, tb_result, tbs_stage) {
             tbs_stage.push(null);
         }
     }
-    return {squad: squad, training: training, tb_squad: tb_squad, tb_result: tb_result, tbs_stage: tbs_stage};
+    return {squad: squad, training: training, match: match, tb_squad: tb_squad, tb_result: tb_result, tbs_stage: tbs_stage};
 }
 
 function reload_training_stages_tables(tbs_stage, training) {

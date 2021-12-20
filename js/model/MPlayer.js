@@ -1,5 +1,13 @@
 import {constraint_val, rand_int, rand_item, round2} from "../utils.js";
-import {ht_rating_to_hatstats, prc_for_player_strength_calc, overcrowding_penalties, player_position_types, player_orders} from "./MMatch.js";
+import {
+    ht_rating_to_hatstats,
+    prc,
+    prc_for_player_strength_calc,
+    overcrowding_penalties,
+    player_position_types,
+    player_orders,
+    player_positions
+} from "./MMatch.js";
 
 const P_NICK = 0.5; // probability of generating nick for player
 
@@ -149,16 +157,21 @@ class Player {
     }
 
     #calc_player_strength() {
-        let prc = prc_for_player_strength_calc;
+        // let prc = prc_for_player_strength_calc;
         let contribution_by_pos = {};  // contribution to sector ratings by position
         let strength_by_pos = {};  // composite rating by position (how good is player at given position)
         let max_rating_contribution = {pos: null, ord: null, val: -1};  // best position
         for(const pos in prc) {
+            const pos_type = player_positions[pos].type;
             contribution_by_pos[pos] = {};
-            strength_by_pos[pos] = {};
+            if(pos in prc_for_player_strength_calc) {
+                strength_by_pos[pos_type] = {};
+            }
             for(const ord in prc[pos]) {
                 contribution_by_pos[pos][ord] = {};
-                strength_by_pos[pos][ord] = 0;
+                if(pos in prc_for_player_strength_calc) {
+                    strength_by_pos[pos_type][ord] = 0;
+                }
                 for(const sector in prc[pos][ord]) {
                     contribution_by_pos[pos][ord][sector] = 0;
                     for(const skill in prc[pos][ord][sector]) {
@@ -173,17 +186,21 @@ class Player {
                         overcrowding_penalty = overcrowding_penalties[pos]['2'];
                     }
                     let player_sector_rating = contribution_by_pos[pos][ord][sector] * overcrowding_penalty;
-                    strength_by_pos[pos][ord] += ht_rating_to_hatstats(player_sector_rating, sector);
+                    if(pos in prc_for_player_strength_calc) {
+                        strength_by_pos[pos_type][ord] += ht_rating_to_hatstats(player_sector_rating, sector);
+                    }
                 }
                 // find best position
                 // only technical player can play as TDF
                 if(ord === 'td' && this.spec !== 1) {
                     continue;
                 }
-                if (max_rating_contribution.val < strength_by_pos[pos][ord]) {
-                    max_rating_contribution.val = strength_by_pos[pos][ord];
-                    max_rating_contribution.pos = pos;
-                    max_rating_contribution.ord = ord;
+                if(pos in prc_for_player_strength_calc) {
+                    if (max_rating_contribution.val < strength_by_pos[pos_type][ord]) {
+                        max_rating_contribution.val = strength_by_pos[pos_type][ord];
+                        max_rating_contribution.pos = pos_type;
+                        max_rating_contribution.ord = ord;
+                    }
                 }
             }
         }
