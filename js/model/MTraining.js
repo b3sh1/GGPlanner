@@ -80,7 +80,7 @@ class Training {
         return this.trained_squads[i];
     }
 
-    get_trained_squad(stage_n) {
+    get_trained_squad(stage_n=-1) {
         // last stage
         if(stage_n === -1) {
             return this.trained_squads[this.trained_squads.length-1];

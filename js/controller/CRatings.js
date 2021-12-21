@@ -1,6 +1,6 @@
 import * as Match from "../model/MMatch.js";
 import * as Player from "../model/MPlayer.js";
-import {round2, constraint_val} from "../utils.js";
+import {constraint_val} from "../utils.js";
 
 
 class Ratings {

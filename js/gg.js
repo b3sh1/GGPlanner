@@ -68,19 +68,18 @@ function main() {
 
 
 
-    match.add_player('102', 'gk', 'n', false)   // Sofian
-    match.add_player('23', 'rwb', 'n', false)   // Khalifah
-    match.add_player('23', 'mcd', 'n', false)   // Khalifah
-    match.add_player('23', 'lwb', 'n', false)   // Khalifah
-    match.add_player('23', 'rwg', 'n', false)   // Khalifah
-    match.add_player('23', 'rim', 'n', false)   // Khalifah
-    match.add_player('23', 'cim', 'n', false)   // Khalifah
-    match.add_player('23', 'lim', 'n', false)   // Khalifah
-    match.add_player('23', 'lwg', 'n', false)   // Khalifah
-    match.add_player('23', 'rfw', 'n', false)   // Khalifah
-    match.add_player('84', 'lfw', 'd')   // Ali 'der Bomber' Rodriguez (TDF)
-    cards_ratings.update();
-    form_lineup.update();
+    // match.add_player('102', 'gk', 'n', false)   // Sofian
+    // match.add_player('23', 'rwb', 'n', false)   // Khalifah
+    // match.add_player('23', 'mcd', 'n', false)   // Khalifah
+    // match.add_player('23', 'lwb', 'n', false)   // Khalifah
+    // match.add_player('23', 'rwg', 'n', false)   // Khalifah
+    // match.add_player('23', 'rim', 'n', false)   // Khalifah
+    // match.add_player('23', 'cim', 'n', false)   // Khalifah
+    // match.add_player('23', 'lim', 'n', false)   // Khalifah
+    // match.add_player('23', 'lwg', 'n', false)   // Khalifah
+    // match.add_player('23', 'rfw', 'n', false)   // Khalifah
+    // match.add_player('84', 'lfw', 'd')   // Ali 'der Bomber' Rodriguez (TDF)
+    // cards_ratings.update();
 
     // --- button add players - opens modal ---
     $("#btn-add-players").on("click", function () {
@@ -100,6 +99,8 @@ function main() {
             Storage.save(STORE_TRAINING, training.to_simple_obj());
             tb_result.reload(squad, trained_squad);
             reload_training_stages_tables(tbs_stage, training);
+            match.update_squad(trained_squad);
+            form_lineup.update_all_select_options();
             Toast.show({result: 'success', reason: 'Added:', msg: player.name.to_str()});
         }
         catch (err) {
@@ -125,6 +126,9 @@ function main() {
             Storage.save(STORE_TRAINING, training.to_simple_obj());
             tb_result.reload(squad, trained_squad);
             reload_training_stages_tables(tbs_stage, training);
+            match.update_squad(trained_squad);
+            form_lineup.update_all_select_options();
+            cards_ratings.update();
             Toast.show({result: 'success', reason: 'Edited:', msg: player.name.to_str()});
         }
         catch (err) {
@@ -187,6 +191,9 @@ function main() {
             Storage.save(STORE_TRAINING, training.to_simple_obj());
             tb_result.reload(squad, trained_squad);
             reload_training_stages_tables(tbs_stage, training);
+            match.remove_player(player_id);
+            form_lineup.remove_player(player_id);
+            match.update_squad(trained_squad);
             Toast.show({result: 'warning', reason: "Removed:", msg: player_name});
         }
         catch (err) {
@@ -216,6 +223,8 @@ function main() {
             Storage.save(STORE_TRAINING, training.to_simple_obj());
             tb_result.reload(squad, trained_squad);
             reload_training_stages_tables(tbs_stage, training);
+            match.update_squad(trained_squad);
+            form_lineup.update_all_select_options();
             Toast.show({result: 'success', reason: 'Added:', msg: new_player.name.to_str()});
         }
         catch (err) {
@@ -247,6 +256,9 @@ function main() {
             let tb_stage = new StageTable(stage_n, training_stage);
             tb_stage.load_data(training.get_previous_stage_squad(stage_n), training.get_trained_squad(stage_n));
             tbs_stage.push(tb_stage);
+            match.update_squad(training.get_trained_squad());
+            form_lineup.update_all_select_options();
+            cards_ratings.update();
             Toast.show({result: 'success', reason: 'Added:', msg: `Training stage #${stage_n}`});
         } catch (err) {
             if(err instanceof TrainingError) {
@@ -267,6 +279,9 @@ function main() {
             tb_result.reload(squad, trained_squad);
             TrainingStagesAccordion.edit_stage(stage_data.id, training_stage);
             reload_training_stages_tables(tbs_stage, training);
+            match.update_squad(trained_squad);
+            form_lineup.update_all_select_options();
+            cards_ratings.update();
             Toast.show({result: 'success', reason: 'Edited:', msg: `Training stage #${stage_data.id}`});
         } catch (err) {
             console.error(err);
@@ -290,6 +305,9 @@ function main() {
         TrainingStagesAccordion.remove_stage(stage_n);
         tb_result.reload(squad, final_trained_squad);
         reload_training_stages_tables(tbs_stage, training);
+        match.update_squad(final_trained_squad);
+        form_lineup.update_all_select_options();
+        cards_ratings.update();
         Toast.show({result: 'warning', reason: 'Removed:', msg: `Training stage #${stage_n}`});
     });
     // --- edit training stage ==> opens modal ---
@@ -306,6 +324,9 @@ function main() {
         TrainingStagesAccordion.move_stage_up(stage_n, previous_stage_n);
         tb_result.reload(squad, final_trained_squad);
         reload_training_stages_tables(tbs_stage, training);
+        match.update_squad(final_trained_squad);
+        form_lineup.update_all_select_options();
+        cards_ratings.update();
     });
     // --- move training stage down ---
     el_section_training_stages.on('click', '.btn-training-stage-down', function () {
@@ -316,6 +337,9 @@ function main() {
         TrainingStagesAccordion.move_stage_down(stage_n, next_stage_n);
         tb_result.reload(squad, final_trained_squad);
         reload_training_stages_tables(tbs_stage, training);
+        match.update_squad(final_trained_squad);
+        form_lineup.update_all_select_options();
+        cards_ratings.update();
     });
     // -----------------------------------------------------------------------------------------------------------------
     // --- training stage checkboxes -----------------------------------------------------------------------------------
@@ -335,6 +359,9 @@ function main() {
                 let trained_squad = training.calc();
                 tb_result.reload(squad, trained_squad);
                 reload_training_stages_tables(tbs_stage, training);
+                match.update_squad(trained_squad);
+                form_lineup.update_all_select_options();
+                cards_ratings.update();
             } catch (err) {
                 console.error(err);
                 Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
@@ -355,6 +382,9 @@ function main() {
                 let trained_squad = training.calc();
                 tb_result.reload(squad, trained_squad);
                 reload_training_stages_tables(tbs_stage, training);
+                match.update_squad(trained_squad);
+                form_lineup.update_all_select_options();
+                cards_ratings.update();
             } catch (err) {
                 console.error(err);
                 Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
@@ -387,7 +417,7 @@ function main() {
         let tr = $(this).closest('tr');
         let row = tb_result.datatable.row(tr);
         let player_id = tb_result.get_id(tr);
-        let player = training.get_trained_squad(-1).get(player_id);
+        let player = training.get_trained_squad().get(player_id);
 
         if(row.child.isShown()) {
             row.child.hide();
@@ -420,6 +450,21 @@ function main() {
             $("[data-mdb-toggle=popover]").popover();
         }
     });
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // --- change position order in lineup  ---
+    $('.select-lineup-ord').on('change', function () {
+        let pos = this.attributes.position.value;
+        form_lineup.read_order(pos);
+        cards_ratings.update();
+    });
+    // --- change player in lineup  ---
+    $('.select-lineup-player').on('change', function () {
+        let pos = this.attributes.position.value;
+        form_lineup.read_player(pos);
+        cards_ratings.update();
+    });
+    // -----------------------------------------------------------------------------------------------------------------
 
     // --- decorate collapsible item with +/- ----------------------------------------------------------------------
     $('body').on('click', '.gg-collapsible', function () {

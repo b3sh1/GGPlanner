@@ -5,7 +5,7 @@ class Match {
         this.players_count = 0;
         this.squad = squad;
         for(const pos in player_positions) {
-            this[pos] = {player_id: null, order: 'n'};
+            this[pos] = {player_id: '-1', order: 'n'};
         }
         this.sector_ratings = {};
         this.indirect_free_kicks = {};
@@ -14,37 +14,55 @@ class Match {
         this.calc_ratings();
     }
 
-    change_squad(squad) {
+    update_squad(squad) {
         this.squad = squad;
         this.calc_ratings();
     }
 
     add_player(player_id, position, order, calc_ratings=true) {
-        if(!this[position].player_id && this.players_count >= MAX_PLAYERS) {
+        if(this[position].player_id <= -1 && this.players_count >= MAX_PLAYERS) {
             console.error("Cannot have more than 11 players in match lineup!");
             throw new MatchError("Cannot have more than 11 players in match lineup!");
         }
+        if(this[position].player_id <= -1) {
+            this.players_count++;
+        }
         this[position] = {player_id: player_id, order: order};
-        this.players_count++;
         if(calc_ratings) {
             this.calc_ratings();
         }
     }
 
+    update_player(position, player_id) {
+        if(this[position].player_id <= -1) {
+            this.players_count++;
+        }
+        if(player_id <= -1) {
+            this.players_count--;
+        }
+        this[position].player_id = player_id;
+        this.calc_ratings();
+    }
+
+    update_order(position, order) {
+        this[position].order = order;
+        this.calc_ratings();
+    }
+
     remove_player(player_id) {
         for(const pos in player_positions) {
             if(player_id === this[pos].player_id) {
-                this[pos] = {player_id: null, order: 'n'};
+                this[pos] = {player_id: '-1', order: 'n'};
                 this.players_count--;
             }
         }
+        this.calc_ratings();
     }
 
     calc_ratings() {
         this.#reset_ratings();
         this.#calc_sector_ratings_and_idf();    // sector ratings and indirect free kicks
         this.#calc_hatstats()
-        console.log(this);
     }
 
     #calc_sector_ratings_and_idf() {
@@ -53,7 +71,7 @@ class Match {
 
         // add player contribution to ratings + count number of player in central positions
         for(const pos in player_positions) {
-            if(this[pos].player_id) {
+            if(this[pos].player_id > -1) {
                 // count IMs/CDs/FWs to apply overcrowding penalty later
                 if(player_positions[pos].type in count_pos_types) {
                     count_pos_types[player_positions[pos].type]++;
@@ -108,7 +126,7 @@ class Match {
     }
 
     #calc_idf(idf) {
-        const n = this.players_count;
+        const n = Math.max(1, this.players_count-1);
         this.indirect_free_kicks.at = round2(0.5 * idf.sum_sc/n + 0.3 * idf.sum_sp/n + 0.09 * idf.max_sp);
         this.indirect_free_kicks.df = round2(0.4 * idf.sum_df/n + 0.3 * idf.sum_sp/n + 0.1 * idf.gk_sp + 0.08 * idf.gk_gk);
     }
@@ -177,7 +195,7 @@ const player_positions = {
     lim: {name: 'Inner Midfielder (Left)',  	type: 'im', line: 'md', orders: ['n', 'o', 'd', 'w'],	},
     lwg: {name: 'Winger (Left)',  				type: 'wg', line: 'md', orders: ['n', 'o', 'd', 'm'],	},
     rfw: {name: 'Forward (Right)',  			type: 'fw', line: 'at', orders: ['n', 'd', 'w'],		},
-    cfw: {name: 'Forward (Central)',  			type: 'fw', line: 'at', orders: ['n', 'd', 'w'],		},
+    cfw: {name: 'Forward (Central)',  			type: 'fw', line: 'at', orders: ['n', 'd',],		    },
     lfw: {name: 'Forward (Left)',  				type: 'fw', line: 'at', orders: ['n', 'd', 'w'],		},
 }
 
