@@ -137,6 +137,29 @@ function ht_player_strength_to_hatstats(rating) {
     return round0p25(Math.pow(rating, SECTOR_RATING_POWER)) / 0.25;
 }
 
+
+function position_to_str(pos_type, ord, mode='normal') {
+    let str = '';
+    if(mode === 'extended' || mode === 'normal') {
+        str = `${player_position_types[pos_type].name}`;
+        if(player_orders[ord].before_pos) {
+            str = `${player_orders[ord].name} ${str}`;
+        } else {
+            str += ` ${player_orders[ord].name}`;
+        }
+    }
+    if(mode === 'compact') {
+        str = `${player_position_types[pos_type].short}`;
+        if(player_orders[ord].before_pos) {
+            str = `${player_orders[ord].short}${str}`;
+        } else {
+            str += `${player_orders[ord].short}`;
+        }
+    }
+    return str;
+}
+
+
 const MAX_PLAYERS = 11;
 const BASE_SECTOR_RATING = 0.75;
 const SECTOR_RATING_POWER = 1.165;
@@ -724,4 +747,4 @@ const prc_for_player_strength_calc = {
 
 
 
-export {Match, MatchError, ht_player_strength_to_hatstats, SECTOR_RATING_POWER, prc, prc_for_player_strength_calc, overcrowding_penalties, sector_multiplier, sectors, hatstats_sectors, player_positions, player_position_types, player_orders};
+export {Match, MatchError, ht_player_strength_to_hatstats, position_to_str, SECTOR_RATING_POWER, prc, prc_for_player_strength_calc, overcrowding_penalties, sector_multiplier, sectors, hatstats_sectors, player_positions, player_position_types, player_orders};

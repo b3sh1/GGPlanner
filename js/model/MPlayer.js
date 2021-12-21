@@ -1,6 +1,7 @@
 import {constraint_val, rand_int, rand_item, round0p25, round2} from "../utils.js";
 import {
     ht_player_strength_to_hatstats,
+    position_to_str,
     SECTOR_RATING_POWER,
     prc,
     prc_for_player_strength_calc,
@@ -280,8 +281,8 @@ class Player {
         return this.from_simple_obj(preset);
     }
 
-    best_position_to_str() {
-        return this.#strength_on_position_to_str(this.best_position, 'extended');
+    best_position_to_str(mode='extended') {
+        return this.#strength_on_position_to_str(this.best_position, mode);
     }
 
     strength_on_positions_to_str() {
@@ -303,33 +304,15 @@ class Player {
     }
 
     #strength_on_position_to_str(player_strength, mode='normal') {
-        let str = '';
+        let str = position_to_str(player_strength.pos, player_strength.ord, mode);
         if(mode === 'extended') {
-            str = `${player_position_types[player_strength.pos].name}`;
-            if(player_orders[player_strength.ord].before_pos) {
-                str = `${player_orders[player_strength.ord].name} ${str}`;
-            } else {
-                str += ` ${player_orders[player_strength.ord].name}`;
-            }
             str += ` (${player_strength.val})`;
         }
         if(mode === 'normal') {
-            str = `${player_position_types[player_strength.pos].name}`;
-            if(player_orders[player_strength.ord].before_pos) {
-                str = `${player_orders[player_strength.ord].name} ${str}`;
-            } else if(player_orders[player_strength.ord].name) {
-                str += ` ${player_orders[player_strength.ord].name}`;
-            }
             str += `: ${player_strength.val}`;
         }
         if(mode === 'compact') {
-            str = `${player_position_types[player_strength.pos].short}`;
-            if(player_orders[player_strength.ord].before_pos) {
-                str = `${player_orders[player_strength.ord].short}${str}`;
-            } else {
-                str += `${player_orders[player_strength.ord].short}`;
-            }
-            str += `: ${player_strength.val}`;
+            str += ` ${player_strength.val}`;
         }
         return str;
     }
@@ -424,25 +407,42 @@ class Name {
         return this.to_str();
     };
 
-    to_str() {
+    to_str(mode='normal') {
         let str_name = "";
-        if (this.first) {
-            str_name += this.first;
-        }
-        if (this.nick) {
-            if (str_name) {
-                str_name += " ";
+        if(mode === 'normal') {
+            if (this.first) {
+                str_name += this.first;
             }
-            str_name += `'${this.nick}'`;
-        }
-        if (this.last) {
-            if (str_name) {
-                str_name += " ";
+            if (this.nick) {
+                if (str_name) {
+                    str_name += " ";
+                }
+                str_name += `'${this.nick}'`;
             }
-            str_name += this.last;
+            if (this.last) {
+                if (str_name) {
+                    str_name += " ";
+                }
+                str_name += this.last;
+            }
+            if (!str_name) {
+                str_name = "Invalid 'Erroneous' Player Name";
+            }
         }
-        if (!str_name) {
-            str_name = "Invalid 'Erroneous' Player Name";
+        if(mode === 'short') {
+            if (this.first) {
+                str_name += this.first[0];
+                str_name += '.';
+            }
+            if (this.last) {
+                if (str_name) {
+                    str_name += " ";
+                }
+                str_name += this.last;
+            }
+            if (!str_name) {
+                str_name = "Error";
+            }
         }
         return str_name;
     }

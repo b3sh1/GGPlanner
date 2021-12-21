@@ -12,7 +12,7 @@ import * as Header from "./controller/CHeader.js";
 import {presets} from "./model/MPlayer.js";
 import {Training, TrainingError, TrainingStage, default_stage_cfg, checkboxes} from "./model/MTraining.js";
 import * as TrainingStagesAccordion from "./controller/CTrainingStagesAccordion.js";
-import * as Lineup from "./controller/CLineup.js";
+import {LineupForm} from "./controller/CFormLineup.js";
 import {Match} from "./model/MMatch.js";
 import {Ratings} from "./controller/CRatings.js";
 
@@ -24,7 +24,6 @@ function main() {
     // Header.init();
     PlayerForm.init();  // modal
     TrainingStageForm.init();  // modal
-    Lineup.init();
 
     let squad;
     let training;
@@ -33,8 +32,9 @@ function main() {
     let tb_result = new ResultTable();
     let tbs_stage;
     let cards_ratings;
+    let form_lineup;
 
-    let init_result = init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage, cards_ratings);
+    let init_result = init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage, cards_ratings, form_lineup);
     squad = init_result.squad;
     training = init_result.training;
     match = init_result.match;
@@ -42,6 +42,7 @@ function main() {
     tb_result = init_result.tb_result;
     tbs_stage = init_result.tbs_stage;
     cards_ratings = init_result.cards_ratings;
+    form_lineup = init_result.form_lineup;
     Toast.show({
         result: 'info', reason: 'Info', msg: 'Data loaded from local storage.',
     });
@@ -50,7 +51,7 @@ function main() {
     // --- listen to storage changes from other instances (sync) ---
     window.addEventListener('storage', function () {
         // this event fires only when storage was not modified from within this page
-        let init_result = init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage, cards_ratings);
+        let init_result = init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage, cards_ratings, form_lineup);
         squad = init_result.squad;
         training = init_result.training;
         match = init_result.match;
@@ -58,11 +59,14 @@ function main() {
         tb_result = init_result.tb_result;
         tbs_stage = init_result.tbs_stage;
         cards_ratings = init_result.cards_ratings;
+        form_lineup = init_result.form_lineup;
         // setting unique to not spam screen with toasts - only one + no autohide (=> delay=-1)
         Toast.show({
             result: 'warning', reason: 'Warning', msg: 'Data modified from another instance!', delay: -1, unique: true,
         });
     });
+
+
 
     match.add_player('102', 'gk', 'n', false)   // Sofian
     match.add_player('23', 'rwb', 'n', false)   // Khalifah
@@ -76,6 +80,7 @@ function main() {
     match.add_player('23', 'rfw', 'n', false)   // Khalifah
     match.add_player('84', 'lfw', 'd')   // Ali 'der Bomber' Rodriguez (TDF)
     cards_ratings.update();
+    form_lineup.update();
 
     // --- button add players - opens modal ---
     $("#btn-add-players").on("click", function () {
@@ -443,7 +448,7 @@ function main() {
 
 
 // init page from permanent storage values
-function init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage, cards_ratings) {
+function init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage, cards_ratings, form_lineup) {
     squad = new Squad().from_simple_obj(Storage.load(STORE_SQUAD));
     training = new Training(squad).from_simple_obj(Storage.load(STORE_TRAINING));
     tb_squad.reload(squad);
@@ -465,6 +470,7 @@ function init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage,
         match = new Match(squad);
     }
     cards_ratings = new Ratings(match);
+    form_lineup = new LineupForm(match);
     // init training stages tables
     tbs_stage = [];
     for(const n in training.stages) {
@@ -478,7 +484,7 @@ function init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage,
             tbs_stage.push(null);
         }
     }
-    return {squad: squad, training: training, match: match, tb_squad: tb_squad, tb_result: tb_result, tbs_stage: tbs_stage, cards_ratings: cards_ratings};
+    return {squad: squad, training: training, match: match, tb_squad: tb_squad, tb_result: tb_result, tbs_stage: tbs_stage, cards_ratings: cards_ratings, form_lineup: form_lineup};
 }
 
 function reload_training_stages_tables(tbs_stage, training) {
