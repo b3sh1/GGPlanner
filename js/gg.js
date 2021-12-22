@@ -79,7 +79,6 @@ function main() {
     // match.add_player('23', 'lwg', 'n', false)   // Khalifah
     // match.add_player('23', 'rfw', 'n', false)   // Khalifah
     // match.add_player('84', 'lfw', 'd')   // Ali 'der Bomber' Rodriguez (TDF)
-    // cards_ratings.update();
 
     // --- button add players - opens modal ---
     $("#btn-add-players").on("click", function () {
@@ -511,11 +510,6 @@ function init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage,
             match = new Match(trained_squad);
         }
     }
-    if(!match) {
-        match = new Match(squad);
-    }
-    cards_ratings = new Ratings(match);
-    form_lineup = new LineupForm(match);
     // init training stages tables
     tbs_stage = [];
     for(const n in training.stages) {
@@ -528,6 +522,22 @@ function init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage,
         } else {
             tbs_stage.push(null);
         }
+    }
+    // init ratings
+    if(!match || training.stages_order.length <= 0) {
+        match = new Match(squad);
+    }
+    if(!form_lineup) {
+        form_lineup = new LineupForm(match);
+        form_lineup.update_all_select_options();
+    } else {
+        form_lineup.reset(match);
+    }
+    if(!cards_ratings) {
+        cards_ratings = new Ratings(match);
+        cards_ratings.update();
+    } else {
+        cards_ratings.reset(match);
     }
     return {squad: squad, training: training, match: match, tb_squad: tb_squad, tb_result: tb_result, tbs_stage: tbs_stage, cards_ratings: cards_ratings, form_lineup: form_lineup};
 }

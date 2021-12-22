@@ -52,6 +52,16 @@ class LineupForm {
         }
     }
 
+    reset(match) {
+        this.match = match;
+        console.log(this.match.squad.players);
+        for(const pos in Match.player_positions) {
+            const el_player_select = $(`#select-lineup-player-${pos}`);
+            const pos_type = Match.player_positions[pos].type;
+            el_player_select.html(this.#generate_player_options(pos, pos_type));
+        }
+    }
+
     // remove_player(player_id) {
     //     for(const pos in Match.player_positions) {
     //         const el_option = $(`#option-lineup-player-${pos}-${player_id}`);

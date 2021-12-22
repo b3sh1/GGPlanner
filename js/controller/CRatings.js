@@ -12,6 +12,11 @@ class Ratings {
         this.match = match;
     }
 
+    reset(match) {
+        this.match = match;
+        this.update();
+    }
+
     update() {
         this.#write_sector_ratings();
         this.#write_hatstats();

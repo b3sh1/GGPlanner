@@ -17,6 +17,14 @@
     cursor: pointer;
 }
 
+.select-lineup-ord {
+    cursor: pointer;
+}
+
+.select-lineup-player {
+    cursor: pointer;
+}
+
 .table-hover > tbody > tr.select-row:hover > td,
 .no-hover-row > td {
     background-color: #424242;
