@@ -19,6 +19,7 @@ import {Ratings} from "./controller/CRatings.js";
 
 const STORE_SQUAD = "squad";
 const STORE_TRAINING = "training";
+const STORE_MATCH = "lineup";
 
 function main() {
     // Header.init();
@@ -99,6 +100,7 @@ function main() {
             tb_result.reload(squad, trained_squad);
             reload_training_stages_tables(tbs_stage, training);
             match.update_squad(trained_squad);
+            Storage.save(STORE_MATCH, match.to_simple_obj());
             form_lineup.update_all_select_options();
             Toast.show({result: 'success', reason: 'Added:', msg: player.name.to_str()});
         }
@@ -126,6 +128,7 @@ function main() {
             tb_result.reload(squad, trained_squad);
             reload_training_stages_tables(tbs_stage, training);
             match.update_squad(trained_squad);
+            Storage.save(STORE_MATCH, match.to_simple_obj());
             form_lineup.update_all_select_options();
             cards_ratings.update();
             Toast.show({result: 'success', reason: 'Edited:', msg: player.name.to_str()});
@@ -193,6 +196,7 @@ function main() {
             match.remove_player(player_id);
             form_lineup.remove_player(player_id);
             match.update_squad(trained_squad);
+            Storage.save(STORE_MATCH, match.to_simple_obj());
             Toast.show({result: 'warning', reason: "Removed:", msg: player_name});
         }
         catch (err) {
@@ -223,6 +227,7 @@ function main() {
             tb_result.reload(squad, trained_squad);
             reload_training_stages_tables(tbs_stage, training);
             match.update_squad(trained_squad);
+            Storage.save(STORE_MATCH, match.to_simple_obj());
             form_lineup.update_all_select_options();
             Toast.show({result: 'success', reason: 'Added:', msg: new_player.name.to_str()});
         }
@@ -256,6 +261,7 @@ function main() {
             tb_stage.load_data(training.get_previous_stage_squad(stage_n), training.get_trained_squad(stage_n));
             tbs_stage.push(tb_stage);
             match.update_squad(training.get_trained_squad());
+            Storage.save(STORE_MATCH, match.to_simple_obj());
             form_lineup.update_all_select_options();
             cards_ratings.update();
             Toast.show({result: 'success', reason: 'Added:', msg: `Training stage #${stage_n}`});
@@ -279,6 +285,7 @@ function main() {
             TrainingStagesAccordion.edit_stage(stage_data.id, training_stage);
             reload_training_stages_tables(tbs_stage, training);
             match.update_squad(trained_squad);
+            Storage.save(STORE_MATCH, match.to_simple_obj());
             form_lineup.update_all_select_options();
             cards_ratings.update();
             Toast.show({result: 'success', reason: 'Edited:', msg: `Training stage #${stage_data.id}`});
@@ -305,6 +312,7 @@ function main() {
         tb_result.reload(squad, final_trained_squad);
         reload_training_stages_tables(tbs_stage, training);
         match.update_squad(final_trained_squad);
+        Storage.save(STORE_MATCH, match.to_simple_obj());
         form_lineup.update_all_select_options();
         cards_ratings.update();
         Toast.show({result: 'warning', reason: 'Removed:', msg: `Training stage #${stage_n}`});
@@ -324,6 +332,7 @@ function main() {
         tb_result.reload(squad, final_trained_squad);
         reload_training_stages_tables(tbs_stage, training);
         match.update_squad(final_trained_squad);
+        Storage.save(STORE_MATCH, match.to_simple_obj());
         form_lineup.update_all_select_options();
         cards_ratings.update();
     });
@@ -337,6 +346,7 @@ function main() {
         tb_result.reload(squad, final_trained_squad);
         reload_training_stages_tables(tbs_stage, training);
         match.update_squad(final_trained_squad);
+        Storage.save(STORE_MATCH, match.to_simple_obj());
         form_lineup.update_all_select_options();
         cards_ratings.update();
     });
@@ -359,6 +369,7 @@ function main() {
                 tb_result.reload(squad, trained_squad);
                 reload_training_stages_tables(tbs_stage, training);
                 match.update_squad(trained_squad);
+                Storage.save(STORE_MATCH, match.to_simple_obj());
                 form_lineup.update_all_select_options();
                 cards_ratings.update();
             } catch (err) {
@@ -382,6 +393,7 @@ function main() {
                 tb_result.reload(squad, trained_squad);
                 reload_training_stages_tables(tbs_stage, training);
                 match.update_squad(trained_squad);
+                Storage.save(STORE_MATCH, match.to_simple_obj());
                 form_lineup.update_all_select_options();
                 cards_ratings.update();
             } catch (err) {
@@ -456,12 +468,14 @@ function main() {
         let pos = this.attributes.position.value;
         form_lineup.read_order(pos);
         cards_ratings.update();
+        Storage.save(STORE_MATCH, match.to_simple_obj());
     });
     // --- change player in lineup  ---
     $('.select-lineup-player').on('change', function () {
         let pos = this.attributes.position.value;
         form_lineup.read_player(pos);
         cards_ratings.update();
+        Storage.save(STORE_MATCH, match.to_simple_obj());
     });
     // -----------------------------------------------------------------------------------------------------------------
 
@@ -527,6 +541,7 @@ function init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage,
     if(!match || training.stages_order.length <= 0) {
         match = new Match(squad);
     }
+    match.from_simple_obj(Storage.load(STORE_MATCH));
     if(!form_lineup) {
         form_lineup = new LineupForm(match);
         form_lineup.update_all_select_options();

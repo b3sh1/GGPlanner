@@ -38,6 +38,10 @@ class LineupForm {
     update_all_select_options() {
         for(const pos in Match.player_positions) {
             this.update_select_options(pos);
+            const el_player_select = $(`#select-lineup-player-${pos}`);
+            const el_ord_select = $(`#select-lineup-ord-${pos}`);
+            el_player_select.val(this.match[pos].player_id);
+            el_ord_select.val(this.match[pos].order);
         }
     }
 

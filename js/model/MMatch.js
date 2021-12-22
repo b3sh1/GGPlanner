@@ -141,6 +141,26 @@ class Match {
             this.hatstats[sector] = 0;
         }
     }
+
+    to_simple_obj() {
+        let obj = {players_count: this.players_count};
+        for(const pos in player_positions) {
+            obj[pos] = this[pos];
+        }
+        return obj;
+    }
+
+    from_simple_obj(obj) {
+        if(!obj) {
+            return this;
+        }
+        this.players_count = Number.parseInt(obj.players_count);
+        for(const pos in player_positions) {
+            this[pos] = obj[pos];
+        }
+        this.calc_ratings();
+        return this;
+    }
 }
 
 class MatchError extends Error {
