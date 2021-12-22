@@ -4,14 +4,17 @@ import * as Match from "../model/MMatch.js";
 class LineupForm {
     constructor(match) {
         this.el_lineup = $('#lineup-form');
+        this.el_formation = $('#lineup-formation');
         this.match = match;
         this.#generate_grid();
+        this.update_formation();
     }
 
     read_player(pos) {
         const el_player_select = $(`#select-lineup-player-${pos}`);
         const player_id = el_player_select.val();
         this.match.update_player(pos, player_id);
+        this.update_formation();
     }
 
     read_order(pos) {
@@ -19,6 +22,7 @@ class LineupForm {
         const order = el_ord_select.val();
         this.match.update_order(pos, order);
         this.update_select_options(pos, order);
+        this.update_formation();
     }
 
     update_select_options(pos, ord='n') {
@@ -38,11 +42,13 @@ class LineupForm {
     update_all_select_options() {
         for(const pos in Match.player_positions) {
             this.update_select_options(pos);
+            // select correct values (according to the match data)
             const el_player_select = $(`#select-lineup-player-${pos}`);
             const el_ord_select = $(`#select-lineup-ord-${pos}`);
             el_player_select.val(this.match[pos].player_id);
             el_ord_select.val(this.match[pos].order);
         }
+        this.update_formation();
     }
 
     remove_player(player_id) {
@@ -54,16 +60,36 @@ class LineupForm {
             }
             el_option.remove();
         }
+        this.update_formation();
     }
 
     reset(match) {
         this.match = match;
-        console.log(this.match.squad.players);
         for(const pos in Match.player_positions) {
             const el_player_select = $(`#select-lineup-player-${pos}`);
             const pos_type = Match.player_positions[pos].type;
             el_player_select.html(this.#generate_player_options(pos, pos_type));
         }
+        this.update_formation();
+    }
+
+    update_formation() {
+        let text_color = 'text-white';
+        if(this.match.players_count.gk <= 0) {
+            text_color = 'text-warning';
+        }
+        if(this.match.players_count.field < 10) {
+            text_color = 'text-warning';
+        }
+        if(this.match.players_count.field > 10) {
+            text_color = 'text-danger';
+        }
+        this.el_formation.attr('class', text_color);
+        this.el_formation.html(this.formation_str());
+    }
+
+    formation_str() {
+        return `${this.match.players_count.df}-${this.match.players_count.md}-${this.match.players_count.at}`;
     }
 
     // remove_player(player_id) {

@@ -462,7 +462,7 @@ function main() {
         }
     });
 
-    // -----------------------------------------------------------------------------------------------------------------
+    // --- lineup ------------------------------------------------------------------------------------------------------
     // --- change position order in lineup  ---
     $('.select-lineup-ord').on('change', function () {
         let pos = this.attributes.position.value;
@@ -475,6 +475,13 @@ function main() {
         let pos = this.attributes.position.value;
         form_lineup.read_player(pos);
         cards_ratings.update();
+        Storage.save(STORE_MATCH, match.to_simple_obj());
+    });
+    // --- reset lineup ---
+    $('#lineup-reset').on('click', function () {
+        match = new Match(training.get_trained_squad());
+        form_lineup.reset(match);
+        cards_ratings.reset(match);
         Storage.save(STORE_MATCH, match.to_simple_obj());
     });
     // -----------------------------------------------------------------------------------------------------------------

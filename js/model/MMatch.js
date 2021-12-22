@@ -2,7 +2,7 @@ import {round0p25, round2} from '../utils.js';
 
 class Match {
     constructor(squad) {
-        this.players_count = 0;
+        this.players_count = {total: 0, field: 0, gk: 0, df: 0, md: 0, at: 0};
         this.squad = squad;
         for(const pos in player_positions) {
             this[pos] = {player_id: '-1', order: 'n'};
@@ -19,26 +19,12 @@ class Match {
         this.calc_ratings();
     }
 
-    add_player(player_id, position, order, calc_ratings=true) {
-        if(this[position].player_id <= -1 && this.players_count >= MAX_PLAYERS) {
-            console.error("Cannot have more than 11 players in match lineup!");
-            throw new MatchError("Cannot have more than 11 players in match lineup!");
-        }
-        if(this[position].player_id <= -1) {
-            this.players_count++;
-        }
-        this[position] = {player_id: player_id, order: order};
-        if(calc_ratings) {
-            this.calc_ratings();
-        }
-    }
-
     update_player(position, player_id) {
         if(this[position].player_id <= -1) {
-            this.players_count++;
+            this.#count_pos_up(position);
         }
-        if(player_id <= -1) {
-            this.players_count--;
+        if(player_id <= -1 && this.players_count.total >= 0) {
+            this.#count_pos_down(position);
         }
         this[position].player_id = player_id;
         this.calc_ratings();
@@ -53,7 +39,7 @@ class Match {
         for(const pos in player_positions) {
             if(player_id === this[pos].player_id) {
                 this[pos] = {player_id: '-1', order: 'n'};
-                this.players_count--;
+                this.#count_pos_down(pos);
             }
         }
         this.calc_ratings();
@@ -126,7 +112,7 @@ class Match {
     }
 
     #calc_idf(idf) {
-        const n = Math.max(1, this.players_count-1);
+        const n = Math.max(1, this.players_count.field);
         this.indirect_free_kicks.at = round2(0.5 * idf.sum_sc/n + 0.3 * idf.sum_sp/n + 0.09 * idf.max_sp);
         this.indirect_free_kicks.df = round2(0.4 * idf.sum_df/n + 0.3 * idf.sum_sp/n + 0.1 * idf.gk_sp + 0.08 * idf.gk_gk);
     }
@@ -142,6 +128,24 @@ class Match {
         }
     }
 
+    #count_pos_up(pos) {
+        const line = player_positions[pos].line;
+        this.players_count.total++;
+        this.players_count[line]++;
+        if(line !== 'gk') {
+            this.players_count.field++;
+        }
+    }
+
+    #count_pos_down(pos) {
+        const line = player_positions[pos].line;
+        this.players_count.total--;
+        this.players_count[line]--;
+        if(line !== 'gk') {
+            this.players_count.field--;
+        }
+    }
+
     to_simple_obj() {
         let obj = {players_count: this.players_count};
         for(const pos in player_positions) {
@@ -154,7 +158,9 @@ class Match {
         if(!obj) {
             return this;
         }
-        this.players_count = Number.parseInt(obj.players_count);
+        for(const key in obj.players_count) {
+            this.players_count[key] = Number.parseInt(obj.players_count[key]);
+        }
         for(const pos in player_positions) {
             this[pos] = obj[pos];
         }

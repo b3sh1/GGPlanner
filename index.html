@@ -178,10 +178,24 @@
                         <div class="col-lg-8">
                             <div class="card my-3 mx-2">
                                 <div class="card-header">
-                                    Lineup
+                                    <div class="row">
+                                        <div class="col">
+                                            Lineup
+                                        </div>
+                                        <div class="col text-end">
+                                            Formation: <span id="lineup-formation"></span>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="card-body px-0">
+                                    <div class="row d-flex justify-content-end g-0 px-2">
+                                        <div class="col-3">
+                                            <button id="lineup-reset" type="button" class="btn btn-danger btn-block ripple-surface">
+                                                Reset
+                                            </button>
+                                        </div>
+                                    </div>
                                     <form id="lineup-form">
 
                                     </form>
