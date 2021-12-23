@@ -15,6 +15,7 @@ import * as TrainingStagesAccordion from "./controller/CTrainingStagesAccordion.
 import {LineupForm} from "./controller/CFormLineup.js";
 import {Match} from "./model/MMatch.js";
 import {Ratings} from "./controller/CRatings.js";
+import {MatchSetupForm} from "./controller/CFormMatchSetup.js";
 
 
 const STORE_SQUAD = "squad";
@@ -33,9 +34,10 @@ function main() {
     let tb_result = new ResultTable();
     let tbs_stage;
     let cards_ratings;
+    let form_match_setup;
     let form_lineup;
 
-    let init_result = init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage, cards_ratings, form_lineup);
+    let init_result = init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage, cards_ratings, form_match_setup, form_lineup);
     squad = init_result.squad;
     training = init_result.training;
     match = init_result.match;
@@ -43,6 +45,7 @@ function main() {
     tb_result = init_result.tb_result;
     tbs_stage = init_result.tbs_stage;
     cards_ratings = init_result.cards_ratings;
+    form_match_setup = init_result.form_match_setup;
     form_lineup = init_result.form_lineup;
     Toast.show({
         result: 'info', reason: 'Info', msg: 'Data loaded from local storage.',
@@ -52,7 +55,7 @@ function main() {
     // --- listen to storage changes from other instances (sync) ---
     window.addEventListener('storage', function () {
         // this event fires only when storage was not modified from within this page
-        let init_result = init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage, cards_ratings, form_lineup);
+        let init_result = init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage, cards_ratings, form_match_setup, form_lineup);
         squad = init_result.squad;
         training = init_result.training;
         match = init_result.match;
@@ -60,6 +63,7 @@ function main() {
         tb_result = init_result.tb_result;
         tbs_stage = init_result.tbs_stage;
         cards_ratings = init_result.cards_ratings;
+        form_match_setup = init_result.form_match_setup;
         form_lineup = init_result.form_lineup;
         // setting unique to not spam screen with toasts - only one + no autohide (=> delay=-1)
         Toast.show({
@@ -486,12 +490,49 @@ function main() {
     });
     // -----------------------------------------------------------------------------------------------------------------
 
+    // --- match setup -------------------------------------------------------------------------------------------------
+    // --- change team attitude  ---
+    $('#select-match-attitude').on('change', function () {
+        form_match_setup.read_attitude();
+        cards_ratings.update();
+        Storage.save(STORE_MATCH, match.to_simple_obj());
+    });
+    // --- change match venue  ---
+    $('#select-match-venue').on('change', function () {
+        form_match_setup.read_venue();
+        cards_ratings.update();
+        Storage.save(STORE_MATCH, match.to_simple_obj());
+    });
+    // --- change team spirit  ---
+    $('#input-match-spirit').on('change', function () {
+        form_match_setup.read_team_spirit();
+        cards_ratings.update();
+        Storage.save(STORE_MATCH, match.to_simple_obj());
+    });
+    // --- change confidence  ---
+    $('#input-match-confidence').on('change', function () {
+        form_match_setup.read_confidence();
+        cards_ratings.update();
+        Storage.save(STORE_MATCH, match.to_simple_obj());
+    });
+    // --- change play style  ---
+    $('#input-match-play-style').on('change', function () {
+        form_match_setup.read_play_style();
+        cards_ratings.update();
+        Storage.save(STORE_MATCH, match.to_simple_obj());
+    });
+    // -----------------------------------------------------------------------------------------------------------------
+
     // --- decorate collapsible item with +/- ----------------------------------------------------------------------
     $('body').on('click', '.gg-collapsible', function () {
         $(this).children('svg').toggleClass('fa-plus fa-minus');    // this works when font awesome is imported as js
         // $(this).children('i').toggleClass('fa-plus fa-minus');      // this works when font awesome is imported as css
         // this.scrollIntoView();  // + scroll this accordion to view
         // $('html,body').animate({scrollTop: $(this).offset().top}, 'slow');
+        // update all form notches to fit the label text (apparently need to be visible to work)
+        document.querySelectorAll('.form-outline').forEach((formOutline) => {
+            new mdb.Input(formOutline).update();
+        });
     });
     // --- back to top button --------------------------------------------------------------------------------------
     let btn_back_to_top = $('#btn-back-to-top');
@@ -513,7 +554,7 @@ function main() {
 
 
 // init page from permanent storage values
-function init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage, cards_ratings, form_lineup) {
+function init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage, cards_ratings, form_match_setup, form_lineup) {
     squad = new Squad().from_simple_obj(Storage.load(STORE_SQUAD));
     training = new Training(squad).from_simple_obj(Storage.load(STORE_TRAINING));
     tb_squad.reload(squad);
@@ -555,13 +596,17 @@ function init_from_store(squad, training, match, tb_squad, tb_result, tbs_stage,
     } else {
         form_lineup.reset(match);
     }
+    if(!form_match_setup) {
+        form_match_setup = new MatchSetupForm(match);
+    }
+    form_match_setup.reset(match);
     if(!cards_ratings) {
         cards_ratings = new Ratings(match);
         cards_ratings.update();
     } else {
         cards_ratings.reset(match);
     }
-    return {squad: squad, training: training, match: match, tb_squad: tb_squad, tb_result: tb_result, tbs_stage: tbs_stage, cards_ratings: cards_ratings, form_lineup: form_lineup};
+    return {squad: squad, training: training, match: match, tb_squad: tb_squad, tb_result: tb_result, tbs_stage: tbs_stage, cards_ratings: cards_ratings, form_match_setup: form_match_setup, form_lineup: form_lineup};
 }
 
 function reload_training_stages_tables(tbs_stage, training) {

@@ -7,6 +7,11 @@ class Match {
         for(const pos in player_positions) {
             this[pos] = {player_id: '-1', order: 'n'};
         }
+        this.attitude = 'pin';
+        this.venue = 'away';
+        this.team_spirit = 4.5;
+        this.confidence = 4.5;
+        this.play_style = 0;
         this.sector_ratings = {};
         this.indirect_free_kicks = {};
         this.tactic = {};
@@ -87,19 +92,30 @@ class Match {
     }
 
     #calc_sector_ratings(count_pos_types) {
-
         for(const sector in this.sector_ratings) {
             let overcrowding_penalty = 1.0;
+            let sector_multiplier = 1.0;
             if(sector === 'md') {
                 overcrowding_penalty = overcrowding_penalties['im'][count_pos_types['im']];
+                let ts_factor = (1.0 + (this.team_spirit-4.5) * 0.07);
+                sector_multiplier = venue[this.venue].c * team_attitude[this.attitude].c * ts_factor * overcrowding_penalty;
             }
-            if(sector === 'cd') {
-                overcrowding_penalty = overcrowding_penalties['cd'][count_pos_types['cd']];
+            if(sector === 'rd' || sector === 'cd' || sector === 'ld') {
+                if(sector === 'cd') {
+                    overcrowding_penalty = overcrowding_penalties['cd'][count_pos_types['cd']];
+                }
+                let play_style_factor = 1.005 + (this.play_style * -0.00123);
+                sector_multiplier = play_style_factor * overcrowding_penalty;
             }
-            if(sector === 'ca') {
-                overcrowding_penalty = overcrowding_penalties['fw'][count_pos_types['fw']];
+            if(sector === 'ra' || sector === 'ca' || sector === 'la') {
+                if (sector === 'ca') {
+                    overcrowding_penalty = overcrowding_penalties['fw'][count_pos_types['fw']];
+                }
+                let confidence_factor = (1.0 + (this.confidence-4.5) * 0.05);
+                let play_style_factor = 0.977 + (this.play_style * 0.00097);
+                sector_multiplier = confidence_factor * play_style_factor * overcrowding_penalty;
             }
-            this.sector_ratings[sector] = round2(Math.pow(this.sector_ratings[sector] * overcrowding_penalty, SECTOR_RATING_POWER) + BASE_SECTOR_RATING);
+            this.sector_ratings[sector] = round2(Math.pow(this.sector_ratings[sector] * sector_multiplier, SECTOR_RATING_POWER) + BASE_SECTOR_RATING);
         }
     }
 
@@ -147,7 +163,14 @@ class Match {
     }
 
     to_simple_obj() {
-        let obj = {players_count: this.players_count};
+        let obj = {
+            players_count: this.players_count,
+            attitude: this.attitude,
+            venue: this.venue,
+            team_spirit: this.team_spirit,
+            confidence: this.confidence,
+            play_style: this.play_style,
+        };
         for(const pos in player_positions) {
             obj[pos] = this[pos];
         }
@@ -161,6 +184,11 @@ class Match {
         for(const key in obj.players_count) {
             this.players_count[key] = Number.parseInt(obj.players_count[key]);
         }
+        this.attitude = obj.attitude;
+        this.venue = obj.venue;
+        this.team_spirit = Number.parseFloat(obj.team_spirit);
+        this.confidence = Number.parseFloat(obj.confidence);
+        this.play_style = Number.parseInt(obj.play_style);
         for(const pos in player_positions) {
             this[pos] = obj[pos];
         }
@@ -280,6 +308,18 @@ const overcrowding_penalties = {
     cd: {0: 1.0, 1: 1.0, 2: 0.964, 3: 0.9,   },
     im: {0: 1.0, 1: 1.0, 2: 0.935, 3: 0.825, },
     fw: {0: 1.0, 1: 1.0, 2: 0.945, 3: 0.865, },
+}
+
+const team_attitude = {
+    pin:  {name: "Normal",				c: 1.0, 	},
+    pic:  {name: "Play it Cool", 		c: 0.83945, },
+    mots: {name: "Match of the Season", c: 1.1149, 	},
+}
+
+const venue = {
+    away:  {name: "Away", 	        c: 1.0,     },
+    home:  {name: "Home",			c: 1.19892, },
+    derby: {name: "Derby (Away)",   c: 1.11493, },
 }
 
 // rating constants
@@ -791,4 +831,4 @@ const prc_for_player_strength_calc = {
 
 
 
-export {Match, MatchError, ht_player_strength_to_hatstats, position_to_str, SECTOR_RATING_POWER, prc, prc_for_player_strength_calc, overcrowding_penalties, sector_multiplier, sectors, hatstats_sectors, player_positions, player_position_types, player_orders};
+export {Match, MatchError, ht_player_strength_to_hatstats, position_to_str, SECTOR_RATING_POWER, prc, prc_for_player_strength_calc, overcrowding_penalties, sector_multiplier, sectors, hatstats_sectors, player_positions, player_position_types, player_orders, team_attitude, venue};
