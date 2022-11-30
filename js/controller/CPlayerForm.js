@@ -110,6 +110,7 @@ function parse_clipboard(paste_text) {
     let paste_numbers = paste_text.match(/\d+/g);
     player_data.years = paste_numbers[1];
     player_data.days = paste_numbers[2];
+    player_data.st = paste_numbers[paste_numbers.length-8];
     player_data.gk = paste_numbers[paste_numbers.length-7];
     player_data.df = paste_numbers[paste_numbers.length-6];
     player_data.pm = paste_numbers[paste_numbers.length-5];
@@ -119,41 +120,10 @@ function parse_clipboard(paste_text) {
     player_data.sp = paste_numbers[paste_numbers.length-1];
     player_data.spec = 0;
 
-    console.log(paste_numbers);
-
-    // player stamina and specialty
-    // using 'Copy player ad' - Foxtrick
-    if(paste_text.includes("HTMS ")) {
-        // stamina
-        if(!paste_text.includes("U21 ")) {
-            player_data.st = paste_numbers[paste_numbers.length-12];
-        }
-        else {
-            // adjust stamina position for young players + adjust for text for containing round number vs. word 'final'
-            if(paste_numbers[paste_numbers.length-8] === "21") {
-                player_data.st = paste_numbers[paste_numbers.length-14];
-            }
-            else {
-                player_data.st = paste_numbers[paste_numbers.length-15];
-            }
-        }
-        // specialty - works only in English
-        if(paste_text.includes("Specialty [b")) {
-            if (!paste_text.includes("Specialty [b]-[/b]")) {
-                let player_specialty = paste_text.match(/Specialty \[b]\w+\[\/b]/)[0].trim().split(' ')[1].replace(/(\[b])|(\[\/b])/g, '');
-                player_data.spec = Player.spec_to_index(player_specialty);
-            }
-        }
-    }
-    // using 'Copy to clipboard' - native Hattrick
-    else {
-        // stamina
-        player_data.st = paste_numbers[paste_numbers.length-8];
-        // specialty - works only in English
-        if(paste_text.includes("Specialty: ")) {
-            let player_specialty = paste_text.match(/Specialty: \w+/)[0].trim().split(' ')[1];
-            player_data.spec = Player.spec_to_index(player_specialty);
-        }
+    // specialty - works only in English
+    if(paste_text.includes("Specialty: ")) {
+        let player_specialty = paste_text.match(/Specialty: \w+/)[0].trim().split(' ')[1];
+        player_data.spec = Player.spec_to_index(player_specialty);
     }
     return player_data;
 }

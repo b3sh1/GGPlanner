@@ -152,21 +152,27 @@ function main() {
             let paste_text = (event.clipboardData || window.clipboardData).getData('text');
 
             if(paste_text.includes("[playerid=")) {
-                let player_data = PlayerForm.read();
-                let player_cfg = PlayerForm.parse_clipboard(paste_text);
+                // check if player is really using 'Copy to clipboard' - forbid 'Copy player ad' data pasting
+                if(!paste_text.includes("HTMS ")) {
+                    let player_data = PlayerForm.read();
+                    let player_cfg = PlayerForm.parse_clipboard(paste_text);
 
-                // edit player
-                if (Number.parseInt(player_data.id) > 0) {
-                    let player = new Player.Player(player_cfg);
-                    PlayerForm.write(player, player_data.id);
+                    // edit player
+                    if (Number.parseInt(player_data.id) > 0) {
+                        let player = new Player.Player(player_cfg);
+                        PlayerForm.write(player, player_data.id);
+                    }
+                    // add player
+                    else {
+                        let player = new Player.Player(player_cfg);
+                        PlayerForm.write(player);
+                    }
+                    // nick field label update
+                    new mdb.Input($("#input-player-nick").parent('.form-outline').get(0)).update();
                 }
-                // add player
                 else {
-                    let player = new Player.Player(player_cfg);
-                    PlayerForm.write(player);
+                    Toast.show({result: 'warning', reason: 'Error:', msg: "Use 'Copy to clipboard' instead of 'Copy player ad' !"});
                 }
-                // nick field label update - to not overlap with new randomized value
-                new mdb.Input($("#input-player-nick").parent('.form-outline').get(0)).update();
             }
             else {
                 Toast.show({result: 'fail', reason: 'Error:', msg: "Trying to paste data in unknown format!"});
