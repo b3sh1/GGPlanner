@@ -1,6 +1,5 @@
 import * as Player from "../model/MPlayer.js";
 import {capitalize_first, round2} from "../utils.js";
-import {spec_to_index} from "../model/MPlayer.js";
 
 function init() {
     let el_form = $('#player-form');
@@ -120,11 +119,24 @@ function parse_clipboard(paste_text) {
     player_data.sp = paste_numbers[paste_numbers.length-1];
     player_data.spec = 0;
 
+    console.log(paste_numbers);
+
     // player stamina and specialty
-    // using 'Copy player ad'
-    if(paste_text.includes("HTMS Points: [b")) {
+    // using 'Copy player ad' - Foxtrick
+    if(paste_text.includes("HTMS ")) {
         // stamina
-        player_data.st = paste_numbers[paste_numbers.length-12];
+        if(!paste_text.includes("U21 ")) {
+            player_data.st = paste_numbers[paste_numbers.length-12];
+        }
+        else {
+            // adjust stamina position for young players + adjust for text for containing round number vs. word 'final'
+            if(paste_numbers[paste_numbers.length-8] === "21") {
+                player_data.st = paste_numbers[paste_numbers.length-14];
+            }
+            else {
+                player_data.st = paste_numbers[paste_numbers.length-15];
+            }
+        }
         // specialty - works only in English
         if(paste_text.includes("Specialty [b")) {
             if (!paste_text.includes("Specialty [b]-[/b]")) {
@@ -133,7 +145,7 @@ function parse_clipboard(paste_text) {
             }
         }
     }
-    // using 'Copy to clipboard'
+    // using 'Copy to clipboard' - native Hattrick
     else {
         // stamina
         player_data.st = paste_numbers[paste_numbers.length-8];
