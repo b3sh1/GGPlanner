@@ -1,5 +1,6 @@
 import * as Player from "../model/MPlayer.js";
 import {capitalize_first, round2} from "../utils.js";
+import {spec_to_index} from "../model/MPlayer.js";
 
 function init() {
     let el_form = $('#player-form');
@@ -97,4 +98,52 @@ function toggle_buttons(mode) {
     }
 }
 
-export {init, write, read};
+function parse_clipboard(paste_text) {
+    let player_data = {};
+
+    // player name
+    let player_name = paste_text.substring(0, paste_text.indexOf('[playerid=')).trim().split(' ');
+    player_data.first = player_name[0];
+    player_data.nick = "";
+    player_data.last = player_name[player_name.length-1];
+
+    // player age and skills
+    let paste_numbers = paste_text.match(/\d+/g);
+    player_data.years = paste_numbers[1];
+    player_data.days = paste_numbers[2];
+    player_data.gk = paste_numbers[paste_numbers.length-7];
+    player_data.df = paste_numbers[paste_numbers.length-6];
+    player_data.pm = paste_numbers[paste_numbers.length-5];
+    player_data.wg = paste_numbers[paste_numbers.length-4];
+    player_data.pg = paste_numbers[paste_numbers.length-3];
+    player_data.sc = paste_numbers[paste_numbers.length-2];
+    player_data.sp = paste_numbers[paste_numbers.length-1];
+    player_data.spec = 0;
+
+    // player stamina and specialty
+    // using 'Copy player ad'
+    if(paste_text.includes("HTMS Points: [b")) {
+        // stamina
+        player_data.st = paste_numbers[paste_numbers.length-12];
+        // specialty - works only in English
+        if(paste_text.includes("Specialty [b")) {
+            if (!paste_text.includes("Specialty [b]-[/b]")) {
+                let player_specialty = paste_text.match(/Specialty \[b]\w+\[\/b]/)[0].trim().split(' ')[1].replace(/(\[b])|(\[\/b])/g, '');
+                player_data.spec = Player.spec_to_index(player_specialty);
+            }
+        }
+    }
+    // using 'Copy to clipboard'
+    else {
+        // stamina
+        player_data.st = paste_numbers[paste_numbers.length-8];
+        // specialty - works only in English
+        if(paste_text.includes("Specialty: ")) {
+            let player_specialty = paste_text.match(/Specialty: \w+/)[0].trim().split(' ')[1];
+            player_data.spec = Player.spec_to_index(player_specialty);
+        }
+    }
+    return player_data;
+}
+
+export {init, write, read, parse_clipboard};

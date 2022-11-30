@@ -471,6 +471,18 @@ function round_tsi(tsi) {
     return Math.floor(tsi / 10) * 10;
 }
 
+function spec_to_index(str_specialty) {
+    let spec_keys = Object.keys(levels.spec);
+    let spec_index = 0;
+    for(let i = 0; i < spec_keys.length; i++) {
+        if(levels.spec[spec_keys[i]].name === str_specialty.toLowerCase()) {
+            spec_index = spec_keys[i];
+            break;
+        }
+    }
+    return spec_index;
+}
+
 const MAIN_SKILLS = ['gk', 'df', 'pm', 'pg', 'wg', 'sc'];
 const MIN_WAGE = 250;
 const age_reduction = {
@@ -675,4 +687,4 @@ const name_pool = {
     last: ["Wang", "Liu", "Kumar", "Hernandez", "Rodriguez", "Bennet", "Blanc", "Smith", "Doe", "Abadi", "Ayad"],
 }
 
-export {Player, Age, wage_to_str, attributes, levels, presets};
+export {Player, Age, wage_to_str, spec_to_index, attributes, levels, presets};

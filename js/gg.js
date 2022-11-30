@@ -71,8 +71,6 @@ function main() {
         });
     });
 
-
-
     // match.add_player('102', 'gk', 'n', false)   // Sofian
     // match.add_player('23', 'rwb', 'n', false)   // Khalifah
     // match.add_player('23', 'mcd', 'n', false)   // Khalifah
@@ -144,6 +142,39 @@ function main() {
                 console.error(err);
                 Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
             }
+        }
+    });
+    // --- On 'paste data from clipboard' to 'add player' modal window---
+    $("#modal-add-player").on("paste", function (e) {
+        try {
+            e.preventDefault();
+            //e.clipboardData does not work in Firefox for security reasons, but this trick does work for now
+            let paste_text = (event.clipboardData || window.clipboardData).getData('text');
+
+            if(paste_text.includes("[playerid=")) {
+                let player_data = PlayerForm.read();
+                let player_cfg = PlayerForm.parse_clipboard(paste_text);
+
+                // edit player
+                if (Number.parseInt(player_data.id) > 0) {
+                    let player = new Player.Player(player_cfg);
+                    PlayerForm.write(player, player_data.id);
+                }
+                // add player
+                else {
+                    let player = new Player.Player(player_cfg);
+                    PlayerForm.write(player);
+                }
+                // nick field label update - to not overlap with new randomized value
+                new mdb.Input($("#input-player-nick").parent('.form-outline').get(0)).update();
+            }
+            else {
+                Toast.show({result: 'fail', reason: 'Error:', msg: "Trying to paste data in unknown format!"});
+            }
+        }
+        catch (err) {
+            console.error(err);
+            Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
         }
     });
     // --- button random player ---
