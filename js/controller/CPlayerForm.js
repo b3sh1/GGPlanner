@@ -97,15 +97,49 @@ function toggle_buttons(mode) {
     }
 }
 
-function parse_clipboard(paste_text) {
-    let player_data = {};
+function parse_clipboard_table(paste_text) {
+    let players_cfg = [];
+    let paste_rows = paste_text.split("[/tr]");
+    // ignore first row (header) and last row (table closing tag)
+    for(let i=1; i<paste_rows.length-1; i++) {
+        let paste_cells = paste_rows[i].split("[/td]");
+        let player_cfg = {};
+        // player name
+        let player_name = paste_cells[2].substring(4, paste_cells[2].indexOf('[playerid=')).trim().split(' ');
+        player_cfg.first = player_name[0];
+        player_cfg.nick = "";
+        player_cfg.last = player_name.slice(1).join(' ');
+        // specialty
+        player_cfg.spec = "0";
+        if (paste_cells[3] !== "[td]") {
+            player_cfg.spec = Player.spec_to_index(paste_cells[3].match(/\w+/g)[1]);
+        }
+        // age
+        let player_age = paste_cells[5].match(/\d+/g);
+        player_cfg.years = player_age[0];
+        player_cfg.days = player_age[1];
+        // skills
+        player_cfg.st = paste_cells[11].match(/\d+/)[0];
+        player_cfg.gk = paste_cells[14].match(/\d+/)[0];
+        player_cfg.df = paste_cells[15].match(/\d+/)[0];
+        player_cfg.pm = paste_cells[16].match(/\d+/)[0];
+        player_cfg.wg = paste_cells[17].match(/\d+/)[0];
+        player_cfg.pg = paste_cells[18].match(/\d+/)[0];
+        player_cfg.sc = paste_cells[19].match(/\d+/)[0];
+        player_cfg.sp = paste_cells[20].match(/\d+/)[0];
+        // return player data
+        players_cfg.push(player_cfg);
+    }
+    return players_cfg;
+}
 
+function parse_clipboard_player(paste_text) {
+    let player_data = {};
     // player name
     let player_name = paste_text.substring(0, paste_text.indexOf('[playerid=')).trim().split(' ');
     player_data.first = player_name[0];
     player_data.nick = "";
-    player_data.last = player_name[player_name.length-1];
-
+    player_data.last = player_name.slice(1).join(' ');
     // player age and skills
     let paste_numbers = paste_text.match(/\d+/g);
     player_data.years = paste_numbers[1];
@@ -118,8 +152,7 @@ function parse_clipboard(paste_text) {
     player_data.pg = paste_numbers[paste_numbers.length-3];
     player_data.sc = paste_numbers[paste_numbers.length-2];
     player_data.sp = paste_numbers[paste_numbers.length-1];
-    player_data.spec = 0;
-
+    player_data.spec = "0";
     // specialty - works only in English
     if(paste_text.includes("Specialty: ")) {
         let player_specialty = paste_text.match(/Specialty: \w+/)[0].trim().split(' ')[1];
@@ -128,4 +161,4 @@ function parse_clipboard(paste_text) {
     return player_data;
 }
 
-export {init, write, read, parse_clipboard};
+export {init, write, read, parse_clipboard_table, parse_clipboard_player};

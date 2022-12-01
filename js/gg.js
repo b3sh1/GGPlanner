@@ -16,6 +16,7 @@ import {LineupForm} from "./controller/CFormLineup.js";
 import {Match} from "./model/MMatch.js";
 import {Ratings} from "./controller/CRatings.js";
 import {MatchSetupForm} from "./controller/CFormMatchSetup.js";
+import {parse_clipboard_table} from "./controller/CPlayerForm.js";
 
 
 const STORE_SQUAD = "squad";
@@ -144,19 +145,74 @@ function main() {
             }
         }
     });
-    // --- On 'paste data from clipboard' to 'add player' modal window---
+    // --- On 'paste data from clipboard' to add all players using Foxtrick table copy function ---
+    $("body").on("paste", function (e) {
+        // don't try to do pasting of full table if 'add player' modal window is visible
+        if(!$("#modal-add-player").is(":visible")) {
+            try {
+                e.preventDefault();
+                //e.clipboardData does not work in Firefox for security reasons, but this trick does work for now
+                let paste_text = (event.clipboardData || window.clipboardData).getData('text');
+                // validate right format of pasted data and add players accordingly
+                if(paste_text.startsWith("[table]") && paste_text.includes("[playerid=")) {
+                    for (const player_cfg of PlayerForm.parse_clipboard_table(paste_text)) {
+                        try {
+                            let player = new Player.Player().from_simple_obj(player_cfg);
+                            let player_id = squad.add(player);
+                            Storage.save(STORE_SQUAD, squad.to_simple_obj())
+                            tb_squad.append(player, player_id).draw(squad);
+                            set_training_stages_player_default_checkboxes(player_id, training);
+                            let trained_squad = training.calc();
+                            Storage.save(STORE_TRAINING, training.to_simple_obj());
+                            tb_result.reload(squad, trained_squad);
+                            reload_training_stages_tables(tbs_stage, training);
+                            match.update_squad(trained_squad);
+                            Storage.save(STORE_MATCH, match.to_simple_obj());
+                            form_lineup.update_all_select_options();
+                            Toast.show({
+                                result: 'success',
+                                reason: 'Added:',
+                                msg: player.name.to_str(),
+                                delay: 5000
+                            });
+                        }
+                        catch (err) {
+                            if(err instanceof SquadError) {
+                                Toast.show({result: 'fail', reason: 'Error:', msg: err.message});
+                            } else {
+                                console.error(err);
+                                Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
+                            }
+                        }
+                    }
+                }
+                else {
+                    Toast.show({
+                        result: 'fail',
+                        reason: 'Error:',
+                        msg: "Trying to paste data in unknown format!",
+                        delay: 5000
+                    });
+                }
+            }
+            catch (err) {
+                console.error(err);
+                Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
+            }
+        }
+    });
+    // --- On 'paste data from clipboard' to 'add player' modal window ---
     $("#modal-add-player").on("paste", function (e) {
         try {
             e.preventDefault();
             //e.clipboardData does not work in Firefox for security reasons, but this trick does work for now
             let paste_text = (event.clipboardData || window.clipboardData).getData('text');
-
+            // validate paste text format and add/edit player accordingly
             if(paste_text.includes("[playerid=")) {
                 // check if player is really using 'Copy to clipboard' - forbid 'Copy player ad' data pasting
-                if(!paste_text.includes("HTMS ")) {
+                if (!paste_text.includes("HTMS ") && !paste_text.startsWith("[table]")) {
                     let player_data = PlayerForm.read();
-                    let player_cfg = PlayerForm.parse_clipboard(paste_text);
-
+                    let player_cfg = PlayerForm.parse_clipboard_player(paste_text);
                     // edit player
                     if (Number.parseInt(player_data.id) > 0) {
                         let player = new Player.Player(player_cfg);
@@ -169,9 +225,13 @@ function main() {
                     }
                     // nick field label update
                     new mdb.Input($("#input-player-nick").parent('.form-outline').get(0)).update();
-                }
-                else {
-                    Toast.show({result: 'warning', reason: 'Error:', msg: "Use 'Copy to clipboard' instead of 'Copy player ad' !"});
+                } else {
+                    Toast.show({
+                        result: 'fail',
+                        reason: 'Error:',
+                        msg: "Use 'Copy to clipboard' from player page to paste player data!",
+                        delay: 5000
+                    });
                 }
             }
             else {
