@@ -84,6 +84,22 @@ function main() {
     // match.add_player('23', 'rfw', 'n', false)   // Khalifah
     // match.add_player('84', 'lfw', 'd')   // Ali 'der Bomber' Rodriguez (TDF)
 
+    // --- export data ---
+    $("#btn-export").on("click", function () {
+        let export_data = {squad: "", training: "", match: ""};
+        export_data.squad = Storage.load(STORE_SQUAD);
+        export_data.training = Storage.load(STORE_TRAINING);
+        export_data.match = Storage.load(STORE_MATCH);
+        let export_uri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(JSON.stringify(export_data));
+
+        let export_filename = 'ggplan.json';
+
+        let link = document.createElement('a');
+        link.setAttribute('href', export_uri);
+        link.setAttribute('download', export_filename);
+        link.click();
+        link.remove();
+    });
     // --- button add players - opens modal ---
     $("#btn-add-players").on("click", function () {
         let player = new Player.Player().random();
