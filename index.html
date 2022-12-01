@@ -648,6 +648,73 @@
     </div>
 </div>
 
+<!-- Modal Set Name Of Export File -->
+<div class="modal fade" id="modal-export" tabindex="-1"
+     aria-labelledby="modal-export-lbl" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog" style="max-width: 340px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-export-lbl">
+                    Export data to file
+                </h5>
+                <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <section id="section-export-form" class="shadow-5 p-4">
+                    <form id="export-form">
+                        <!-- 2 column grid layout with text inputs for the first and last names -->
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-outline mb-4">
+                                    <input type="text" id="input-export-filename" name="filename" class="form-control"
+                                           autocomplete="off" value="ggplan.json">
+                                    <label class="form-label" for="input-export-filename" style="margin-left: 0px;">
+                                        Filename
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </div>
+            <div class="modal-footer">
+                <!-- save file -->
+                <button id="btn-save-file" type="button" class="btn btn-info ripple-surface" style="min-width: 150px;">
+                    Save file
+                </button>
+                <button type="button" class="btn btn-danger ripple-surface" data-mdb-dismiss="modal"
+                        style="min-width: 84px;">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Delete All Data -->
+<div class="modal fade" id="modal-destroy-data" tabindex="-1"
+     aria-labelledby="modal-destroy-data-lbl" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog" style="max-width: 340px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-destroy-data-lbl">
+                    Do you want to delete all data?
+                </h5>
+                <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-destroy-confirm" type="button" class="btn btn-info ripple-surface" style="min-width: 150px;">
+                    Yes
+                </button>
+                <button type="button" class="btn btn-danger ripple-surface" data-mdb-dismiss="modal"
+                        style="min-width: 150px;">
+                    No
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Toast Panel -->
 <div id="alert-panel" class="position-fixed top-0 end-0 pe-3" style="z-index: 1060">
 </div>

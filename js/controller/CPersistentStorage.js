@@ -10,4 +10,9 @@ function load(name) {
     return JSON.parse(localStorage.getItem(name));
 }
 
-export {save, load};
+// clear storage
+function clear() {
+    return localStorage.clear();
+}
+
+export {save, load, clear};

@@ -12,21 +12,32 @@ let html = `
 
         <!--Grid column-->
         <div class="col">
-            <div style="font-size: 1.5em">
+            <div class="text-info" style="font-size: 1.5em">
                 <span>
-                    <a id="a-export" href="#!"">
+                    <a id="btn-export" class="link-info"  href="#!"" data-mdb-toggle="modal"
+                                    data-mdb-target="#modal-export">
                         <i class="fas fa-save"></i>
                     </a>
+<!--                    <button id="btn-export" type="button" class="btn btn-link btn-lg ripple-surface ripple-surface-dark" data-mdb-ripple-color="dark" style="font-size: 1em">-->
+<!--                        <i class="fas fa-save"></i>-->
+<!--                    </button>-->
                 </span>
                 <span>
-                    <a id="a-import" href="#!">
+                    <a id="btn-import" class="link-info" href="#!">
                         <i class="fas fa-file-import"></i>
                     </a>
+<!--                    <button id="btn-import" type="button" class="btn btn-link btn-lg ripple-surface ripple-surface-dark" data-mdb-ripple-color="dark" style="font-size: 1em">-->
+<!--                        <i class="fas fa-file-import"></i>-->
+<!--                    </button>-->
                 </span>
                 <span>
-                    <a id="a-destroy" href="#!">
+                    <a id="btn-destroy" class="link-info" href="#!" data-mdb-toggle="modal"
+                                    data-mdb-target="#modal-destroy-data">
                         <i class="fas fa-trash-alt"></i>
                     </a>
+<!--                    <button id="btn-destroy" type="button" class="btn btn-link btn-lg ripple-surface ripple-surface-dark" data-mdb-ripple-color="dark" style="font-size: 1em">-->
+<!--                        <i class="fas fa-trash-alt"></i>-->
+<!--                    </button>-->
                 </span>
             </div>
         </div>

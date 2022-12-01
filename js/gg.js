@@ -72,50 +72,63 @@ function main() {
         });
     });
 
-    // match.add_player('102', 'gk', 'n', false)   // Sofian
-    // match.add_player('23', 'rwb', 'n', false)   // Khalifah
-    // match.add_player('23', 'mcd', 'n', false)   // Khalifah
-    // match.add_player('23', 'lwb', 'n', false)   // Khalifah
-    // match.add_player('23', 'rwg', 'n', false)   // Khalifah
-    // match.add_player('23', 'rim', 'n', false)   // Khalifah
-    // match.add_player('23', 'cim', 'n', false)   // Khalifah
-    // match.add_player('23', 'lim', 'n', false)   // Khalifah
-    // match.add_player('23', 'lwg', 'n', false)   // Khalifah
-    // match.add_player('23', 'rfw', 'n', false)   // Khalifah
-    // match.add_player('84', 'lfw', 'd')   // Ali 'der Bomber' Rodriguez (TDF)
-
     // --- export data ---
-    $("#a-export").on("click", function () {
-        let export_data = {squad: "", training: "", match: ""};
-        export_data.squad = Storage.load(STORE_SQUAD);
-        export_data.training = Storage.load(STORE_TRAINING);
-        export_data.match = Storage.load(STORE_MATCH);
-        let export_uri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(JSON.stringify(export_data));
-
-        let export_filename = 'ggplan.json';
-
-        let link = document.createElement('a');
-        link.setAttribute('href', export_uri);
-        link.setAttribute('download', export_filename);
-        link.click();
-        link.remove();
+    $("#btn-save-file").on("click", function () {
+        try {
+            let export_data = {squad: "", training: "", match: ""};
+            export_data.squad = Storage.load(STORE_SQUAD);
+            export_data.training = Storage.load(STORE_TRAINING);
+            export_data.match = Storage.load(STORE_MATCH);
+            let export_uri = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(export_data));
+            let export_filename = $("#input-export-filename").val();
+            let link = document.createElement('a');
+            link.setAttribute('href', export_uri);
+            link.setAttribute('download', export_filename);
+            link.click();
+            link.remove();
+        }
+        catch (err) {
+            console.error(err);
+            Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
+        }
     });
     // --- import data ---
-    $("#a-import").on("click", function () {
+    $("#btn-import").on("click", function () {
         $("#input-import-data").click();
     });
     $("#input-import-data").on("change", function () {
-        let import_file  = this.files[0];
-        console.log(import_file);
-        const reader = new FileReader();
-        reader.addEventListener('load', (e) => {
-            let import_data = JSON.parse(e.target.result.toString());
-            Storage.save(STORE_SQUAD, import_data.squad)
-            Storage.save(STORE_TRAINING, import_data.training);
-            Storage.save(STORE_MATCH, import_data.match);
+        try {
+            let import_file = this.files[0];
+            const reader = new FileReader();
+            reader.addEventListener('load', (e) => {
+                try {
+                    let import_data = JSON.parse(e.target.result.toString());
+                    Storage.save(STORE_SQUAD, import_data.squad)
+                    Storage.save(STORE_TRAINING, import_data.training);
+                    Storage.save(STORE_MATCH, import_data.match);
+                    window.location.reload();
+                }
+                catch (err) {
+                    console.error(err);
+                    Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
+                }
+            });
+            reader.readAsText(import_file);
+        }
+        catch (err) {
+            console.error(err);
+            Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
+        }
+    });
+    $("#btn-destroy-confirm").on("click", function () {
+        try {
+            Storage.clear();
             window.location.reload();
-        });
-        reader.readAsText(import_file);
+        }
+        catch (err) {
+            console.error(err);
+            Toast.show({result: 'fail', reason: 'Error:', msg: "Application error!"});
+        }
     });
     // --- button add players - opens modal ---
     $("#btn-add-players").on("click", function () {
