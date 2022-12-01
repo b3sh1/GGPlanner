@@ -100,6 +100,23 @@ function main() {
         link.click();
         link.remove();
     });
+    // --- import data ---
+    $("#btn-import").on("click", function () {
+        $("#input-import-data").click();
+    });
+    $("#input-import-data").on("change", function () {
+        let import_file  = this.files[0];
+        console.log(import_file);
+        const reader = new FileReader();
+        reader.addEventListener('load', (e) => {
+            let import_data = JSON.parse(e.target.result.toString());
+            Storage.save(STORE_SQUAD, import_data.squad)
+            Storage.save(STORE_TRAINING, import_data.training);
+            Storage.save(STORE_MATCH, import_data.match);
+            window.location.reload();
+        });
+        reader.readAsText(import_file);
+    });
     // --- button add players - opens modal ---
     $("#btn-add-players").on("click", function () {
         let player = new Player.Player().random();
