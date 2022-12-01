@@ -24,7 +24,7 @@ const STORE_TRAINING = "training";
 const STORE_MATCH = "lineup";
 
 function main() {
-    // Header.init();
+    Header.init();
     PlayerForm.init();  // modal
     TrainingStageForm.init();  // modal
 
@@ -85,7 +85,7 @@ function main() {
     // match.add_player('84', 'lfw', 'd')   // Ali 'der Bomber' Rodriguez (TDF)
 
     // --- export data ---
-    $("#btn-export").on("click", function () {
+    $("#a-export").on("click", function () {
         let export_data = {squad: "", training: "", match: ""};
         export_data.squad = Storage.load(STORE_SQUAD);
         export_data.training = Storage.load(STORE_TRAINING);
@@ -101,7 +101,7 @@ function main() {
         link.remove();
     });
     // --- import data ---
-    $("#btn-import").on("click", function () {
+    $("#a-import").on("click", function () {
         $("#input-import-data").click();
     });
     $("#input-import-data").on("change", function () {
