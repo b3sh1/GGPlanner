@@ -13,8 +13,7 @@ let html = `
         References:
         <a href="https://www.hattrick.org/Forum/Read.aspx?n=1&t=17445814">Unwritten manual</a>,
         <a href="https://github.com/akasolace/HO/">Hattrick Organizer</a>,
-        <a href="https://github.com/tagliala/WageWizard/">WageWizard</a>,
-        Hattrick community
+        <a href="https://github.com/tagliala/WageWizard/">WageWizard</a>
     </div>
     <!-- Copyright -->
     <div class="text-center p-3">
