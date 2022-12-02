@@ -92,14 +92,16 @@ class SquadTable {
         // edit buttons
         row.push('' +
             '<div style="font-size: .75em">' +
-                '<button type="button" class="btn-delete-player btn btn-outline-info btn-sm ripple-surface me-1">' +
+                '<button type="button" class="btn-delete-player btn btn-outline-info btn-sm ripple-surface me-1"' +
+                ' title="Delete">' +
                 '<i class="fas fa-times fa-lg"></i>' +
                 '</button>' +
-                '<button type="button" class="btn-clone-player btn btn-outline-info btn-sm ripple-surface me-1">' +
+                '<button type="button" class="btn-clone-player btn btn-outline-info btn-sm ripple-surface me-1"' +
+                ' title="Clone">' +
                 '<i class="far fa-clone"></i>' +
                 '</button>' +
                 '<button type="button" class="btn-edit-player btn btn-outline-info btn-sm ripple-surface"' +
-                ' data-mdb-toggle="modal" data-mdb-target="#modal-add-player">' +
+                ' data-mdb-toggle="modal" data-mdb-target="#modal-add-player" title="Edit">' +
                 '<i class="fas fa-pencil-alt"></i>' +
                 '</button>' +
             '</div>'

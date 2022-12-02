@@ -9,6 +9,7 @@ import {StageTable} from "./controller/CStageTable.js";
 import * as ExtendedPlayerDetails from "./controller/CTablePlayerDetails.js"
 import * as Storage from "./controller/CPersistentStorage.js";
 import * as Header from "./controller/CHeader.js";
+import * as Footer from "./controller/CFooter.js";
 import {presets} from "./model/MPlayer.js";
 import {Training, TrainingError, TrainingStage, default_stage_cfg, checkboxes} from "./model/MTraining.js";
 import * as TrainingStagesAccordion from "./controller/CTrainingStagesAccordion.js";
@@ -27,6 +28,7 @@ function main() {
     Header.init();
     PlayerForm.init();  // modal
     TrainingStageForm.init();  // modal
+    Footer.init();
 
     let squad;
     let training;
