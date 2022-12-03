@@ -12,8 +12,8 @@ import {
     player_positions
 } from "./MMatch.js";
 
-const P_NICK = 0.02; // probability of generating nick for player
-const P_LEGEND = 0.01; // probability of generating player with legendary name
+const P_NICK = 0.05; // probability of generating nick for player
+const P_LEGEND = 0.05; // probability of generating player with legendary name
 
 // --- Player ---
 class Player {
