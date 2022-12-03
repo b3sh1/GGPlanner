@@ -12,13 +12,13 @@ import {
     player_positions
 } from "./MMatch.js";
 
-const P_NICK = 0.5; // probability of generating nick for player
+const P_NICK = 0.02; // probability of generating nick for player
+const P_LEGEND = 0.01; // probability of generating player with legendary name
 
 // --- Player ---
 class Player {
     constructor(cfg = presets.default) {
         this.age = new Age(cfg.years, cfg.days);
-
         if (!(cfg.first || cfg.nick || cfg.last)) {
             this.name = new Name();
             this.name.randomize();
@@ -396,14 +396,21 @@ class Name {
     }
 
     randomize() {
-        this.first = rand_item(name_pool.first);
-        if (Math.random() < P_NICK) {
-            //with some probability give player a nick
-            this.nick = rand_item(name_pool.nick);
+        if(Math.random() < P_LEGEND) {
+            let legendary_name = rand_item(name_pool_legendary);
+            this.first = legendary_name.first;
+            this.nick = legendary_name.nick;
+            this.last = legendary_name.last;
         } else {
-            this.nick = "";
+            this.first = rand_item(name_pool.first);
+            if (Math.random() < P_NICK) {
+                //with some probability give player a nick
+                this.nick = rand_item(name_pool.nick);
+            } else {
+                this.nick = "";
+            }
+            this.last = rand_item(name_pool.last);
         }
-        this.last = rand_item(name_pool.last);
         return this.to_str();
     };
 
@@ -682,9 +689,36 @@ const presets = {
 }
 
 const name_pool = {
-    first: ["Bob", "Ivan", "John", "Mohammed", "Jose", "Martin", "Ahmed", "Wei", "Ali", "David", "Li", "Pedro"],
-    nick: ["the Unstoppable", "der Bomber", "ChouChou", "el Muro", "Makač"],
-    last: ["Wang", "Liu", "Kumar", "Hernandez", "Rodriguez", "Bennet", "Blanc", "Smith", "Doe", "Abadi", "Ayad"],
+    first: ["Bob", "Ivan", "John", "Mohammed", "Jose", "Martin", "Ahmed", "Wei", "Ali", "David", "Li", "Pedro",
+        "Gary", "Nushi", "Luiz", "Isaac", "Nikola", "Usman", "Leonardo", "Ravi", "Lyubov", "Hiroshi", "Adrian",
+        "Savitri", "Giovanni", "Adam", "Philippe", "Seyyed", "Josef", "Nasir", "Abraham", "Julius", "Tomas", "Jacob",
+        "Geralt", "Gilbert", "Arif", "Jack", "Terry", "Lawrence", "Jianmin", "Guy", "Richmond", "Homer", "Hermes",
+        "Herbert", "Max", "Amin", "Yousef", "Dmitry", "Kirill", "Zhijian", "Valtteri", "Sterling", "Rick", "Morty"],
+    nick: ["The Unstoppable", "Der Bomber", "ChouChou", "El Muro", "Makač", "Stutter", "Der Kaiser", "Divino Codino",
+        "Psycho", "La Pulga", "Kun", "Razor", "Chicharito", "BFG", "Chief", "El Nino", "El Pibe de Oro", "El Matador",
+        "The King", "L'Imperatore", "Il Fenomeno"],
+    last: ["Wang", "Liu", "Kumar", "Hernandez", "Rodríguez", "Bennet", "Blanc", "Smith", "Doe", "Abadi", "Ayad",
+        "Power", "Archer", "Sanchez", "Ivanov", "Kim", "Ali", "García", "Müller", "Silva", "Mohamed", "Tesfaye",
+        "Nguyen", "Ilunga", "González", "Deng", "Moyo", "Hansen", "Flores", "Abubakar", "Abbas", "Abdullah",
+        "Martins", "Suzuki", "Miller", "Davis", "Anderson", "Ilunga", "Sheikh", "Ngoy", "Suarez", "Jackson", "Raj",
+        "Cabrera", "Scott", "Escobar", "Kwon", "Calderon", "Wong", "Sosa", "Bennett", "Ono", "Freitas", "Roman",
+        "Alonso", "Öztürk", "Sulaiman", "Ward", "Rogers", "Ochoa", "Cook", "Moses", "Shimizu", "Petrov", "Wood",
+        "Jamal", "Farooq", "Hailu", "Kouakou", "Fischer", "Lucas", "Nabi", "Barrios", "Balde", "Parker", "Yıldız",
+        "Gamal", "Quintero", "Cooper", "Henrique", "Parra", "Salas", "Mallik", "Yamaguchi", "Babu"],
 }
+
+const name_pool_legendary = [
+    {first: "Bob", nick: "", last: "Sunesson"},
+    {first: "Bob", nick: "Clone", last: "Sunesson"},
+    {first: "HT", nick: "", last: "Tjecken"},
+    {first: "Manolo", nick: "", last: "Gama"},
+    {first: "Kazuyoshi", nick: "", last: "Miura"},
+    {first: "Pedro", nick: "Apache", last: "Zurita"},
+    {first: "Stefan", nick: "", last: "Åkergren"},
+    {first: "Angel", nick: "", last: "Custodio"},
+    {first: "Bernard", nick: "", last: "Kolář"},
+    {first: "Bernard", nick: "", last: "Kolář"},
+    {first: "Papa", nick: "", last: "Mish"},
+]
 
 export {Player, Age, wage_to_str, spec_to_index, attributes, levels, presets};

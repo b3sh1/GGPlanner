@@ -134,7 +134,8 @@ function main() {
     });
     // --- button add players - opens modal ---
     $("#btn-add-players").on("click", function () {
-        let player = new Player.Player().random();
+        // let player = new Player.Player().random();
+        let player = new Player.Player();
         PlayerForm.write(player);
     });
     // --- modal add/edit player buttons ---------------------------------------------------------------------------
