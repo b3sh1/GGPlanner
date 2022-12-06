@@ -6,6 +6,10 @@ let html = `
     <!-- Grid container -->
 
     <div class="text-center">
+        Source Code:
+        <a href="https://github.com/b3sh1/GGPlanner" target="_blank">Source Code on Github</a>,
+    </div>
+    <div class="text-center">
         References:
         <a href="https://www.hattrick.org/Forum/Read.aspx?n=1&t=17445814" target="_blank">Unwritten manual</a>,
         <a href="https://github.com/akasolace/HO/" target="_blank">Hattrick Organizer</a>,
