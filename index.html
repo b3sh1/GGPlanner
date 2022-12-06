@@ -731,12 +731,29 @@
                 <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <section id="section-about-1" class="shadow-5 p-4">
-                    <div class="row">
-                        <div class="col">
-
-                        </div>
-                    </div>
+                <section id="section-about-intro" class="shadow-5 p-1">
+                    <p>
+                        The aim of this application is to simplify planning of the team development. This application is purely front-end based meaning that, anything that you input here is not send back to the server. However, this application uses your private local browser storage to save data between sessions. To backup your plan (and potentially share it) you can use save button (diskette icon) to export data to the file on your computer.
+                    </p>
+                </section>
+                <section id="section-about-squad" class="shadow-5 p-1">
+                    <h5>SQUAD</h5>
+                    <p>
+                        By clicking on the big 'ADD PLAYERS' button one can add custom players. The 'Player Details' form also accepts player data pasted directly from Hattrick (use 'Copy to clipboard' button in Hattrick, but this might not work very well when using language different from English). You can click players name inside the SQUAD table to see more automatically calculated details about players, like HTMS28, estimated wage or best position. Be aware that wage is just very rough estimate.<br/>
+                        There is an experimental function that lets you paste whole squad from Hattrick at once - just copy table generate by Foxtrick and paste it directly on main page (not in 'Player Details' form).
+                    </p>
+                </section>
+                <section id="section-about-training" class="shadow-5 p-1">
+                    <h5>TRAINING</h5>
+                    <p>
+                        By clicking on the big 'ADD TRAINING STAGES' the training phases are added and results are calculated. When you add the training stage, you can then open the particular training stage and fine tune details for every player separately: 'SQ' field specifies if player is part of the team (if not checked, then player does not age or train) - this is useful for players that you plan to join your team in later training stages. 'FT' means full training, 'HT' means half training. Again, the player name can be clicked to let you see more info.
+                    </p>
+                </section>
+                <section id="section-about-ratings" class="shadow-5 p-1">
+                    <h5>RATINGS</h5>
+                    <p>
+                        Here you can simulate your ratings. This part is basically stripped out and rewritten from <a href="https://github.com/akasolace/HO/">Hattrick Organizer</a>.
+                    </p>
                 </section>
             </div>
             <div class="modal-footer">
